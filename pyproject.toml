@@ -17,14 +17,13 @@ license-files = [ "LICENSE" ]
 authors = [
     { name = "William P. Krekelberg", email = "wpk@nist.gov" },
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Science/Research",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -34,9 +33,26 @@ classifiers = [
 ]
 dependencies = [
 ]
+
+optional-dependencies.all = [
+    "pre-commit-hooks[lastversion,sync-pre-commit-deps,sync-uv-dependency-groups]",
+]
+
+optional-dependencies.lastversion = [
+    "lastversion",
+]
+optional-dependencies.sync-pre-commit-deps = [
+    "requirements-parser",
+    "ruamel-yaml",
+]
+optional-dependencies.sync-uv-dependency-groups = [
+    "tomlkit",
+]
 urls.Documentation = "https://pages.nist.gov/pre-commit-hooks/"
 urls.Homepage = "https://github.com/wpk-nist-gov/pre-commit-hooks"
-scripts.pre_commit_hooks = "pre_commit_hooks.cli:main"
+scripts.justfile-format = "pre_commit_hooks.justfile_format:main"
+scripts.sync-pre-commit-deps = "pre_commit_hooks.sync_pre_commit_deps:main"
+scripts.sync-uv-dependency-groups = "pre_commit_hooks.sync_uv_dependency_groups:main"
 
 [dependency-groups]
 dev = [
@@ -50,6 +66,7 @@ test = [
     "pytest-cov",
     "pytest-sugar",
     "pytest-xdist",
+    { include-group = "optional-dependencies" },
     { include-group = "pytest" },
 ]
 docs = [
@@ -59,8 +76,10 @@ docs = [
     "sphinx-argparse",
     "sphinx-book-theme",
     "sphinx-copybutton",
+    { include-group = "optional-dependencies" },
 ]
 # other packages/tools
+optional-dependencies = [ "pre-commit-hooks[all]" ]
 cog = [ "cogapp" ]
 ipython = [ "ipython" ]
 mypy = [ "mypy>=1.15.0", "orjson" ]
@@ -82,6 +101,7 @@ test-extras = [
     { include-group = "test" },
 ]
 typecheck = [
+    { include-group = "optional-dependencies" },
     { include-group = "pylint" },
     { include-group = "pytest" },
 ]
@@ -204,9 +224,9 @@ enable_error_code = [
     "truthy-bool",
 ]
 
-# [[tool.mypy.overrides]]
-# ignore_missing_imports = true
-# module = [  ]
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+module = [ "lastversion.*" ]
 
 # [[tool.mypy.overrides]]
 # ignore_errors = true
@@ -226,7 +246,7 @@ exclude = [
     "**/.numba_cache",
 ]
 pythonVersion = "3.11"
-typeCheckingMode = "strict"
+typeCheckingMode = "basic"
 # typeCheckingMode = "standard"
 # strict = [
 #     "src",

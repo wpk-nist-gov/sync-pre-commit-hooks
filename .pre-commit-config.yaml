@@ -22,7 +22,6 @@ repos:
         exclude: ^uv[.]lock
       - id: check-case-conflict
       - id: check-merge-conflict
-      - id: check-symlinks
       - id: check-yaml
       - id: check-json
       - id: check-toml
@@ -142,9 +141,9 @@ repos:
   # ** update additional dependencies in .pre-commit-config.yaml
   - repo: local
     hooks:
-      - id: update-pre-commit-additional-dependencies
-        name: update pre-commit additional_dependencies
-        entry: python tools/update_pre_commit_additional_dependencies.py
+      - id: sync-pre-commit-deps
+        name: sync-pre-commit-deps
+        entry: python src/pre_commit_hooks/sync_pre_commit_deps.py
         language: python
         files: >-
           ^\.pre-commit-config\.yaml$|^requirements/lock/pre-commit-additional-dependencies\.txt$
@@ -167,7 +166,7 @@ repos:
     hooks:
       - id: justfile-format
         name: justfile format
-        entry: python tools/justfile_format.py
+        entry: python src/pre_commit_hooks/justfile_format.py
         language: python
         files: \.?[jJ]ustfile$|.*\.just$
         pass_filenames: true
@@ -188,12 +187,11 @@ repos:
       - id: cog-readme
         name: cog-readme
         alias: cog
-        entry: >-
-          python tools/cog_runner.py --use-uvx --format=prettier
-          --lint=markdownlint-cli2 --
-        # if need package, use --group=cog --no-dev --no-active/--isolated
+        entry:
+          python tools/cog_runner.py --group=cog --group=optional-dependencies
+          --no-dev --no-active -- README.md
         language: python
-        files: ^README\.md$
+        pass_filenames: false
         stages: [manual]
 
   # * Update pyproject.tool.uv.dependency-groups python-version minimum
@@ -201,7 +199,7 @@ repos:
     hooks:
       - id: update-pyproject-tool-uv-dependency-groups
         name: update pyproject `tool.uv.dependency-groups` table
-        entry: python tools/update_pyproject_tool_uv_dependency_groups.py
+        entry: python src/pre_commit_hooks/sync_uv_dependency_groups.py
         language: python
         files: ^pyproject.toml$|^\.python-version$
         pass_filenames: false

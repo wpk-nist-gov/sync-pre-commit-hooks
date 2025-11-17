@@ -1,12 +1,10 @@
 """
 Top level API (:mod:`pre_commit_hooks`)
-======================================================
+=======================================
 """
 
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _version
-
-from .core import example_function
 
 try:
     __version__ = _version("pre-commit-hooks")
@@ -20,5 +18,4 @@ __email__ = "wpk@nist.gov"
 
 __all__ = [
     "__version__",
-    "example_function",
 ]

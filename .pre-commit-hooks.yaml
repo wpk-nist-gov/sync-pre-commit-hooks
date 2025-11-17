@@ -1,0 +1,31 @@
+- id: sync-pre-commit-deps
+  name: sync-pre-commit-deps
+  description: Sync pre-commit hook dependencies base on installed hooks
+  entry: sync-pre-commit-deps
+  language: python
+  additional_dependencies:
+    - requirements-parser
+    - ruamel.yaml
+  files: ^\.pre-commit-config\.yaml$
+  pass_filenames: false
+  minimum_pre_commit_version: "2.9.2"
+- id: sync-uv-dependency-groups
+  name: sync-uv-dependency-groups
+  description:
+    Sync minimum python version in "tool.uv.dependency-groups" table of
+    "pyproject.toml"
+  entry: sync-uv-dependency-groups
+  language: python
+  additional_dependencies:
+    - tomlkit
+  files: ^pyproject\.toml$|^\.python-version$
+  pass_filenames: false
+  minimum_pre_commit_version: "2.9.2"
+- id: justfile-format
+  name: justfile-format
+  description: Format justfiles
+  entry: justfile-format
+  language: python
+  files: \.?[jJ]ustfile$|.*\.just$
+  pass_filenames: true
+  minimum_pre_commit_version: "2.9.2"

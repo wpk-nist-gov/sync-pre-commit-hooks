@@ -12,6 +12,7 @@ channels:
   - conda-forge
 dependencies:
   - python=3.13
+  - lastversion
   - mypy>=1.15.0
   - nox>=2025.5.1
   - orjson
@@ -20,6 +21,9 @@ dependencies:
   - pytest-cov
   - pytest-sugar
   - pytest-xdist
+  - requirements-parser
+  - ruamel-yaml
+  - tomlkit
   - pip
   - pip:
       - pytest-accept

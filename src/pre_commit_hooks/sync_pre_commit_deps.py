@@ -1,20 +1,13 @@
 """Update ``additional_dependencies`` in ``.pre-commit-config.yaml``"""
 
-# /// script
-# requires-python = ">=3.11"
-# dependencies = [
-#     "ruamel.yaml",
-#     "requirements-parser",
-# ]
-# ///
 # NOTE: adapted from https://github.com/pre-commit/sync-pre-commit-deps
 # ruff: noqa: D103, T201
 from __future__ import annotations
 
-import argparse
+from argparse import ArgumentParser
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import ruamel.yaml
 
@@ -22,7 +15,7 @@ if TYPE_CHECKING:
     from collections.abc import Container, Sequence
 
 
-SUPPORTED_FROM_ID = ["typos", "codespell", "ruff-format"]
+SUPPORTED_FROM_ID = ["typos", "codespell", "ruff-format", "ruff-check"]
 SUPPORT_TO_ID = ["doccmd", "justfile-format", "nbqa"]
 
 _ARGUMENT_HELP_TEMPLATE = (
@@ -32,11 +25,11 @@ _ARGUMENT_HELP_TEMPLATE = (
 )
 
 
-def _get_versions_from_ids(
+def get_versions_from_ids(
     loaded: dict[str, Any],
     hook_ids_from: Container[str],
-) -> dict[str, Any]:
-    versions = {}
+) -> dict[str, str]:
+    versions: dict[str, str] = {}
     for repo in loaded["repos"]:
         if repo["repo"] not in {"local", "meta"}:
             for hook in repo["hooks"]:
@@ -48,38 +41,43 @@ def _get_versions_from_ids(
                     versions[hid] = cleaned_rev
 
     # add ruff key
-    versions["ruff"] = versions["ruff-format"]
+    for key in ["ruff-format", "ruff-check"]:
+        if (ruff_version := versions.pop(key, None)) is not None:
+            versions["ruff"] = ruff_version
+
     return versions
 
 
 @lru_cache
-def _get_versions_from_requirements(
+def get_versions_from_requirements(
     requirements_path: Path | None,
-) -> dict[str, Any]:
+) -> dict[str, str]:
     if requirements_path is None:
         return {}
 
     from requirements import parse
 
-    versions = {}
+    versions: dict[str, str] = {}
     with requirements_path.open(encoding="utf-8") as f:
         for requirement in parse(f):
-            versions[requirement.name] = requirement.specs[0][-1]
+            versions[requirement.name] = requirement.specs[0][-1]  # type: ignore[index]  # pyright: ignore[reportArgumentType]
     return versions
 
 
 @lru_cache
 def _get_version_from_lastversion(dep: str) -> str:
-    from lastversion import latest
+    from lastversion import (
+        latest,
+    )
 
-    return latest(dep, output_format="tag")
+    return cast("str", latest(dep, output_format="tag"))
 
 
-def _get_versions_from_lastversion(dependencies: Sequence[str]) -> dict[str, Any]:
+def get_versions_from_lastversion(dependencies: Sequence[str]) -> dict[str, Any]:
     return {dep: _get_version_from_lastversion(dep) for dep in dependencies}
 
 
-def _get_hook_ids(loaded: dict[str, Any]) -> list[str]:
+def get_hook_ids(loaded: dict[str, Any]) -> list[str]:
     out: list[str] = []
     for repo in loaded["repos"]:
         if repo["repo"] not in {"local", "meta"}:
@@ -87,7 +85,7 @@ def _get_hook_ids(loaded: dict[str, Any]) -> list[str]:
     return out
 
 
-def _limit_hooks(
+def limit_hooks(
     hook_ids: Sequence[str],
     use_all: bool,
     include: Sequence[str],
@@ -97,7 +95,7 @@ def _limit_hooks(
     return [x for x in include if x not in exclude]
 
 
-def _process_file(
+def process_file(
     path: Path,
     yaml_mapping: int,
     yaml_sequence: int,
@@ -116,19 +114,19 @@ def _process_file(
     yaml.indent(yaml_mapping, yaml_sequence, yaml_offset)
 
     with path.open(encoding="utf-8") as f:
-        loaded = yaml.load(f)
+        loaded: dict[str, Any] = yaml.load(f)
 
-    hook_ids = _get_hook_ids(loaded)
-    hook_ids_update = _limit_hooks(
+    hook_ids = get_hook_ids(loaded)
+    hook_ids_update = limit_hooks(
         hook_ids, use_all=to_all, include=to_include, exclude=to_exclude
     )
-    hook_ids_from = _limit_hooks(
+    hook_ids_from = limit_hooks(
         hook_ids, use_all=from_all, include=from_include, exclude=from_exclude
     )
 
-    versions = _get_versions_from_ids(loaded, hook_ids_from)
-    versions.update(_get_versions_from_requirements(requirements))
-    versions.update(_get_versions_from_lastversion(lastversion_dependencies))
+    versions = get_versions_from_ids(loaded, hook_ids_from)
+    versions.update(get_versions_from_requirements(requirements))
+    versions.update(get_versions_from_lastversion(lastversion_dependencies))
 
     updated = []
     for repo in loaded["repos"]:
@@ -154,8 +152,8 @@ def _process_file(
     return 0
 
 
-def main(argv: Sequence[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+def get_parser() -> ArgumentParser:
+    parser = ArgumentParser(description=__doc__)
     parser.add_argument(
         "paths",
         type=Path,
@@ -238,12 +236,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=[],
     )
 
+    return parser
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = get_parser()
     args = parser.parse_args(argv)
     paths: list[Path] = args.paths or [Path(".pre-commit-config.yaml")]
 
     out = 0
     for path in paths:
-        out += _process_file(
+        out += process_file(
             path,
             yaml_mapping=args.yaml_mapping,
             yaml_sequence=args.yaml_sequence,

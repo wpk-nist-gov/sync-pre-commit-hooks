@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from typing import Any
 
 
-def main(args: Sequence[str] | None = None) -> None:
+def main(args: Sequence[str] | None = None) -> int:
     """Main program."""
     parser = ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -49,15 +49,18 @@ def main(args: Sequence[str] | None = None) -> None:
 
     toml = TOMLFile("pyproject.toml")
 
-    data: dict[str, Any] = toml.read()
+    data: Any = toml.read()
 
-    dependency_groups: dict[str, Any] = data["tool"]["uv"]["dependency-groups"]  # pyright: ignore[reportIndexIssue, reportAssignmentType]
+    dependency_groups: dict[str, dict[str, Any]] = data["tool"]["uv"][
+        "dependency-groups"
+    ]
 
     for k, v in dependency_groups.items():
         if "requires-python" in v:
             dependency_groups[k]["requires-python"] = python_min_version
 
     toml.write(data)
+    return 0
 
 
 if __name__ == "__main__":

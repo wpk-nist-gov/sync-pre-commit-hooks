@@ -12,8 +12,12 @@ channels:
   - conda-forge
 dependencies:
   - python=3.10
+  - lastversion
   - pytest
   - pytest-cov
   - pytest-sugar
   - pytest-xdist
+  - requirements-parser
+  - ruamel-yaml
+  - tomlkit
   - pip
