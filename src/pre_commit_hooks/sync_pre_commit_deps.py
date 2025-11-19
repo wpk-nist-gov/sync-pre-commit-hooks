@@ -139,8 +139,9 @@ def _process_file(
             for i, dep in enumerate(hook.get("additional_dependencies", ())):
                 if hook["id"] in hook_ids_update:
                     name, _, cur_version = dep.partition("==")
-                    target_version = versions.get(name, cur_version)
-                    if target_version != cur_version:
+                    if (
+                        target_version := versions.get(name, cur_version)
+                    ) != cur_version:
                         name_and_version = f"{name}=={target_version}"
                         hook["additional_dependencies"][i] = name_and_version
                         logger.info(
