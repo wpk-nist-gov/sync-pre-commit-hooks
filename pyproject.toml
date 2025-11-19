@@ -50,9 +50,9 @@ optional-dependencies.sync-uv-dependency-groups = [
 ]
 urls.Documentation = "https://pages.nist.gov/pre-commit-hooks/"
 urls.Homepage = "https://github.com/wpk-nist-gov/pre-commit-hooks"
-scripts.justfile-format = "pre_commit_hooks.justfile_format:main"
+scripts.apply-command = "pre_commit_hooks.apply_command:main"
 scripts.sync-pre-commit-deps = "pre_commit_hooks.sync_pre_commit_deps:main"
-scripts.sync-uv-dependency-groups = "pre_commit_hooks.sync_uv_dependency_groups:main"
+scripts.sync-uv-dependency-groups-min-python = "pre_commit_hooks.sync_uv_dependency_groups_min_python:main"
 
 [dependency-groups]
 dev = [
@@ -182,6 +182,7 @@ show_missing = true
 exclude_also = [
     "if TYPE_CHECKING:",
     "@overload",
+    'if __name__ == "__main__":',
 ]
 omit = [
     "*/vendored/*",

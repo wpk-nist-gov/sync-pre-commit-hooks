@@ -36,11 +36,11 @@ def loaded_simple() -> dict[str, Any]:
         (["black", "ruff-check"], {"black": "23.3.0", "ruff": "0.14.5"}),
     ],
 )
-def test_get_versions_from_ids(
+def test__get_versions_from_ids(
     loaded_simple: dict[str, Any], hook_ids_from: list[str], expected: dict[str, Any]
 ) -> None:
     assert (
-        sync_pre_commit_deps.get_versions_from_ids(loaded_simple, hook_ids_from)
+        sync_pre_commit_deps._get_versions_from_ids(loaded_simple, hook_ids_from)
         == expected
     )
 
@@ -57,24 +57,24 @@ def test_get_versions_from_ids(
         ),
     ],
 )
-def test_get_versions_from_requirements(
+def test__get_versions_from_requirements(
     tmp_path: Path, data: str, expected: dict[str, Any]
 ) -> None:
     path = tmp_path / "requirements.txt"
     path.write_text(data)
 
-    assert sync_pre_commit_deps.get_versions_from_requirements(path) == expected
+    assert sync_pre_commit_deps._get_versions_from_requirements(path) == expected
 
 
-def test_lastversion() -> None:
+def test__lastversion() -> None:
     with patch("lastversion.latest", autospec=True, return_value="abc"):
-        assert sync_pre_commit_deps.get_versions_from_lastversion(["ruff"]) == {
+        assert sync_pre_commit_deps._get_versions_from_lastversion(["ruff"]) == {
             "ruff": "abc"
         }
 
 
-def test_get_hook_ids(loaded_simple: dict[str, Any]) -> None:
-    assert sync_pre_commit_deps.get_hook_ids(loaded_simple) == [
+def test__get_hook_ids(loaded_simple: dict[str, Any]) -> None:
+    assert sync_pre_commit_deps._get_hook_ids(loaded_simple) == [
         "black",
         "blacken-docs",
         "ruff-check",
@@ -91,13 +91,13 @@ def test_get_hook_ids(loaded_simple: dict[str, Any]) -> None:
         (True, [], ["a", "b"], list("cde")),
     ],
 )
-def test_limit_hooks(
+def test__limit_hooks(
     use_all: bool, include: list[str], exclude: list[str], expected: list[str]
 ) -> None:
     hook_ids = list("abcde")
 
     assert (
-        sync_pre_commit_deps.limit_hooks(hook_ids, use_all, include, exclude)
+        sync_pre_commit_deps._limit_hooks(hook_ids, use_all, include, exclude)
         == expected
     )
 
@@ -169,6 +169,25 @@ repos:
         id: black
             """),
             id="unicode no-op",
+        ),
+        pytest.param(
+            dedent("""\
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.5
+    hooks:
+      - id: ruff-check
+        alias: ruff
+  - repo: https://github.com/adamtheturtle/doccmd-pre-commit
+    rev: v2025.11.8.1
+    hooks:
+      - id: doccmd
+        name: "ruff format markdown"
+        alias: ruff
+        additional_dependencies:
+          - ruff==0.14.5
+            """),
+            id="ruff",
         ),
     ],
 )

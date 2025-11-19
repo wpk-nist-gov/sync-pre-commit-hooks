@@ -1,9 +1,10 @@
 """Update ``additional_dependencies`` in ``.pre-commit-config.yaml``"""
 
 # NOTE: adapted from https://github.com/pre-commit/sync-pre-commit-deps
-# ruff: noqa: D103, T201
+# ruff: noqa: D103
 from __future__ import annotations
 
+import logging
 from argparse import ArgumentParser
 from functools import lru_cache
 from pathlib import Path
@@ -24,8 +25,18 @@ _ARGUMENT_HELP_TEMPLATE = (
     "#indentation-of-block-sequences"
 )
 
+ID_TO_PACKAGE = {
+    "ruff-format": "ruff",
+    "ruff-check": "ruff",
+}
 
-def get_versions_from_ids(
+
+FORMAT = "[%(name)s - %(levelname)s] %(message)s"
+logging.basicConfig(level=logging.INFO, format=FORMAT)
+logger = logging.getLogger("sync-pre-commit-deps")
+
+
+def _get_versions_from_ids(
     loaded: dict[str, Any],
     hook_ids_from: Container[str],
 ) -> dict[str, str]:
@@ -38,18 +49,14 @@ def get_versions_from_ids(
                     # `mirrors-mypy` uses versions with a 'v' prefix, so we
                     # have to strip it out to get the mypy version.
                     cleaned_rev = repo["rev"].removeprefix("v")
-                    versions[hid] = cleaned_rev
-
-    # add ruff key
-    for key in ["ruff-format", "ruff-check"]:
-        if (ruff_version := versions.pop(key, None)) is not None:
-            versions["ruff"] = ruff_version
+                    key: str = ID_TO_PACKAGE.get(hid, hid)  # pyright: ignore[reportAssignmentType]
+                    versions[key] = cleaned_rev
 
     return versions
 
 
 @lru_cache
-def get_versions_from_requirements(
+def _get_versions_from_requirements(
     requirements_path: Path | None,
 ) -> dict[str, str]:
     if requirements_path is None:
@@ -73,11 +80,11 @@ def _get_version_from_lastversion(dep: str) -> str:
     return cast("str", latest(dep, output_format="tag"))
 
 
-def get_versions_from_lastversion(dependencies: Sequence[str]) -> dict[str, Any]:
+def _get_versions_from_lastversion(dependencies: Sequence[str]) -> dict[str, Any]:
     return {dep: _get_version_from_lastversion(dep) for dep in dependencies}
 
 
-def get_hook_ids(loaded: dict[str, Any]) -> list[str]:
+def _get_hook_ids(loaded: dict[str, Any]) -> list[str]:
     out: list[str] = []
     for repo in loaded["repos"]:
         if repo["repo"] not in {"local", "meta"}:
@@ -85,7 +92,7 @@ def get_hook_ids(loaded: dict[str, Any]) -> list[str]:
     return out
 
 
-def limit_hooks(
+def _limit_hooks(
     hook_ids: Sequence[str],
     use_all: bool,
     include: Sequence[str],
@@ -95,7 +102,7 @@ def limit_hooks(
     return [x for x in include if x not in exclude]
 
 
-def process_file(
+def _process_file(
     path: Path,
     yaml_mapping: int,
     yaml_sequence: int,
@@ -116,19 +123,19 @@ def process_file(
     with path.open(encoding="utf-8") as f:
         loaded: dict[str, Any] = yaml.load(f)
 
-    hook_ids = get_hook_ids(loaded)
-    hook_ids_update = limit_hooks(
+    hook_ids = _get_hook_ids(loaded)
+    hook_ids_update = _limit_hooks(
         hook_ids, use_all=to_all, include=to_include, exclude=to_exclude
     )
-    hook_ids_from = limit_hooks(
+    hook_ids_from = _limit_hooks(
         hook_ids, use_all=from_all, include=from_include, exclude=from_exclude
     )
 
-    versions = get_versions_from_ids(loaded, hook_ids_from)
-    versions.update(get_versions_from_requirements(requirements))
-    versions.update(get_versions_from_lastversion(lastversion_dependencies))
+    versions = _get_versions_from_ids(loaded, hook_ids_from)
+    versions.update(_get_versions_from_requirements(requirements))
+    versions.update(_get_versions_from_lastversion(lastversion_dependencies))
 
-    updated = []
+    updated = False
     for repo in loaded["repos"]:
         for hook in repo["hooks"]:
             for i, dep in enumerate(hook.get("additional_dependencies", ())):
@@ -138,13 +145,15 @@ def process_file(
                     if target_version != cur_version:
                         name_and_version = f"{name}=={target_version}"
                         hook["additional_dependencies"][i] = name_and_version
-                        updated.append((hook["id"], name))
+                        logger.info(
+                            "Setting %s dependency %s to %s",
+                            hook["id"],
+                            name,
+                            target_version,
+                        )
+                        updated = True
 
     if updated:
-        print(f"Writing updates to {path}:")
-        for hid, name in updated:
-            print(f"\tSetting {hid!r} dependency {name!r} to {versions[name]}")
-
         with path.open("w+", encoding="utf-8") as f:
             yaml.dump(loaded, f)
         return 1
@@ -152,7 +161,7 @@ def process_file(
     return 0
 
 
-def get_parser() -> ArgumentParser:
+def _get_parser() -> ArgumentParser:
     parser = ArgumentParser(description=__doc__)
     parser.add_argument(
         "paths",
@@ -240,13 +249,13 @@ def get_parser() -> ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    parser = get_parser()
+    parser = _get_parser()
     args = parser.parse_args(argv)
     paths: list[Path] = args.paths or [Path(".pre-commit-config.yaml")]
 
     out = 0
     for path in paths:
-        out += process_file(
+        out += _process_file(
             path,
             yaml_mapping=args.yaml_mapping,
             yaml_sequence=args.yaml_sequence,

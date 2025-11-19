@@ -9,22 +9,31 @@
   files: ^\.pre-commit-config\.yaml$
   pass_filenames: false
   minimum_pre_commit_version: "2.9.2"
-- id: sync-uv-dependency-groups
-  name: sync-uv-dependency-groups
+- id: sync-uv-dependency-groups-min-python
+  name: sync-uv-dependency-groups-min-python
   description:
     Sync minimum python version in "tool.uv.dependency-groups" table of
     "pyproject.toml"
-  entry: sync-uv-dependency-groups
+  entry: sync-uv-dependency-groups-min-python
   language: python
   additional_dependencies:
     - tomlkit
   files: ^pyproject\.toml$|^\.python-version$
   pass_filenames: false
   minimum_pre_commit_version: "2.9.2"
+- id: apply-command
+  name: apply-command
+  description: Apply single file executable to multiple files
+  entry: apply-command
+  args: ["python -c 'print(0)'"]
+  language: python
+  pass_filenames: true
+  minimum_pre_commit_version: "2.9.2"
 - id: justfile-format
   name: justfile-format
   description: Format justfiles
-  entry: justfile-format
+  entry: apply-command
+  args: [just, --fmt, --unstable, --justfile]
   language: python
   files: \.?[jJ]ustfile$|.*\.just$
   pass_filenames: true

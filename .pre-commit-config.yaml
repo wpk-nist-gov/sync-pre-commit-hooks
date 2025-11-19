@@ -166,7 +166,9 @@ repos:
     hooks:
       - id: justfile-format
         name: justfile format
-        entry: python src/pre_commit_hooks/justfile_format.py
+        entry:
+          python src/pre_commit_hooks/apply_command.py just --fmt --unstable
+          --justfile
         language: python
         files: \.?[jJ]ustfile$|.*\.just$
         pass_filenames: true
@@ -197,9 +199,10 @@ repos:
   # * Update pyproject.tool.uv.dependency-groups python-version minimum
   - repo: local
     hooks:
-      - id: update-pyproject-tool-uv-dependency-groups
-        name: update pyproject `tool.uv.dependency-groups` table
-        entry: python src/pre_commit_hooks/sync_uv_dependency_groups.py
+      - id: sync-uv-dependency-groups-min-python
+        name: sync-uv-dependency-groups-min-python
+        entry:
+          python src/pre_commit_hooks/sync_uv_dependency_groups_min_python.py
         language: python
         files: ^pyproject.toml$|^\.python-version$
         pass_filenames: false
