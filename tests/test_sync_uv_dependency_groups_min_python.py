@@ -14,6 +14,7 @@ from pre_commit_hooks import sync_uv_dependency_groups_min_python
 from pre_commit_hooks.sync_uv_dependency_groups_min_python import (
     _get_config_file,
     _get_python_version,
+    _update_spec,
 )
 
 if TYPE_CHECKING:
@@ -124,6 +125,18 @@ def test__get_python_version(
         assert out == e
 
 
+@pytest.mark.parametrize(
+    ("requires_python", "python_version", "expected"),
+    [
+        ("== 3.9", "3.10", "==3.10"),
+        (">= 3.10 ", "3.10", ">=3.10"),
+        (" ~= 3.8", "3.10", "~=3.10"),
+    ],
+)
+def test__update_spec(requires_python: str, python_version: str, expected: str) -> None:
+    assert _update_spec(requires_python, python_version) == expected
+
+
 def test_main_uv_toml(
     example_path: Path, uv_toml: Path, pyproject_toml: Path, python_version_file: Path
 ) -> None:
@@ -147,7 +160,33 @@ def test_main_uv_toml(
         pytest.param(
             dedent("""\
             [dependency-groups]
-            dev.requires-python = ">=3.10"
+            dev.requires-python = "==3.10"
+            docs = {}
+            """),
+            dedent("""\
+            [dependency-groups]
+            dev.requires-python = "==3.13"
+            docs = {}
+            """),
+            id="no requires-python",
+        ),
+        pytest.param(
+            dedent("""\
+            [dependency-groups]
+            dev.requires-python = "==3.13"
+            docs = {}
+            """),
+            dedent("""\
+            [dependency-groups]
+            dev.requires-python = "==3.13"
+            docs = {}
+            """),
+            id="same spec",
+        ),
+        pytest.param(
+            dedent("""\
+            [dependency-groups]
+            dev.requires-python = ">= 3.13"
             docs = {}
             """),
             dedent("""\
@@ -155,7 +194,7 @@ def test_main_uv_toml(
             dev.requires-python = ">=3.13"
             docs = {}
             """),
-            id="no requires-python",
+            id="reformat spec",
         ),
     ],
 )

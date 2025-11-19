@@ -11,6 +11,8 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from packaging.specifiers import Specifier
+
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
@@ -50,6 +52,11 @@ def _get_python_version(
     return python_version
 
 
+def _update_spec(requires_python: str, python_version: str) -> str:
+    spec = Specifier(requires_python)
+    return str(Specifier(f"{spec.operator}{python_version}"))
+
+
 def _process_file(
     config_file: Path,
     python_version: str,
@@ -70,11 +77,14 @@ def _process_file(
         logger.info("No dependency-group table found")
         return
 
-    python_min_version = f">={python_version}"
     for k, v in dependency_groups.items():
-        if "requires-python" in v and v["requires-python"] != python_min_version:
-            logger.info("update %s to %s", k, python_min_version)
-            v["requires-python"] = python_min_version
+        if "requires-python" in v:
+            requires_python = v["requires-python"]
+            if requires_python != (
+                new_spec := _update_spec(requires_python, python_version)
+            ):
+                logger.info("update %s from %s to %s", k, requires_python, new_spec)
+                v["requires-python"] = new_spec
 
     toml.write(data)
 

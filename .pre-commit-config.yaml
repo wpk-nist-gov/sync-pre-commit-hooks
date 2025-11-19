@@ -207,4 +207,5 @@ repos:
         files: ^pyproject.toml$|^\.python-version$
         pass_filenames: false
         additional_dependencies:
+          - packaging
           - tomlkit
