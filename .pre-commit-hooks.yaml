@@ -4,8 +4,7 @@
   entry: sync-pre-commit-deps
   language: python
   additional_dependencies:
-    - requirements-parser
-    - ruamel.yaml
+    - ".[sync-pre-commit-deps]"
   files: ^\.pre-commit-config\.yaml$
   pass_filenames: false
   minimum_pre_commit_version: "2.9.2"
@@ -17,7 +16,7 @@
   entry: sync-uv-dependency-groups-min-python
   language: python
   additional_dependencies:
-    - tomlkit
+    - ".[sync-uv-dependency-groups-min-python]"
   files: ^pyproject\.toml$|^\.python-version$
   pass_filenames: false
   minimum_pre_commit_version: "2.9.2"

@@ -35,7 +35,7 @@ dependencies = [
 ]
 
 optional-dependencies.all = [
-    "pre-commit-hooks[lastversion,sync-pre-commit-deps,sync-uv-dependency-groups]",
+    "pre-commit-hooks[lastversion,sync-pre-commit-deps,sync-uv-dependency-groups-min-python]",
 ]
 
 optional-dependencies.lastversion = [
@@ -45,7 +45,8 @@ optional-dependencies.sync-pre-commit-deps = [
     "requirements-parser",
     "ruamel-yaml",
 ]
-optional-dependencies.sync-uv-dependency-groups = [
+optional-dependencies.sync-uv-dependency-groups-min-python = [
+    "packaging",
     "tomlkit",
 ]
 urls.Documentation = "https://pages.nist.gov/pre-commit-hooks/"
