@@ -24,3 +24,9 @@ repos:
         alias: ruff
         additional_dependencies:
           - ruff==0.14.2
+  - repo: local
+    hooks:
+      - id: test
+        name: test
+        entry: python -c "print('hello')"
+        language: python

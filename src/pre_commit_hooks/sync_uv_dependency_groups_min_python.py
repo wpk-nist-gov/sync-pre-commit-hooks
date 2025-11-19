@@ -32,7 +32,7 @@ def _get_config_file(config_file: Path | None) -> Path:
         return pyproject
 
     msg = "Couldn't find uv.toml or pyproject.toml"
-    raise ValueError(msg)
+    raise FileNotFoundError(msg)
 
 
 def _get_python_version(
@@ -40,9 +40,14 @@ def _get_python_version(
     python_version_file: str,
 ) -> str:
     if python_version is not None:
+        logger.info("Using python_version %s", python_version)
         return python_version
 
-    return Path(python_version_file).read_text(encoding="utf-8").strip()
+    python_version = Path(python_version_file).read_text(encoding="utf-8").strip()
+    logger.info(
+        "Using python_version %s read from %s", python_version, python_version_file
+    )
+    return python_version
 
 
 def _process_file(
@@ -62,6 +67,7 @@ def _process_file(
     ).get("dependency-groups")
 
     if dependency_groups is None:
+        logger.info("No dependency-group table found")
         return
 
     python_min_version = f">={python_version}"

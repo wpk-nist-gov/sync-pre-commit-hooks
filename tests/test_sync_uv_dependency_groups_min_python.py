@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from pre_commit_hooks import sync_uv_dependency_groups_min_python
 from pre_commit_hooks.sync_uv_dependency_groups_min_python import (
     _get_config_file,
     _get_python_version,
@@ -20,31 +21,34 @@ if TYPE_CHECKING:
     from typing import Any
 
 
-@pytest.fixture
-def old_data() -> str:
-    return dedent("""\
-    dev.requires-python = ">=3.10"
-    docs = { requires-python = ">=3.10" }
+def get_data(pyproject: bool = True, python_version: str = "3.10") -> str:
+    return dedent(f"""\
+    [{"tool.uv." if pyproject else ""}dependency-groups]
+    dev.requires-python = ">={python_version}"
+    docs = {{ requires-python = ">={python_version}" }}
     """)
 
 
 @pytest.fixture
-def uv_toml(tmp_path: Path, old_data: str) -> Path:
-    data = f"[dependency-groups]\n{old_data}"
-
+def uv_toml(tmp_path: Path) -> Path:
     path = tmp_path / "uv.toml"
-    path.write_text(data)
+    path.write_text(get_data(False, "3.10"))
 
     return path
 
 
 @pytest.fixture
-def pyproject_toml(tmp_path: Path, old_data: str) -> Path:
-    data = f"[tool.uv.dependency-groups]\n{old_data}"
-
+def pyproject_toml(tmp_path: Path) -> Path:
     path = tmp_path / "pyproject.toml"
-    path.write_text(data)
+    path.write_text(get_data(True, "3.10"))
 
+    return path
+
+
+@pytest.fixture
+def python_version_file(tmp_path: Path) -> Path:
+    path = tmp_path / ".python-version"
+    path.write_text("3.13", encoding="utf-8")
     return path
 
 
@@ -63,17 +67,13 @@ def test_fixtures(tmp_path: Path, uv_toml: Path, pyproject_toml: Path) -> None:
     assert uv_toml.exists()
     assert pyproject_toml.exists()
 
-    assert uv_toml.read_text(encoding="utf-8") == dedent("""\
-    [dependency-groups]
-    dev.requires-python = ">=3.10"
-    docs = { requires-python = ">=3.10" }
-    """)
+    assert uv_toml.read_text(encoding="utf-8") == get_data(False, "3.10")
+    assert pyproject_toml.read_text(encoding="utf-8") == get_data(True, "3.10")
 
-    assert pyproject_toml.read_text(encoding="utf-8") == dedent("""\
-    [tool.uv.dependency-groups]
-    dev.requires-python = ">=3.10"
-    docs = { requires-python = ">=3.10" }
-    """)
+
+def test__get_config_file(example_path: Path) -> None:
+    with pytest.raises(FileNotFoundError, match=r"Couldn't find uv.toml .*"):
+        _ = _get_config_file(None)
 
 
 def test__get_config_file_uv_toml_default(example_path: Path, uv_toml: Path) -> None:
@@ -122,3 +122,49 @@ def test__get_python_version(
     with expected as e:
         out = _get_python_version(python_version, python_version_file)
         assert out == e
+
+
+def test_main_uv_toml(
+    example_path: Path, uv_toml: Path, pyproject_toml: Path, python_version_file: Path
+) -> None:
+    assert not sync_uv_dependency_groups_min_python.main([])
+    assert uv_toml.read_text(encoding="utf-8") == get_data(False, "3.13")
+    assert pyproject_toml.read_text(encoding="utf-8") == get_data(True, "3.10")
+
+
+@pytest.mark.parametrize(
+    ("data_in", "data_out"),
+    [
+        pytest.param(
+            dedent("""\
+            managed = true
+            """),
+            dedent("""\
+            managed = true
+            """),
+            id="no dependency-groups",
+        ),
+        pytest.param(
+            dedent("""\
+            [dependency-groups]
+            dev.requires-python = ">=3.10"
+            docs = {}
+            """),
+            dedent("""\
+            [dependency-groups]
+            dev.requires-python = ">=3.13"
+            docs = {}
+            """),
+            id="no requires-python",
+        ),
+    ],
+)
+def test_main_edge(
+    example_path: Path, python_version_file: Path, data_in: str, data_out: str
+) -> None:
+    uv_toml = example_path / "uv.toml"
+    uv_toml.write_text(data_in)
+
+    sync_uv_dependency_groups_min_python.main([])
+
+    assert uv_toml.read_text() == data_out

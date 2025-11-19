@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import nullcontext
 from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING, cast
@@ -34,13 +35,18 @@ def loaded_simple() -> dict[str, Any]:
     [
         (["black"], {"black": "23.3.0"}),
         (["black", "ruff-check"], {"black": "23.3.0", "ruff": "0.14.5"}),
+        (["black", "ruff-format"], {"black": "23.3.0", "ruff-abc": "0.14.5"}),
     ],
 )
 def test__get_versions_from_ids(
     loaded_simple: dict[str, Any], hook_ids_from: list[str], expected: dict[str, Any]
 ) -> None:
     assert (
-        sync_pre_commit_deps._get_versions_from_ids(loaded_simple, hook_ids_from)
+        sync_pre_commit_deps._get_versions_from_ids(
+            loaded_simple,
+            hook_ids_from,
+            {"ruff-check": "ruff", "ruff-format": "ruff-abc"},
+        )
         == expected
     )
 
@@ -84,22 +90,38 @@ def test__get_hook_ids(loaded_simple: dict[str, Any]) -> None:
 
 
 @pytest.mark.parametrize(
-    ("use_all", "include", "exclude", "expected"),
+    ("include", "exclude", "expected"),
     [
-        (True, [], [], list("abcde")),
-        (False, ["c", "d"], [], list("cd")),
-        (True, [], ["a", "b"], list("cde")),
+        ([], [], list("abcde")),
+        (["c", "d"], [], list("cd")),
+        ([], ["a", "b"], list("cde")),
     ],
 )
 def test__limit_hooks(
-    use_all: bool, include: list[str], exclude: list[str], expected: list[str]
+    include: list[str], exclude: list[str], expected: list[str]
 ) -> None:
     hook_ids = list("abcde")
 
-    assert (
-        sync_pre_commit_deps._limit_hooks(hook_ids, use_all, include, exclude)
-        == expected
-    )
+    assert sync_pre_commit_deps._limit_hooks(hook_ids, include, exclude) == expected
+
+
+@pytest.mark.parametrize(
+    ("id_to_package", "expected"),
+    [
+        (
+            [],
+            nullcontext({}),
+        ),
+        (
+            ["a"],
+            pytest.raises(ValueError, match=r"hook id to dep str .*"),
+        ),
+        (["a:b", "c : d", "e: f "], nullcontext({"a": "b", "c": "d", "e": "f"})),
+    ],
+)
+def test__parse_id_to_dep(id_to_package: list[str], expected: Any) -> None:
+    with expected as e:
+        assert sync_pre_commit_deps._parse_id_to_dep(id_to_package) == e
 
 
 def create_config_file(tmp_path: Path, contents: str) -> Path:
@@ -110,9 +132,10 @@ def create_config_file(tmp_path: Path, contents: str) -> Path:
 
 
 @pytest.mark.parametrize(
-    "s",
+    ("options", "s"),
     [
         pytest.param(
+            [],
             dedent("""\
 repos:
   - repo: https://github.com/psf/black
@@ -129,6 +152,7 @@ repos:
             id="already correct version",
         ),
         pytest.param(
+            ["--to-exclude", "blacken-docs"],
             dedent("""\
 repos:
   - repo: https://github.com/psf/black
@@ -145,21 +169,7 @@ repos:
             id="id not added to updateable",
         ),
         pytest.param(
-            dedent("""\
-repos:
-  - repo: local
-    hooks:
-      - id: mypy
-  - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.9.1
-    hooks:
-      - id: nbqa-mypy
-        additional_dependencies:
-          - mypy==0.123
-            """),
-            id="local hook shadows supported lib",
-        ),
-        pytest.param(
+            [],
             dedent("""\
 repos:
   - repo: https://github.com/psf/black
@@ -171,6 +181,7 @@ repos:
             id="unicode no-op",
         ),
         pytest.param(
+            [],
             dedent("""\
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -191,10 +202,10 @@ repos:
         ),
     ],
 )
-def test_main_noop(tmp_path: Path, s: str) -> None:
+def test_main_noop(options: Sequence[str], tmp_path: Path, s: str) -> None:
     cfg = create_config_file(tmp_path, s)
 
-    assert not main((str(cfg),))
+    assert not main((*options, str(cfg)))
 
     with cfg.open(encoding="utf-8") as f:
         assert f.read() == s
@@ -204,7 +215,7 @@ def test_main_noop(tmp_path: Path, s: str) -> None:
     ("options", "text_in", "text_out"),
     [
         pytest.param(
-            ["--from", "black", "--to", "blacken-docs"],
+            [],
             dedent("""\
 repos:
   - repo: https://github.com/psf/black
@@ -234,7 +245,7 @@ repos:
             id="blacken",
         ),
         pytest.param(
-            [],
+            ["--from-exclude", "black"],
             dedent("""\
 repos:
   - repo: https://github.com/psf/black
@@ -296,10 +307,6 @@ repos:
         # using requirements
         pytest.param(
             [
-                "--from",
-                "black",
-                "--to",
-                "blacken-docs",
                 "-r",
                 str(DATA / "requirements-ruff.txt"),
             ],
@@ -362,7 +369,7 @@ repos:
             id="requirements",
         ),
         pytest.param(
-            ["--to", "blacken-docs", "--last", "black", "--last", "ruff"],
+            ["--last", "black", "--last", "ruff"],
             dedent("""\
 repos:
   - repo: https://github.com/adamchainz/blacken-docs
