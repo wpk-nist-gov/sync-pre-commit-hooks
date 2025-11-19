@@ -10,8 +10,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from pre_commit_hooks import sync_uv_dependency_groups_min_python
-from pre_commit_hooks.sync_uv_dependency_groups_min_python import (
+from pre_commit_hooks import sync_uv_dependency_groups
+from pre_commit_hooks.sync_uv_dependency_groups import (
     _get_config_file,
     _get_python_version,
     _update_spec,
@@ -140,7 +140,7 @@ def test__update_spec(requires_python: str, python_version: str, expected: str) 
 def test_main_uv_toml(
     example_path: Path, uv_toml: Path, pyproject_toml: Path, python_version_file: Path
 ) -> None:
-    assert not sync_uv_dependency_groups_min_python.main([])
+    assert not sync_uv_dependency_groups.main([])
     assert uv_toml.read_text(encoding="utf-8") == get_data(False, "3.13")
     assert pyproject_toml.read_text(encoding="utf-8") == get_data(True, "3.10")
 
@@ -204,6 +204,6 @@ def test_main_edge(
     uv_toml = example_path / "uv.toml"
     uv_toml.write_text(data_in)
 
-    sync_uv_dependency_groups_min_python.main([])
+    sync_uv_dependency_groups.main([])
 
     assert uv_toml.read_text() == data_out

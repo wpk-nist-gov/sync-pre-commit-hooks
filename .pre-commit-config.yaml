@@ -199,10 +199,9 @@ repos:
   # * Update pyproject.tool.uv.dependency-groups python-version minimum
   - repo: local
     hooks:
-      - id: sync-uv-dependency-groups-min-python
-        name: sync-uv-dependency-groups-min-python
-        entry:
-          python src/pre_commit_hooks/sync_uv_dependency_groups_min_python.py
+      - id: sync-uv-dependency-groups
+        name: sync-uv-dependency-groups
+        entry: python src/pre_commit_hooks/sync_uv_dependency_groups.py
         language: python
         files: ^pyproject.toml$|^\.python-version$
         pass_filenames: false

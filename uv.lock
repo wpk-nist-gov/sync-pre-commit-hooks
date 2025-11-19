@@ -1082,7 +1082,7 @@ sync-pre-commit-deps = [
     { name = "requirements-parser" },
     { name = "ruamel-yaml" },
 ]
-sync-uv-dependency-groups-min-python = [
+sync-uv-dependency-groups = [
     { name = "packaging" },
     { name = "tomlkit" },
 ]
@@ -1178,13 +1178,13 @@ typecheck = [
 [package.metadata]
 requires-dist = [
     { name = "lastversion", marker = "extra == 'lastversion'" },
-    { name = "packaging", marker = "extra == 'sync-uv-dependency-groups-min-python'" },
-    { name = "pre-commit-hooks", extras = ["lastversion", "sync-pre-commit-deps", "sync-uv-dependency-groups-min-python"], marker = "extra == 'all'" },
+    { name = "packaging", marker = "extra == 'sync-uv-dependency-groups'" },
+    { name = "pre-commit-hooks", extras = ["lastversion", "sync-pre-commit-deps", "sync-uv-dependency-groups"], marker = "extra == 'all'" },
     { name = "requirements-parser", marker = "extra == 'sync-pre-commit-deps'" },
     { name = "ruamel-yaml", marker = "extra == 'sync-pre-commit-deps'" },
-    { name = "tomlkit", marker = "extra == 'sync-uv-dependency-groups-min-python'" },
+    { name = "tomlkit", marker = "extra == 'sync-uv-dependency-groups'" },
 ]
-provides-extras = ["all", "lastversion", "sync-pre-commit-deps", "sync-uv-dependency-groups-min-python"]
+provides-extras = ["all", "lastversion", "sync-pre-commit-deps", "sync-uv-dependency-groups"]
 
 [package.metadata.requires-dev]
 cog = [{ name = "cogapp", marker = "python_full_version >= '3.13'" }]

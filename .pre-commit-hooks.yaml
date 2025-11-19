@@ -8,15 +8,15 @@
   files: ^\.pre-commit-config\.yaml$
   pass_filenames: false
   minimum_pre_commit_version: "2.9.2"
-- id: sync-uv-dependency-groups-min-python
-  name: sync-uv-dependency-groups-min-python
+- id: sync-uv-dependency-groups
+  name: sync-uv-dependency-groups
   description:
     Sync minimum python version in "tool.uv.dependency-groups" table of
     "pyproject.toml"
-  entry: sync-uv-dependency-groups-min-python
+  entry: sync-uv-dependency-groups
   language: python
   additional_dependencies:
-    - ".[sync-uv-dependency-groups-min-python]"
+    - ".[sync-uv-dependency-groups]"
   files: ^pyproject\.toml$|^\.python-version$
   pass_filenames: false
   minimum_pre_commit_version: "2.9.2"

@@ -35,7 +35,7 @@ dependencies = [
 ]
 
 optional-dependencies.all = [
-    "pre-commit-hooks[lastversion,sync-pre-commit-deps,sync-uv-dependency-groups-min-python]",
+    "pre-commit-hooks[lastversion,sync-pre-commit-deps,sync-uv-dependency-groups]",
 ]
 
 optional-dependencies.lastversion = [
@@ -45,7 +45,7 @@ optional-dependencies.sync-pre-commit-deps = [
     "requirements-parser",
     "ruamel-yaml",
 ]
-optional-dependencies.sync-uv-dependency-groups-min-python = [
+optional-dependencies.sync-uv-dependency-groups = [
     "packaging",
     "tomlkit",
 ]
@@ -53,7 +53,7 @@ urls.Documentation = "https://pages.nist.gov/pre-commit-hooks/"
 urls.Homepage = "https://github.com/wpk-nist-gov/pre-commit-hooks"
 scripts.apply-command = "pre_commit_hooks.apply_command:main"
 scripts.sync-pre-commit-deps = "pre_commit_hooks.sync_pre_commit_deps:main"
-scripts.sync-uv-dependency-groups-min-python = "pre_commit_hooks.sync_uv_dependency_groups_min_python:main"
+scripts.sync-uv-dependency-groups = "pre_commit_hooks.sync_uv_dependency_groups:main"
 
 [dependency-groups]
 dev = [

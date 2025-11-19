@@ -48,10 +48,13 @@ Inspired by
 [pre-commit/sync-pre-commit-deps](https://github.com/pre-commit/sync-pre-commit-deps)
 but more general. Here, you can sync dependencies from other hooks, from a
 requirements.txt file, or using [lastversion]. The default is to pickup
-dependencies from hook id's `typos`, `codespell`, `ruff-format`, and
-`ruff-check`. To extract dependencies from other hooks, pass
-`--from={hook name to extract from}`. Note that the "ruff" id's are translated
-to a `ruff` version. For example, this:
+dependencies from all hook id's and update `additional_dependencies` in all
+hooks. To extract from only certain hook id's, use `--from` or `--from-exclude`.
+To only update dependencies in specific hooks, use `--to` or `--to-exclude`. If
+the name of a hook id is not the same as a dependency, you can pass
+`-m {id}:{dependency}`. For example, to extract `ruff` from the hook id
+`ruff-check`, pass `-m 'ruff-check:ruff'`. Note that by default, `ruff-check`
+and `ruff-format` are translated to `ruff`. For example, this:
 
 ```yaml
 repos:
@@ -108,10 +111,6 @@ repos:
 Note that the additional dependencies in the requirements file override any
 found from hook id's.
 
-By default, only hooks `doccmd`, `justfile-format`, and `nbqa` are additional
-dependencies are updated. To update other hooks, pass them with
-`--to={hook id to update to}`.
-
 Lastly, if you have network access (i.e., not on pre-commit.ci), you can use
 [lastversion] to update additional dependencies, but you'll have to include it
 in the install:
@@ -154,10 +153,9 @@ sys.path.pop(0)
 $ sync-pre-commit-deps --help
 usage: sync-pre-commit-deps [-h] [--yaml-mapping YAML_MAPPING]
                             [--yaml-sequence YAML_SEQUENCE] [--yaml-offset YAML_OFFSET]
-                            [--from FROM_INCLUDE] [--from-all]
-                            [--from-exclude FROM_EXCLUDE] [--to TO_INCLUDE] [--to-all]
-                            [--to-exclude TO_EXCLUDE] [-r REQUIREMENTS]
-                            [-l LASTVERSION_DEPENDENCIES]
+                            [--from FROM_INCLUDE] [--from-exclude FROM_EXCLUDE]
+                            [--to TO_INCLUDE] [--to-exclude TO_EXCLUDE]
+                            [-r REQUIREMENTS] [-l LASTVERSION_DEPENDENCIES] [-m ID_DEP]
                             [paths ...]
 
 Update ``additional_dependencies`` in ``.pre-commit-config.yaml``
@@ -179,26 +177,123 @@ options:
                         The `offset` argument to the YAML dumper. See
                         https://yaml.readthedocs.io/en/latest/detail/#indentation-of-
                         block-sequences
-  --from FROM_INCLUDE   hook id's to extract requirements from. Defaults to ['typos',
-                        'codespell', 'ruff-format', 'ruff-check']
-  --from-all            Extract dependencies from all hook id's
+  --from FROM_INCLUDE   Hook id's to extract versions from. The default is to extract
+                        from all hooks. If pass ``--from id``, then only those hooks
+                        explicitly passed will be used to extract versions.
   --from-exclude FROM_EXCLUDE
-                        Hook id's to exclude extracting from. Note that this is applied
-                        even if pass ``--from-all``
-  --to TO_INCLUDE       hook id's to allow update of additional_dependencies. Defaults
-                        to ['doccmd', 'justfile-format', 'nbqa']
-  --to-all              Update dependencies of all hooks
+                        Hook id's to exclude extracting from.
+  --to TO_INCLUDE       Hook id's to allow update of additional_dependencies. The
+                        default is to allow updates to all hook id's
+                        additional_dependencies. If pass ``--to id``, then only those
+                        hooks explicitly passed will be updated.
   --to-exclude TO_EXCLUDE
-                        Hook id's to exclude updating. Note that this is applied even if
-                        pass ``--to-all``
+                        Hook id's to exclude updating.
   -r, --requirements REQUIREMENTS
                         Requirements file to lookup pinned requirements to update.
   -l, --last LASTVERSION_DEPENDENCIES
-                        Dependency to lookup using `lastversion`. Requires network
+                        Dependencies to lookup using `lastversion`. Requires network
                         access and `lastversion` to be installed.
+  -m, --id-dep ID_DEP   Colon separated hook id to dependency mapping
+                        (``{hook_id}:{dependency}``). For example, to map the ``ruff-
+                        check`` hook to ``ruff``, pass ``-m 'ruff-check:ruff'. (Default:
+                        ['ruff-format:ruff', 'ruff-check:ruff'])
 ```
 
 <!-- [[[end]]] -->
+
+## apply-command
+
+There are situations where you'd like to run a tool via [pre-commit] that only
+takes a single file. One example of this is the [just] formatter. However,
+pre-commit expects tools to multiple files. For this, you can use the
+`apply-command` hook. For example, to run `just` formatter over all justfiles,
+use:
+
+```yaml
+repos:
+  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-deps
+    rev: v0.1.0
+      - id: apply-command
+        name: justfile-format
+        args: [just, --fmt, --unstable, --justfile]
+        files: \.?[jJ]ustfile$|.*\.just$
+```
+
+This will run `just --fmt --unstable --justfile` over any justfiles in the repo.
+
+Additional options to `apply-command`:
+
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable MD013 -->
+<!-- [[[cog run_command("sync-pre-commit-deps --help", include_cmd=True, wrapper="bash")]]] -->
+
+```bash
+$ sync-pre-commit-deps --help
+usage: sync-pre-commit-deps [-h] [--yaml-mapping YAML_MAPPING]
+                            [--yaml-sequence YAML_SEQUENCE] [--yaml-offset YAML_OFFSET]
+                            [--from FROM_INCLUDE] [--from-exclude FROM_EXCLUDE]
+                            [--to TO_INCLUDE] [--to-exclude TO_EXCLUDE]
+                            [-r REQUIREMENTS] [-l LASTVERSION_DEPENDENCIES] [-m ID_DEP]
+                            [paths ...]
+
+Update ``additional_dependencies`` in ``.pre-commit-config.yaml``
+
+positional arguments:
+  paths                 The pre-commit config file to sync to.
+
+options:
+  -h, --help            show this help message and exit
+  --yaml-mapping YAML_MAPPING
+                        The `mapping` argument to the YAML dumper. See
+                        https://yaml.readthedocs.io/en/latest/detail/#indentation-of-
+                        block-sequences
+  --yaml-sequence YAML_SEQUENCE
+                        The `sequence` argument to the YAML dumper. See
+                        https://yaml.readthedocs.io/en/latest/detail/#indentation-of-
+                        block-sequences
+  --yaml-offset YAML_OFFSET
+                        The `offset` argument to the YAML dumper. See
+                        https://yaml.readthedocs.io/en/latest/detail/#indentation-of-
+                        block-sequences
+  --from FROM_INCLUDE   Hook id's to extract versions from. The default is to extract
+                        from all hooks. If pass ``--from id``, then only those hooks
+                        explicitly passed will be used to extract versions.
+  --from-exclude FROM_EXCLUDE
+                        Hook id's to exclude extracting from.
+  --to TO_INCLUDE       Hook id's to allow update of additional_dependencies. The
+                        default is to allow updates to all hook id's
+                        additional_dependencies. If pass ``--to id``, then only those
+                        hooks explicitly passed will be updated.
+  --to-exclude TO_EXCLUDE
+                        Hook id's to exclude updating.
+  -r, --requirements REQUIREMENTS
+                        Requirements file to lookup pinned requirements to update.
+  -l, --last LASTVERSION_DEPENDENCIES
+                        Dependencies to lookup using `lastversion`. Requires network
+                        access and `lastversion` to be installed.
+  -m, --id-dep ID_DEP   Colon separated hook id to dependency mapping
+                        (``{hook_id}:{dependency}``). For example, to map the ``ruff-
+                        check`` hook to ``ruff``, pass ``-m 'ruff-check:ruff'. (Default:
+                        ['ruff-format:ruff', 'ruff-check:ruff'])
+```
+
+<!-- [[[end]]] -->
+
+## justfile-format
+
+This is just an explicit implementation of the [just] format example in
+[apply-command](#apply-command). Note that `justfile-format` does not by default
+install [just], so if you want the hook to install it, include it in
+`additional_dependencies`.
+
+```yaml
+repos:
+  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-deps
+    rev: v0.1.0
+      - id: justfile-format
+        additional_dependencies:  # optional include `just` as a dependency
+          - rust-just
+```
 
 ## Status
 

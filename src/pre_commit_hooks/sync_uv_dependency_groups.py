@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 FORMAT = "[%(name)s - %(levelname)s] %(message)s"
 logging.basicConfig(level=logging.INFO, format=FORMAT)
-logger = logging.getLogger("sync-uv-dependency-groups-min-python")
+logger = logging.getLogger("sync-uv-dependency-groups")
 
 
 def _get_config_file(config_file: Path | None) -> Path:
