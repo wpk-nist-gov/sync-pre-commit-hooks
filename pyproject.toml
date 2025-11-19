@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "pre-commit-hooks"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "Some useful pre-commit hooks"
 readme = "README.md"
 keywords = [
