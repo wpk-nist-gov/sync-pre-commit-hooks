@@ -33,6 +33,8 @@
 [changelog-link]: https://github.com/wpk-nist-gov/pre-commit-hooks/blob/main/CHANGELOG.md
 [pre-commit]: https://pre-commit.com/
 [lastversion]:  https://github.com/dvershinin/lastversion
+[just]: https://github.com/casey/just
+[uv]: https://github.com/astral-sh/uv
 
 <!-- other links -->
 
@@ -147,10 +149,9 @@ sys.path.pop(0)
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable MD013 -->
-<!-- [[[cog run_command("sync-pre-commit-deps --help", include_cmd=True, wrapper="bash")]]] -->
+<!-- [[[cog run_command("sync-pre-commit-deps --help", include_cmd=False, wrapper="restructuredtext")]]] -->
 
-```bash
-$ sync-pre-commit-deps --help
+```restructuredtext
 usage: sync-pre-commit-deps [-h] [--yaml-mapping YAML_MAPPING]
                             [--yaml-sequence YAML_SEQUENCE] [--yaml-offset YAML_OFFSET]
                             [--from FROM_INCLUDE] [--from-exclude FROM_EXCLUDE]
@@ -225,56 +226,22 @@ Additional options to `apply-command`:
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable MD013 -->
-<!-- [[[cog run_command("sync-pre-commit-deps --help", include_cmd=True, wrapper="bash")]]] -->
+<!-- [[[cog run_command("apply-command --help", include_cmd=False, wrapper="restructuredtext")]]] -->
 
-```bash
-$ sync-pre-commit-deps --help
-usage: sync-pre-commit-deps [-h] [--yaml-mapping YAML_MAPPING]
-                            [--yaml-sequence YAML_SEQUENCE] [--yaml-offset YAML_OFFSET]
-                            [--from FROM_INCLUDE] [--from-exclude FROM_EXCLUDE]
-                            [--to TO_INCLUDE] [--to-exclude TO_EXCLUDE]
-                            [-r REQUIREMENTS] [-l LASTVERSION_DEPENDENCIES] [-m ID_DEP]
-                            [paths ...]
-
-Update ``additional_dependencies`` in ``.pre-commit-config.yaml``
+```restructuredtext
+usage: apply-command [-h] command paths [paths ...]
 
 positional arguments:
-  paths                 The pre-commit config file to sync to.
+  command     Command to run. Extra arguments to ``command`` will be parsed as well.
+              Note that ``command`` will be parsed with ``shlex.split``. So, if you need
+              to pass complex arguments, you should wrap ``command`` and these arguments
+              in a single string. For example, to run ``command --option a`` over
+              ``file1`` and ``file2``, you should use ``apply-command "command --option
+              a" file1 file2``
+  paths       Files to apply ``command`` to.
 
 options:
-  -h, --help            show this help message and exit
-  --yaml-mapping YAML_MAPPING
-                        The `mapping` argument to the YAML dumper. See
-                        https://yaml.readthedocs.io/en/latest/detail/#indentation-of-
-                        block-sequences
-  --yaml-sequence YAML_SEQUENCE
-                        The `sequence` argument to the YAML dumper. See
-                        https://yaml.readthedocs.io/en/latest/detail/#indentation-of-
-                        block-sequences
-  --yaml-offset YAML_OFFSET
-                        The `offset` argument to the YAML dumper. See
-                        https://yaml.readthedocs.io/en/latest/detail/#indentation-of-
-                        block-sequences
-  --from FROM_INCLUDE   Hook id's to extract versions from. The default is to extract
-                        from all hooks. If pass ``--from id``, then only those hooks
-                        explicitly passed will be used to extract versions.
-  --from-exclude FROM_EXCLUDE
-                        Hook id's to exclude extracting from.
-  --to TO_INCLUDE       Hook id's to allow update of additional_dependencies. The
-                        default is to allow updates to all hook id's
-                        additional_dependencies. If pass ``--to id``, then only those
-                        hooks explicitly passed will be updated.
-  --to-exclude TO_EXCLUDE
-                        Hook id's to exclude updating.
-  -r, --requirements REQUIREMENTS
-                        Requirements file to lookup pinned requirements to update.
-  -l, --last LASTVERSION_DEPENDENCIES
-                        Dependencies to lookup using `lastversion`. Requires network
-                        access and `lastversion` to be installed.
-  -m, --id-dep ID_DEP   Colon separated hook id to dependency mapping
-                        (``{hook_id}:{dependency}``). For example, to map the ``ruff-
-                        check`` hook to ``ruff``, pass ``-m 'ruff-check:ruff'. (Default:
-                        ['ruff-format:ruff', 'ruff-check:ruff'])
+  -h, --help  show this help message and exit
 ```
 
 <!-- [[[end]]] -->
@@ -295,40 +262,60 @@ repos:
           - rust-just
 ```
 
+## sync-uv-dependency-groups
+
+I take advantage of `dependency-group` to organize project tasks (tests, type
+checking, documentation, etc). Some groups, like tests, will run over multiple
+python versions, while others, like documentation, will only ever run on the
+projects default python version. If you support an old version of python with
+your project and use `uv.lock`, this can lead to dependency conflicts. One way
+around this is to limit the python version for certain dependency groups in
+either `uv.toml` or `pyproject.toml`. For example, if you have:
+
+```toml
+[tool.uv.dependency-groups]
+docs.requires-python = ">=3.10"
+```
+
+and you pin the python version to `3.13` in `.python-version` file, then running
+`sync-uv-dependency-groups` will result in:
+
+```toml
+[tool.uv.dependency-groups]
+docs.requires-python = ">=3.13"
+```
+
+This prevents [uv] `dependency-groups` from getting out of sync with the
+`.python-version` file. Additional options are:
+
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable MD013 -->
+<!-- [[[cog run_command("apply-command --help", include_cmd=False, wrapper="restructuredtext")]]] -->
+
+```restructuredtext
+usage: apply-command [-h] command paths [paths ...]
+
+positional arguments:
+  command     Command to run. Extra arguments to ``command`` will be parsed as well.
+              Note that ``command`` will be parsed with ``shlex.split``. So, if you need
+              to pass complex arguments, you should wrap ``command`` and these arguments
+              in a single string. For example, to run ``command --option a`` over
+              ``file1`` and ``file2``, you should use ``apply-command "command --option
+              a" file1 file2``
+  paths       Files to apply ``command`` to.
+
+options:
+  -h, --help  show this help message and exit
+```
+
+<!-- [[[end]]] -->
+
 ## Status
 
 This package is actively used by the author. Please feel free to create a pull
 request for wanted features and suggestions!
 
-## Example usage
-
-```python
-import pre_commit_hooks
-```
-
 <!-- end-docs -->
-
-## Installation
-
-<!-- start-installation -->
-
-Use one of the following
-
-```bash
-pip install pre-commit-hooks
-```
-
-or
-
-```bash
-conda install -c wpk-nist pre-commit-hooks
-```
-
-<!-- end-installation -->
-
-## Documentation
-
-See the [documentation][docs-link] for further details.
 
 ## What's new?
 
@@ -337,10 +324,6 @@ See [changelog][changelog-link].
 ## License
 
 This is free software. See [LICENSE][license-link].
-
-## Related work
-
-Any other stuff to mention....
 
 ## Contact
 

@@ -70,15 +70,6 @@ test = [
     { include-group = "optional-dependencies" },
     { include-group = "pytest" },
 ]
-docs = [
-    "autodocsumm",
-    "myst-parser",
-    "sphinx>=5.3.0",
-    "sphinx-argparse",
-    "sphinx-book-theme",
-    "sphinx-copybutton",
-    { include-group = "optional-dependencies" },
-]
 # other packages/tools
 optional-dependencies = [ "pre-commit-hooks[all]" ]
 cog = [ "cogapp" ]
@@ -89,15 +80,6 @@ pylint = [ "pylint" ]
 pytest = [ "pytest" ]
 pytest-accept = [ "pytest-accept" ]
 # other environments
-docs-live = [
-    "sphinx-autobuild",
-    { include-group = "docs" },
-]
-docs-spelling = [
-    "pyenchant",
-    "sphinxcontrib-spelling",
-    { include-group = "docs" },
-]
 test-extras = [
     { include-group = "test" },
 ]
@@ -121,9 +103,6 @@ generate-hashes = true
 
 [tool.uv.dependency-groups]
 dev.requires-python = ">=3.13"
-docs.requires-python = ">=3.13"
-docs-live.requires-python = ">=3.13"
-docs-spelling.requires-python = ">=3.13"
 # other tools
 cog.requires-python = ">=3.13"
 ipython.requires-python = ">=3.13"
@@ -216,7 +195,6 @@ exclude = [
     ".nox",
     ".venv",
     ".numba_cache",
-    "docs",
 ]
 check_untyped_defs = true
 strict = true

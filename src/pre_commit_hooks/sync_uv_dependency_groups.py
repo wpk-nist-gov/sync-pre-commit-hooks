@@ -93,7 +93,10 @@ def main(args: Sequence[str] | None = None) -> int:
     """Main program."""
     parser = ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--python-version", "-p", help="Minimum python version", default=None
+        "--python-version",
+        "-p",
+        help="Minimum python version.  Overrides ``--python-version-file``.",
+        default=None,
     )
     parser.add_argument(
         "--python-version-file",
