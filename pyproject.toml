@@ -123,6 +123,7 @@ ignore = [
     "PC901",  # ci message
     "RTD",
     "NOX103", # I prefer using "nox.options.sessions"
+    "PY004",  # no docs for this
 ]
 
 [tool.check-wheel-contents]

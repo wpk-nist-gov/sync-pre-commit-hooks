@@ -114,7 +114,6 @@ repos:
       - id: codespell
         additional_dependencies:
           - tomli
-        args: [-I, docs/spelling_wordlist.txt]
         exclude_types: [jupyter]
         exclude: ^uv[.]lock$|^requirements
         stages: [manual]
