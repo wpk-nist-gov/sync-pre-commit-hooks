@@ -402,7 +402,7 @@ def get_package_wheel(
     if reuse and getattr(get_package_wheel, "_called", False):
         session.log("Reuse isolated build")
     else:
-        shutil.rmtree(dist_location)
+        shutil.rmtree(dist_location, ignore_errors=True)
         session.run_always("uv", "build", f"--out-dir={dist_location}", "--wheel")
 
         # save that this was called:
@@ -471,6 +471,7 @@ def test_all(session: Session) -> None:
     session.notify("coverage-erase")
     for py in PYTHON_ALL_VERSIONS:
         session.notify(f"test-{py}")
+    session.notify("test-pre-commit")
     session.notify("coverage")
 
 
@@ -573,6 +574,12 @@ def test(
 
 nox.session(**ALL_KWS)(test)
 nox.session(name="test-conda", **CONDA_ALL_KWS)(test)
+
+
+@nox.session(name="test-pre-commit", python=False)
+def test_pre_commit(session: Session) -> None:
+    """Run prek/pre-commit try-repo"""
+    uvx_run(session, "prek", "try-repo", ".", "--all-files")
 
 
 @nox.session(name="test-notebook", **DEFAULT_KWS)

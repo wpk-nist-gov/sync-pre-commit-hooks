@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "pre-commit-hooks"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "Some useful pre-commit hooks"
 readme = "README.md"
 keywords = [
@@ -46,11 +46,12 @@ optional-dependencies.sync-pre-commit-deps = [
     "ruamel-yaml",
 ]
 optional-dependencies.sync-uv-dependency-groups = [
+    "packaging",
     "tomlkit",
 ]
 urls.Documentation = "https://pages.nist.gov/pre-commit-hooks/"
 urls.Homepage = "https://github.com/wpk-nist-gov/pre-commit-hooks"
-scripts.justfile-format = "pre_commit_hooks.justfile_format:main"
+scripts.apply-command = "pre_commit_hooks.apply_command:main"
 scripts.sync-pre-commit-deps = "pre_commit_hooks.sync_pre_commit_deps:main"
 scripts.sync-uv-dependency-groups = "pre_commit_hooks.sync_uv_dependency_groups:main"
 
@@ -69,15 +70,6 @@ test = [
     { include-group = "optional-dependencies" },
     { include-group = "pytest" },
 ]
-docs = [
-    "autodocsumm",
-    "myst-parser",
-    "sphinx>=5.3.0",
-    "sphinx-argparse",
-    "sphinx-book-theme",
-    "sphinx-copybutton",
-    { include-group = "optional-dependencies" },
-]
 # other packages/tools
 optional-dependencies = [ "pre-commit-hooks[all]" ]
 cog = [ "cogapp" ]
@@ -88,15 +80,6 @@ pylint = [ "pylint" ]
 pytest = [ "pytest" ]
 pytest-accept = [ "pytest-accept" ]
 # other environments
-docs-live = [
-    "sphinx-autobuild",
-    { include-group = "docs" },
-]
-docs-spelling = [
-    "pyenchant",
-    "sphinxcontrib-spelling",
-    { include-group = "docs" },
-]
 test-extras = [
     { include-group = "test" },
 ]
@@ -120,9 +103,6 @@ generate-hashes = true
 
 [tool.uv.dependency-groups]
 dev.requires-python = ">=3.13"
-docs.requires-python = ">=3.13"
-docs-live.requires-python = ">=3.13"
-docs-spelling.requires-python = ">=3.13"
 # other tools
 cog.requires-python = ">=3.13"
 ipython.requires-python = ">=3.13"
@@ -143,6 +123,7 @@ ignore = [
     "PC901",  # ci message
     "RTD",
     "NOX103", # I prefer using "nox.options.sessions"
+    "PY004",  # no docs for this
 ]
 
 [tool.check-wheel-contents]
@@ -182,6 +163,7 @@ show_missing = true
 exclude_also = [
     "if TYPE_CHECKING:",
     "@overload",
+    'if __name__ == "__main__":',
 ]
 omit = [
     "*/vendored/*",
@@ -214,7 +196,6 @@ exclude = [
     ".nox",
     ".venv",
     ".numba_cache",
-    "docs",
 ]
 check_untyped_defs = true
 strict = true

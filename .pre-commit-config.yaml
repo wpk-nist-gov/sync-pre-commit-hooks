@@ -114,7 +114,6 @@ repos:
       - id: codespell
         additional_dependencies:
           - tomli
-        args: [-I, docs/spelling_wordlist.txt]
         exclude_types: [jupyter]
         exclude: ^uv[.]lock$|^requirements
         stages: [manual]
@@ -166,7 +165,9 @@ repos:
     hooks:
       - id: justfile-format
         name: justfile format
-        entry: python src/pre_commit_hooks/justfile_format.py
+        entry:
+          python src/pre_commit_hooks/apply_command.py just --fmt --unstable
+          --justfile
         language: python
         files: \.?[jJ]ustfile$|.*\.just$
         pass_filenames: true
@@ -197,11 +198,12 @@ repos:
   # * Update pyproject.tool.uv.dependency-groups python-version minimum
   - repo: local
     hooks:
-      - id: update-pyproject-tool-uv-dependency-groups
-        name: update pyproject `tool.uv.dependency-groups` table
+      - id: sync-uv-dependency-groups
+        name: sync-uv-dependency-groups
         entry: python src/pre_commit_hooks/sync_uv_dependency_groups.py
         language: python
         files: ^pyproject.toml$|^\.python-version$
         pass_filenames: false
         additional_dependencies:
+          - packaging
           - tomlkit

@@ -58,6 +58,8 @@ disable = [
     "consider-using-f-string",
     # "duplicate-code",
     # "cyclic-import",
+    "protected-access",
+    "import-private-name",
 ]
 
 [tool.pylint.reports]

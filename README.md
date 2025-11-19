@@ -33,6 +33,8 @@
 [changelog-link]: https://github.com/wpk-nist-gov/pre-commit-hooks/blob/main/CHANGELOG.md
 [pre-commit]: https://pre-commit.com/
 [lastversion]:  https://github.com/dvershinin/lastversion
+[just]: https://github.com/casey/just
+[uv]: https://github.com/astral-sh/uv
 
 <!-- other links -->
 
@@ -48,10 +50,13 @@ Inspired by
 [pre-commit/sync-pre-commit-deps](https://github.com/pre-commit/sync-pre-commit-deps)
 but more general. Here, you can sync dependencies from other hooks, from a
 requirements.txt file, or using [lastversion]. The default is to pickup
-dependencies from hook id's `typos`, `codespell`, `ruff-format`, and
-`ruff-check`. To extract dependencies from other hooks, pass
-`--from={hook name to extract from}`. Note that the "ruff" id's are translated
-to a `ruff` version. For example, this:
+dependencies from all hook id's and update `additional_dependencies` in all
+hooks. To extract from only certain hook id's, use `--from` or `--from-exclude`.
+To only update dependencies in specific hooks, use `--to` or `--to-exclude`. If
+the name of a hook id is not the same as a dependency, you can pass
+`-m {id}:{dependency}`. For example, to extract `ruff` from the hook id
+`ruff-check`, pass `-m 'ruff-check:ruff'`. Note that by default, `ruff-check`
+and `ruff-format` are translated to `ruff`. For example, this:
 
 ```yaml
 repos:
@@ -108,10 +113,6 @@ repos:
 Note that the additional dependencies in the requirements file override any
 found from hook id's.
 
-By default, only hooks `doccmd`, `justfile-format`, and `nbqa` are additional
-dependencies are updated. To update other hooks, pass them with
-`--to={hook id to update to}`.
-
 Lastly, if you have network access (i.e., not on pre-commit.ci), you can use
 [lastversion] to update additional dependencies, but you'll have to include it
 in the install:
@@ -148,16 +149,14 @@ sys.path.pop(0)
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable MD013 -->
-<!-- [[[cog run_command("sync-pre-commit-deps --help", include_cmd=True, wrapper="bash")]]] -->
+<!-- [[[cog run_command("sync-pre-commit-deps --help", include_cmd=False, wrapper="restructuredtext")]]] -->
 
-```bash
-$ sync-pre-commit-deps --help
+```restructuredtext
 usage: sync-pre-commit-deps [-h] [--yaml-mapping YAML_MAPPING]
                             [--yaml-sequence YAML_SEQUENCE] [--yaml-offset YAML_OFFSET]
-                            [--from FROM_INCLUDE] [--from-all]
-                            [--from-exclude FROM_EXCLUDE] [--to TO_INCLUDE] [--to-all]
-                            [--to-exclude TO_EXCLUDE] [-r REQUIREMENTS]
-                            [-l LASTVERSION_DEPENDENCIES]
+                            [--from FROM_INCLUDE] [--from-exclude FROM_EXCLUDE]
+                            [--to TO_INCLUDE] [--to-exclude TO_EXCLUDE]
+                            [-r REQUIREMENTS] [-l LASTVERSION_DEPENDENCIES] [-m ID_DEP]
                             [paths ...]
 
 Update ``additional_dependencies`` in ``.pre-commit-config.yaml``
@@ -179,23 +178,134 @@ options:
                         The `offset` argument to the YAML dumper. See
                         https://yaml.readthedocs.io/en/latest/detail/#indentation-of-
                         block-sequences
-  --from FROM_INCLUDE   hook id's to extract requirements from. Defaults to ['typos',
-                        'codespell', 'ruff-format', 'ruff-check']
-  --from-all            Extract dependencies from all hook id's
+  --from FROM_INCLUDE   Hook id's to extract versions from. The default is to extract
+                        from all hooks. If pass ``--from id``, then only those hooks
+                        explicitly passed will be used to extract versions.
   --from-exclude FROM_EXCLUDE
-                        Hook id's to exclude extracting from. Note that this is applied
-                        even if pass ``--from-all``
-  --to TO_INCLUDE       hook id's to allow update of additional_dependencies. Defaults
-                        to ['doccmd', 'justfile-format', 'nbqa']
-  --to-all              Update dependencies of all hooks
+                        Hook id's to exclude extracting from.
+  --to TO_INCLUDE       Hook id's to allow update of additional_dependencies. The
+                        default is to allow updates to all hook id's
+                        additional_dependencies. If pass ``--to id``, then only those
+                        hooks explicitly passed will be updated.
   --to-exclude TO_EXCLUDE
-                        Hook id's to exclude updating. Note that this is applied even if
-                        pass ``--to-all``
+                        Hook id's to exclude updating.
   -r, --requirements REQUIREMENTS
                         Requirements file to lookup pinned requirements to update.
   -l, --last LASTVERSION_DEPENDENCIES
-                        Dependency to lookup using `lastversion`. Requires network
+                        Dependencies to lookup using `lastversion`. Requires network
                         access and `lastversion` to be installed.
+  -m, --id-dep ID_DEP   Colon separated hook id to dependency mapping
+                        (``{hook_id}:{dependency}``). For example, to map the ``ruff-
+                        check`` hook to ``ruff``, pass ``-m 'ruff-check:ruff'. (Default:
+                        ['ruff-format:ruff', 'ruff-check:ruff'])
+```
+
+<!-- [[[end]]] -->
+
+## apply-command
+
+There are situations where you'd like to run a tool via [pre-commit] that only
+takes a single file. One example of this is the [just] formatter. However,
+pre-commit expects tools to multiple files. For this, you can use the
+`apply-command` hook. For example, to run `just` formatter over all justfiles,
+use:
+
+```yaml
+repos:
+  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-deps
+    rev: v0.1.0
+      - id: apply-command
+        name: justfile-format
+        args: [just, --fmt, --unstable, --justfile]
+        files: \.?[jJ]ustfile$|.*\.just$
+```
+
+This will run `just --fmt --unstable --justfile` over any justfiles in the repo.
+
+Additional options to `apply-command`:
+
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable MD013 -->
+<!-- [[[cog run_command("apply-command --help", include_cmd=False, wrapper="restructuredtext")]]] -->
+
+```restructuredtext
+usage: apply-command [-h] command paths [paths ...]
+
+positional arguments:
+  command     Command to run. Extra arguments to ``command`` will be parsed as well.
+              Note that ``command`` will be parsed with ``shlex.split``. So, if you need
+              to pass complex arguments, you should wrap ``command`` and these arguments
+              in a single string. For example, to run ``command --option a`` over
+              ``file1`` and ``file2``, you should use ``apply-command "command --option
+              a" file1 file2``
+  paths       Files to apply ``command`` to.
+
+options:
+  -h, --help  show this help message and exit
+```
+
+<!-- [[[end]]] -->
+
+## justfile-format
+
+This is just an explicit implementation of the [just] format example in
+[apply-command](#apply-command). Note that `justfile-format` does not by default
+install [just], so if you want the hook to install it, include it in
+`additional_dependencies`.
+
+```yaml
+repos:
+  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-deps
+    rev: v0.1.0
+      - id: justfile-format
+        additional_dependencies:  # optional include `just` as a dependency
+          - rust-just
+```
+
+## sync-uv-dependency-groups
+
+I take advantage of `dependency-group` to organize project tasks (tests, type
+checking, documentation, etc). Some groups, like tests, will run over multiple
+python versions, while others, like documentation, will only ever run on the
+projects default python version. If you support an old version of python with
+your project and use `uv.lock`, this can lead to dependency conflicts. One way
+around this is to limit the python version for certain dependency groups in
+either `uv.toml` or `pyproject.toml`. For example, if you have:
+
+```toml
+[tool.uv.dependency-groups]
+docs.requires-python = ">=3.10"
+```
+
+and you pin the python version to `3.13` in `.python-version` file, then running
+`sync-uv-dependency-groups` will result in:
+
+```toml
+[tool.uv.dependency-groups]
+docs.requires-python = ">=3.13"
+```
+
+This prevents [uv] `dependency-groups` from getting out of sync with the
+`.python-version` file. Additional options are:
+
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable MD013 -->
+<!-- [[[cog run_command("apply-command --help", include_cmd=False, wrapper="restructuredtext")]]] -->
+
+```restructuredtext
+usage: apply-command [-h] command paths [paths ...]
+
+positional arguments:
+  command     Command to run. Extra arguments to ``command`` will be parsed as well.
+              Note that ``command`` will be parsed with ``shlex.split``. So, if you need
+              to pass complex arguments, you should wrap ``command`` and these arguments
+              in a single string. For example, to run ``command --option a`` over
+              ``file1`` and ``file2``, you should use ``apply-command "command --option
+              a" file1 file2``
+  paths       Files to apply ``command`` to.
+
+options:
+  -h, --help  show this help message and exit
 ```
 
 <!-- [[[end]]] -->
@@ -205,35 +315,7 @@ options:
 This package is actively used by the author. Please feel free to create a pull
 request for wanted features and suggestions!
 
-## Example usage
-
-```python
-import pre_commit_hooks
-```
-
 <!-- end-docs -->
-
-## Installation
-
-<!-- start-installation -->
-
-Use one of the following
-
-```bash
-pip install pre-commit-hooks
-```
-
-or
-
-```bash
-conda install -c wpk-nist pre-commit-hooks
-```
-
-<!-- end-installation -->
-
-## Documentation
-
-See the [documentation][docs-link] for further details.
 
 ## What's new?
 
@@ -242,10 +324,6 @@ See [changelog][changelog-link].
 ## License
 
 This is free software. See [LICENSE][license-link].
-
-## Related work
-
-Any other stuff to mention....
 
 ## Contact
 

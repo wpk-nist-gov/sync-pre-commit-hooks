@@ -1,9 +1,10 @@
 """Update ``additional_dependencies`` in ``.pre-commit-config.yaml``"""
 
 # NOTE: adapted from https://github.com/pre-commit/sync-pre-commit-deps
-# ruff: noqa: D103, T201
+# ruff: noqa: D103
 from __future__ import annotations
 
+import logging
 from argparse import ArgumentParser
 from functools import lru_cache
 from pathlib import Path
@@ -15,41 +16,40 @@ if TYPE_CHECKING:
     from collections.abc import Container, Sequence
 
 
-SUPPORTED_FROM_ID = ["typos", "codespell", "ruff-format", "ruff-check"]
-SUPPORT_TO_ID = ["doccmd", "justfile-format", "nbqa"]
-
 _ARGUMENT_HELP_TEMPLATE = (
     "The `{}` argument to the YAML dumper. "
     "See https://yaml.readthedocs.io/en/latest/detail/"
     "#indentation-of-block-sequences"
 )
 
+ID_TO_PACKAGE = ["ruff-format:ruff", "ruff-check:ruff"]
 
-def get_versions_from_ids(
+FORMAT = "[%(name)s - %(levelname)s] %(message)s"
+logging.basicConfig(level=logging.INFO, format=FORMAT)
+logger = logging.getLogger("sync-pre-commit-deps")
+
+
+def _get_versions_from_ids(
     loaded: dict[str, Any],
     hook_ids_from: Container[str],
+    id_to_package_mapping: dict[str, str],
 ) -> dict[str, str]:
     versions: dict[str, str] = {}
     for repo in loaded["repos"]:
         if repo["repo"] not in {"local", "meta"}:
             for hook in repo["hooks"]:
-                hid = hook["id"]
-                if hid in hook_ids_from:
+                if (hid := hook["id"]) in hook_ids_from:
                     # `mirrors-mypy` uses versions with a 'v' prefix, so we
                     # have to strip it out to get the mypy version.
                     cleaned_rev = repo["rev"].removeprefix("v")
-                    versions[hid] = cleaned_rev
-
-    # add ruff key
-    for key in ["ruff-format", "ruff-check"]:
-        if (ruff_version := versions.pop(key, None)) is not None:
-            versions["ruff"] = ruff_version
+                    key: str = id_to_package_mapping.get(hid, hid)  # pyright: ignore[reportAssignmentType]
+                    versions[key] = cleaned_rev
 
     return versions
 
 
 @lru_cache
-def get_versions_from_requirements(
+def _get_versions_from_requirements(
     requirements_path: Path | None,
 ) -> dict[str, str]:
     if requirements_path is None:
@@ -73,11 +73,11 @@ def _get_version_from_lastversion(dep: str) -> str:
     return cast("str", latest(dep, output_format="tag"))
 
 
-def get_versions_from_lastversion(dependencies: Sequence[str]) -> dict[str, Any]:
+def _get_versions_from_lastversion(dependencies: Sequence[str]) -> dict[str, Any]:
     return {dep: _get_version_from_lastversion(dep) for dep in dependencies}
 
 
-def get_hook_ids(loaded: dict[str, Any]) -> list[str]:
+def _get_hook_ids(loaded: dict[str, Any]) -> list[str]:
     out: list[str] = []
     for repo in loaded["repos"]:
         if repo["repo"] not in {"local", "meta"}:
@@ -85,29 +85,38 @@ def get_hook_ids(loaded: dict[str, Any]) -> list[str]:
     return out
 
 
-def limit_hooks(
+def _limit_hooks(
     hook_ids: Sequence[str],
-    use_all: bool,
     include: Sequence[str],
     exclude: Sequence[str],
 ) -> list[str]:
-    include = hook_ids if use_all else include
+    include = include or hook_ids
     return [x for x in include if x not in exclude]
 
 
-def process_file(
+def _parse_id_to_dep(id_to_package: Sequence[str]) -> dict[str, str]:
+    out: dict[str, str] = {}
+    for x in id_to_package:
+        hid, sep, package = x.partition(":")
+        if sep != ":":
+            msg = f"hook id to dep str {x} does not have form `id:dep`"
+            raise ValueError(msg)
+        out[hid.strip()] = package.strip()
+    return out
+
+
+def _process_file(
     path: Path,
     yaml_mapping: int,
     yaml_sequence: int,
     yaml_offset: int,
-    to_all: bool,
     to_include: Sequence[str],
     to_exclude: Sequence[str],
-    from_all: bool,
     from_include: Sequence[str],
     from_exclude: Sequence[str],
     requirements: Path | None,
     lastversion_dependencies: Sequence[str],
+    id_to_package_mapping: dict[str, str],
 ) -> int:
     yaml = ruamel.yaml.YAML()
     yaml.preserve_quotes = True
@@ -116,35 +125,34 @@ def process_file(
     with path.open(encoding="utf-8") as f:
         loaded: dict[str, Any] = yaml.load(f)
 
-    hook_ids = get_hook_ids(loaded)
-    hook_ids_update = limit_hooks(
-        hook_ids, use_all=to_all, include=to_include, exclude=to_exclude
-    )
-    hook_ids_from = limit_hooks(
-        hook_ids, use_all=from_all, include=from_include, exclude=from_exclude
-    )
+    hook_ids = _get_hook_ids(loaded)
+    hook_ids_update = _limit_hooks(hook_ids, include=to_include, exclude=to_exclude)
+    hook_ids_from = _limit_hooks(hook_ids, include=from_include, exclude=from_exclude)
 
-    versions = get_versions_from_ids(loaded, hook_ids_from)
-    versions.update(get_versions_from_requirements(requirements))
-    versions.update(get_versions_from_lastversion(lastversion_dependencies))
+    versions = _get_versions_from_ids(loaded, hook_ids_from, id_to_package_mapping)
+    versions.update(_get_versions_from_requirements(requirements))
+    versions.update(_get_versions_from_lastversion(lastversion_dependencies))
 
-    updated = []
+    updated = False
     for repo in loaded["repos"]:
         for hook in repo["hooks"]:
             for i, dep in enumerate(hook.get("additional_dependencies", ())):
                 if hook["id"] in hook_ids_update:
                     name, _, cur_version = dep.partition("==")
-                    target_version = versions.get(name, cur_version)
-                    if target_version != cur_version:
+                    if (
+                        target_version := versions.get(name, cur_version)
+                    ) != cur_version:
                         name_and_version = f"{name}=={target_version}"
                         hook["additional_dependencies"][i] = name_and_version
-                        updated.append((hook["id"], name))
+                        logger.info(
+                            "Setting %s dependency %s to %s",
+                            hook["id"],
+                            name,
+                            target_version,
+                        )
+                        updated = True
 
     if updated:
-        print(f"Writing updates to {path}:")
-        for hid, name in updated:
-            print(f"\tSetting {hid!r} dependency {name!r} to {versions[name]}")
-
         with path.open("w+", encoding="utf-8") as f:
             yaml.dump(loaded, f)
         return 1
@@ -152,7 +160,7 @@ def process_file(
     return 0
 
 
-def get_parser() -> ArgumentParser:
+def _get_parser() -> ArgumentParser:
     parser = ArgumentParser(description=__doc__)
     parser.add_argument(
         "paths",
@@ -185,38 +193,36 @@ def get_parser() -> ArgumentParser:
         "--from",
         dest="from_include",
         action="append",
-        default=SUPPORTED_FROM_ID,
-        help=f"hook id's to extract requirements from.  Defaults to {SUPPORTED_FROM_ID}",
-    )
-    parser.add_argument(
-        "--from-all",
-        action="store_true",
-        help="Extract dependencies from all hook id's",
+        default=[],
+        help="""
+        Hook id's to extract versions from. The default is to extract from all
+        hooks. If pass ``--from id``, then only those hooks explicitly passed
+        will be used to extract versions.
+        """,
     )
     parser.add_argument(
         "--from-exclude",
         action="append",
         default=[],
-        help="Hook id's to exclude extracting from. Note that this is applied even if pass ``--from-all``",
+        help="Hook id's to exclude extracting from.",
     )
     # hook id's to update
     parser.add_argument(
         "--to",
         dest="to_include",
         action="append",
-        default=SUPPORT_TO_ID,
-        help=f"hook id's to allow update of additional_dependencies.  Defaults to {SUPPORT_TO_ID}",
-    )
-    parser.add_argument(
-        "--to-all",
-        action="store_true",
-        help="Update dependencies of all hooks",
+        default=[],
+        help="""
+        Hook id's to allow update of additional_dependencies. The default is to
+        allow updates to all hook id's additional_dependencies. If pass ``--to
+        id``, then only those hooks explicitly passed will be updated.
+        """,
     )
     parser.add_argument(
         "--to-exclude",
         action="append",
         default=[],
-        help="Hook id's to exclude updating.  Note that this is applied even if pass ``--to-all``",
+        help="Hook id's to exclude updating.",
     )
     parser.add_argument(
         "-r",
@@ -230,35 +236,48 @@ def get_parser() -> ArgumentParser:
         "-l",
         "--last",
         dest="lastversion_dependencies",
-        type=str,
-        help="Dependency to lookup using `lastversion`.  Requires network access and `lastversion` to be installed.",
         action="append",
         default=[],
+        help="""
+        Dependencies to lookup using `lastversion`. Requires network access and
+        `lastversion` to be installed.
+        """,
+    )
+    parser.add_argument(
+        "-m",
+        "--id-dep",
+        type=str,
+        action="append",
+        default=ID_TO_PACKAGE,
+        help=f"""
+        Colon separated hook id to dependency mapping (``{{hook_id}}:{{dependency}}``).
+        For example, to map the ``ruff-check`` hook to ``ruff``,
+        pass ``-m 'ruff-check:ruff'. (Default: {ID_TO_PACKAGE})
+        """,
     )
 
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    parser = get_parser()
+    parser = _get_parser()
     args = parser.parse_args(argv)
     paths: list[Path] = args.paths or [Path(".pre-commit-config.yaml")]
 
     out = 0
     for path in paths:
-        out += process_file(
+        out += _process_file(
             path,
             yaml_mapping=args.yaml_mapping,
             yaml_sequence=args.yaml_sequence,
             yaml_offset=args.yaml_offset,
-            to_all=args.to_all,
             to_include=args.to_include,
             to_exclude=args.to_exclude,
-            from_all=args.from_all,
             from_include=args.from_include,
             from_exclude=args.from_exclude,
             requirements=args.requirements,
             lastversion_dependencies=args.lastversion_dependencies,
+            id_to_package_mapping=_parse_id_to_dep(args.id_dep),
         )
 
     return out

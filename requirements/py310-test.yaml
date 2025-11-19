@@ -13,6 +13,7 @@ channels:
 dependencies:
   - python=3.10
   - lastversion
+  - packaging
   - pytest
   - pytest-cov
   - pytest-sugar
