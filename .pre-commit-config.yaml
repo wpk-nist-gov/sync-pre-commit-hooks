@@ -195,6 +195,17 @@ repos:
         pass_filenames: false
         stages: [manual]
 
+  # * Update "rev" in README.md
+  - repo: local
+    hooks:
+      - id: sync-readme-rev-version
+        name: sync-readme-rev-version
+        description: update rev version in README.md
+        entry: python tools/sync_readme_rev_version.py
+        language: python
+        pass_filenames: false
+        files: ^pyproject\.toml|^README\.md
+
   # * Update pyproject.tool.uv.dependency-groups python-version minimum
   - repo: local
     hooks:
