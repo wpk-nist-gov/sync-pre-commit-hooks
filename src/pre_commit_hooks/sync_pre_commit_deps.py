@@ -4,7 +4,6 @@
 # ruff: noqa: D103
 from __future__ import annotations
 
-import logging
 from argparse import ArgumentParser
 from functools import lru_cache
 from pathlib import Path
@@ -12,21 +11,15 @@ from typing import TYPE_CHECKING, Any, cast
 
 import ruamel.yaml
 
+from ._logging import get_logger
+from ._utils import add_yaml_arguments
+
 if TYPE_CHECKING:
     from collections.abc import Container, Sequence
 
-
-_ARGUMENT_HELP_TEMPLATE = (
-    "The `{}` argument to the YAML dumper. "
-    "See https://yaml.readthedocs.io/en/latest/detail/"
-    "#indentation-of-block-sequences"
-)
-
 ID_TO_PACKAGE = ["ruff-format:ruff", "ruff-check:ruff"]
 
-FORMAT = "[%(name)s - %(levelname)s] %(message)s"
-logging.basicConfig(level=logging.INFO, format=FORMAT)
-logger = logging.getLogger("sync-pre-commit-deps")
+logger = get_logger("sync-pre-commit-deps")
 
 
 def _get_versions_from_ids(
@@ -134,15 +127,20 @@ def _process_file(
     versions.update(_get_versions_from_lastversion(lastversion_dependencies))
 
     updated = False
-    for repo in loaded["repos"]:
+    for repo in loaded["repos"]:  # noqa: PLR1702
         for hook in repo["hooks"]:
-            for i, dep in enumerate(hook.get("additional_dependencies", ())):
-                if hook["id"] in hook_ids_update:
+            if hook["id"] in hook_ids_update:
+                for i, dep in enumerate(hook.get("additional_dependencies", ())):
                     name, _, cur_version = dep.partition("==")
                     if (
                         target_version := versions.get(name, cur_version)
                     ) != cur_version:
-                        name_and_version = f"{name}=={target_version}"
+                        name_and_version = type(dep)(f"{name}=={target_version}")
+                        if hasattr(dep, "anchor"):
+                            name_and_version.yaml_set_anchor(
+                                dep.anchor.value, always_dump=True
+                            )
+
                         hook["additional_dependencies"][i] = name_and_version
                         logger.info(
                             "Setting %s dependency %s to %s",
@@ -162,6 +160,7 @@ def _process_file(
 
 def _get_parser() -> ArgumentParser:
     parser = ArgumentParser(description=__doc__)
+    parser = add_yaml_arguments(parser)
     parser.add_argument(
         "paths",
         type=Path,
@@ -169,25 +168,6 @@ def _get_parser() -> ArgumentParser:
         help="The pre-commit config file to sync to.",
     )
 
-    # yaml defaults are my preference
-    parser.add_argument(
-        "--yaml-mapping",
-        type=int,
-        default=2,
-        help=_ARGUMENT_HELP_TEMPLATE.format("mapping"),
-    )
-    parser.add_argument(
-        "--yaml-sequence",
-        type=int,
-        default=4,
-        help=_ARGUMENT_HELP_TEMPLATE.format("sequence"),
-    )
-    parser.add_argument(
-        "--yaml-offset",
-        type=int,
-        default=2,
-        help=_ARGUMENT_HELP_TEMPLATE.format("offset"),
-    )
     # hook id to extract from
     parser.add_argument(
         "--from",

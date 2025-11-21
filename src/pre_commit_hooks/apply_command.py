@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
-import logging
 import shlex
 import subprocess
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-FORMAT = "[%(name)s - %(levelname)s] %(message)s"
-logging.basicConfig(level=logging.INFO, format=FORMAT)
-logger = logging.getLogger("apply-command")
+from ._logging import get_logger
+
+logger = get_logger("apply-command")
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

@@ -6,21 +6,20 @@ By default, set value to `>=python_version` with `python_version` taken from `.p
 
 from __future__ import annotations
 
-import logging
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from packaging.specifiers import Specifier
 
+from ._logging import get_logger
+
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
 
-FORMAT = "[%(name)s - %(levelname)s] %(message)s"
-logging.basicConfig(level=logging.INFO, format=FORMAT)
-logger = logging.getLogger("sync-uv-dependency-groups")
+logger = get_logger("sync-uv-dependency-groups")
 
 
 def _get_config_file(config_file: Path | None) -> Path:

@@ -37,3 +37,14 @@
   files: \.?[jJ]ustfile$|.*\.just$
   pass_filenames: true
   minimum_pre_commit_version: "2.9.2"
+- id: fill-pre-commit-hook-deps
+  name: fill-pre-commit-hook-deps
+  description:
+    Fill additions dependencies for hook from pyproject.toml or requirements.txt
+  entry: fill-pre-commit-deps
+  args: ["--help"]
+  language: python
+  additional_dependencies:
+    - ".[fill-pre-commit-hook-deps]"
+  pass_filenames: false
+  minimum_pre_commit_version: "2.9.2"

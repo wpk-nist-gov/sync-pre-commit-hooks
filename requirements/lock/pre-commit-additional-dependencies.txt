@@ -4,6 +4,17 @@ cogapp==3.6.0 \
     --hash=sha256:6ea11c63221f92978d37d8d76208eadeae2a6e4641d323f165738a5464a19d32 \
     --hash=sha256:ec2a9170bfa644bf0d91996fdb5576c13d7e5e848bb2378a6f92727b48f92604
     # via -r requirements/pre-commit-additional-dependencies.txt
+pyrefly==0.42.2 \
+    --hash=sha256:0c6eeed7e2f845319f07f34f551f4c137b5e705043df1960f7f9aa1ee783c4b1 \
+    --hash=sha256:2603f9df326381f4206a77244b3709336fd77d42a5adaa64a5c602776cd334f3 \
+    --hash=sha256:293324c3039172610a67b255ff348daca1870b9c205ec2459efaaa60eeac31e5 \
+    --hash=sha256:4a1317a2242388aaa4eb0fd17c8d843ea8ac017a4fe1779de2f16ab0c045ac34 \
+    --hash=sha256:6371260d417a5b288313a949db409dff3d0e766698d2938e511369ad26d3b04b \
+    --hash=sha256:8d4738617b8c28311b15a45bd5114022efeb6bab7a9b957cb783589da3f14b17 \
+    --hash=sha256:9d9b80d2f8390dab32d7f979635f0f72e76b8a65666b86c14c1eff6538fcf109 \
+    --hash=sha256:b034719c829174db2e009cee7eb459d26f4f4399d12efb4df3dd8e4ca4bf4111 \
+    --hash=sha256:f73a4140f2f31a0bd566b5852dabc73c7b70d43a7952c5071a1351be664eb51d
+    # via -r requirements/pre-commit-additional-dependencies.txt
 rust-just==1.43.1 \
     --hash=sha256:04f8bd5fabcdebe8bf03d93b12352ab54ae3d831d317240be5cca7272173151d \
     --hash=sha256:0c75cd479dc624cee83db8765a453f4ff174c71d71a90c723ba076d998d9834e \

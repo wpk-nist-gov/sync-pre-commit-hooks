@@ -35,23 +35,34 @@ dependencies = [
 ]
 
 optional-dependencies.all = [
-    "pre-commit-hooks[lastversion,sync-pre-commit-deps,sync-uv-dependency-groups]",
+    "pre-commit-hooks[fill-pre-commit-hook-deps,lastversion,sync-pre-commit-deps,sync-uv-dependency-groups]",
 ]
 
+optional-dependencies.fill-pre-commit-hook-deps = [
+    "dependency-groups>=1.3.1",
+    "packaging>=25.0",
+    "pre-commit-hooks[requirements-parser,yaml]",
+]
 optional-dependencies.lastversion = [
-    "lastversion",
+    "lastversion>=3.5.8",
+]
+optional-dependencies.requirements-parser = [
+    "requirements-parser>=0.13.0",
 ]
 optional-dependencies.sync-pre-commit-deps = [
-    "requirements-parser",
-    "ruamel-yaml",
+    "pre-commit-hooks[requirements-parser,yaml]",
 ]
 optional-dependencies.sync-uv-dependency-groups = [
-    "packaging",
-    "tomlkit",
+    "packaging>=25.0",
+    "tomlkit>=0.13.3",
+]
+optional-dependencies.yaml = [
+    "ruamel-yaml>=0.18.16",
 ]
 urls.Documentation = "https://pages.nist.gov/pre-commit-hooks/"
 urls.Homepage = "https://github.com/wpk-nist-gov/pre-commit-hooks"
 scripts.apply-command = "pre_commit_hooks.apply_command:main"
+scripts.fill-pre-commit-deps = "pre_commit_hooks.fill_pre_commit_deps:main"
 scripts.sync-pre-commit-deps = "pre_commit_hooks.sync_pre_commit_deps:main"
 scripts.sync-uv-dependency-groups = "pre_commit_hooks.sync_uv_dependency_groups:main"
 
@@ -213,6 +224,10 @@ module = [ "lastversion.*" ]
 # ignore_errors = true
 # module = [  ]
 
+[tool.pyrefly]
+#### configuring what to type check and where to import from
+project-includes = [ "src", "tests" ]
+
 [tool.pyright]
 include = [
     "src",
@@ -309,6 +324,7 @@ style = "requirements"
 [tool.pyproject2conda.envs.pre-commit-additional-dependencies]
 reqs = [
     "rust-just",
+    "pyrefly",
 ]
 groups = [
     "cog",

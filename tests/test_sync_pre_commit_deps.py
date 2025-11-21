@@ -321,7 +321,7 @@ repos:
     hooks:
       - id: blacken-docs
         additional_dependencies:
-          - black==23.2.0
+          - &black-dep black==23.2.0
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.5
     hooks:
@@ -349,7 +349,7 @@ repos:
     hooks:
       - id: blacken-docs
         additional_dependencies:
-          - black==23.4.0
+          - &black-dep black==23.4.0
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.5
     hooks:
