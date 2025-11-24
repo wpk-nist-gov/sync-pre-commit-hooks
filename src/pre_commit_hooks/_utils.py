@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ruamel.yaml import YAML
+
 if TYPE_CHECKING:
     from argparse import ArgumentParser
     from collections.abc import Callable, Mapping, Sequence
@@ -64,3 +66,14 @@ def add_yaml_arguments(parser: ArgumentParser) -> ArgumentParser:
     )
 
     return parser
+
+
+def get_yaml(
+    mapping: int,
+    sequence: int,
+    offset: int,
+) -> YAML:
+    yaml = YAML()
+    yaml.preserve_quotes = True
+    yaml.indent(mapping, sequence, offset)
+    return yaml

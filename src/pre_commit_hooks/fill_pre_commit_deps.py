@@ -1,70 +1,135 @@
 """
-Fill in ``additional_dependencies`` extracted from `pyproject.toml` or `requirements.txt`
+Fill in `additional_dependencies`` extracted from `pyproject.toml` or `requirements.txt`
 
 Works on single hook.
 """
 
+# ruff: noqa: DOC402
+# pylint: disable=bad-builtin,missing-class-docstring,duplicate-code
 from __future__ import annotations
 
+from abc import abstractmethod
 from argparse import ArgumentParser
+from dataclasses import dataclass, field
 from functools import cached_property
+from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Protocol, cast
 
+from dependency_groups import resolve as resolve_dependency_groups
 from packaging.requirements import Requirement
 
 from ._logging import get_logger
-from ._utils import add_yaml_arguments, get_in
+from ._utils import add_yaml_arguments, get_in, get_yaml
 
 if TYPE_CHECKING:
     from argparse import Namespace
-    from collections.abc import Callable, Container, Iterable, Sequence
+    from collections.abc import Callable, Collection, Iterable, Iterator, Sequence
     from typing import Any, Self
 
 logger = get_logger("fill-pre-commit-deps")
 
 
-def _resolve_extras(
-    *,
-    extras: str | Iterable[str],
+# Not used, but keep for posterity
+def _resolve_requirements(
+    requirements: Iterable[Requirement],
     package_name: str,
-    unresolved: dict[str, list[Requirement]],
-) -> list[Requirement]:
-    """Resolve extras"""
-    if isinstance(extras, str):
-        extras = [extras]
-
-    out: list[Requirement] = []
-    for extra in extras:
-        for requirement in unresolved[extra]:
-            if requirement.name == package_name:
-                out.extend(
-                    _resolve_extras(
-                        extras=requirement.extras,
-                        package_name=package_name,
-                        unresolved=unresolved,
-                    )
-                )
-            else:
-                out.append(requirement)
-    return out
-
-
-def _resolve_group(
-    requirements: list[Requirement],
-    package_name: str,
-    extras: dict[str, list[Requirement]],
-) -> list[Requirement]:
-    """Resolve project.name[extra] in a group"""
-    out: list[Requirement] = []
+    optional_dependencies: dict[str, list[Requirement]],
+) -> Iterator[Requirement]:
     for requirement in requirements:
         if requirement.name == package_name:
             for extra in requirement.extras:
-                out.extend(extras[extra])
+                yield from _resolve_requirements(
+                    optional_dependencies[extra], package_name, optional_dependencies
+                )
         else:
-            out.append(requirement)
+            yield requirement
 
-    return out
+
+def _limit_requirements(
+    deps: Iterable[Requirement], exclude: Collection[str], include: Collection[str]
+) -> Iterable[Requirement]:
+    if exclude:
+
+        def func_exclude(x: Requirement) -> bool:
+            return x.name not in exclude
+
+        deps = filter(func_exclude, deps)
+
+    if include:
+
+        def func_include(x: Requirement) -> bool:
+            return x.name in include
+
+        deps = filter(func_include, deps)
+    return deps
+
+
+class _Resolve(Protocol):
+    package_name: str
+    unresolved: dict[str, Any]
+    resolved: dict[str, Any]
+
+    @abstractmethod
+    def _get_unresolved_deps(self, key: str) -> Iterable[Requirement]: ...
+
+    @abstractmethod
+    def _get_resolved_package_extras(
+        self, extras: Iterable[str]
+    ) -> Iterable[Requirement]: ...
+
+    def _resolve(self, key: str) -> Iterator[Requirement]:
+        if key in self.resolved:
+            yield from self.resolved[key]
+        else:
+            for dep in self._get_unresolved_deps(key):
+                if dep.name == self.package_name:
+                    yield from self._get_resolved_package_extras(dep.extras)
+                else:
+                    yield dep
+
+    def get(self, key: str | Iterable[str]) -> Iterator[Requirement]:
+        if isinstance(key, str):
+            key = [key]
+
+        for extra in key:
+            if extra in self.resolved:
+                yield from self.resolved[extra]
+            else:
+                val = self.resolved[extra] = set(self._resolve(extra))
+                yield from val
+
+
+@dataclass
+class _ResolveOptionalDependencies(_Resolve):
+    package_name: str
+    unresolved: dict[str, Sequence[Requirement]]
+    resolved: dict[str, set[Requirement]] = field(init=False, default_factory=dict)
+
+    def _get_unresolved_deps(self, key: str) -> Iterable[Requirement]:
+        yield from self.unresolved[key]
+
+    def _get_resolved_package_extras(
+        self, extras: Iterable[str]
+    ) -> Iterable[Requirement]:
+        for e in extras:
+            yield from self._resolve(e)
+
+
+@dataclass
+class _ResolveDependencyGroups(_Resolve):
+    package_name: str
+    unresolved: dict[str, Any]
+    optional_dependencies: _ResolveOptionalDependencies
+    resolved: dict[str, set[Requirement]] = field(init=False, default_factory=dict)
+
+    def _get_unresolved_deps(self, key: str) -> Iterable[Requirement]:
+        return map(Requirement, resolve_dependency_groups(self.unresolved, key))
+
+    def _get_resolved_package_extras(
+        self, extras: Iterable[str]
+    ) -> Iterable[Requirement]:
+        yield from self.optional_dependencies.get(extras)
 
 
 class ParseDepends:
@@ -96,124 +161,61 @@ class ParseDepends:
         return cast("str", out)
 
     @cached_property
-    def dependencies(self) -> list[str]:
+    def dependencies(self) -> list[Requirement]:
         """project.dependencies"""
-        return cast(
-            "list[str]",
-            self.get_in(
-                "project",
-                "dependencies",
-                factory=list,
-            ),
+        return list(
+            map(
+                Requirement,
+                self.get_in(
+                    "project",
+                    "dependencies",
+                    factory=list,
+                ),
+            )
         )
 
     @cached_property
-    def optional_dependencies(self) -> dict[str, Any]:
+    def optional_dependencies(self) -> _ResolveOptionalDependencies:
         """project.optional-dependencies"""
-        return cast(
-            "dict[str, Any]",
-            self.get_in(
-                "project",
-                "optional-dependencies",
-                factory=dict,
-            ),
+        return _ResolveOptionalDependencies(
+            package_name=self.package_name,
+            unresolved={
+                k: list(map(Requirement, v))
+                for k, v in self.get_in(
+                    "project",
+                    "optional-dependencies",
+                    factory=dict,
+                ).items()
+            },
         )
 
     @cached_property
-    def dependency_groups(self) -> dict[str, Any]:
+    def dependency_groups(self) -> _ResolveDependencyGroups:
         """dependency-groups"""
-        return cast(
-            "dict[str, Any]",
-            self.get_in(
-                "dependency-groups",
-                factory=dict,
+        return _ResolveDependencyGroups(
+            package_name=self.package_name,
+            unresolved=cast(
+                "dict[str, Any]",
+                self.get_in(
+                    "dependency-groups",
+                    factory=dict,
+                ),
             ),
+            optional_dependencies=self.optional_dependencies,
         )
-
-    @cached_property
-    def requirements_base(self) -> list[Requirement]:
-        """Base requirements"""
-        return [Requirement(x) for x in self.dependencies]
-
-    @cached_property
-    def requirements_extras(self) -> dict[str, list[Requirement]]:
-        """Extras requirements"""
-        unresolved: dict[str, list[Requirement]] = {
-            k: [Requirement(x) for x in v]
-            for k, v in self.optional_dependencies.items()
-        }
-
-        resolved: dict[str, list[Requirement]] = {
-            extra: _resolve_extras(
-                extras=extra, package_name=self.package_name, unresolved=unresolved
-            )
-            for extra in unresolved
-        }
-
-        return resolved
-
-    @cached_property
-    def requirements_groups(self) -> dict[str, list[Requirement]]:
-        """Groups requirements"""
-        from dependency_groups import resolve
-
-        unresolved: dict[str, list[Requirement]] = {
-            group: [Requirement(x) for x in resolve(self.dependency_groups, group)]
-            for group in self.dependency_groups
-        }
-
-        resolved: dict[str, list[Requirement]] = {
-            group: _resolve_group(
-                requirements, self.package_name, self.requirements_extras
-            )
-            for group, requirements in unresolved.items()
-        }
-
-        return resolved
-
-    def _get_requirements(
-        self,
-        extras: Iterable[str],
-        groups: Iterable[str],
-        no_project_dependencies: bool = False,
-    ) -> list[Requirement]:
-        out: list[Requirement] = []
-
-        if not no_project_dependencies:
-            out.extend(self.requirements_base)
-
-        def _extend_extra_or_group(
-            extras: Iterable[str],
-            requirements_mapping: dict[str, list[Requirement]],
-        ) -> None:
-            for extra in extras:
-                out.extend(requirements_mapping[extra])
-
-        _extend_extra_or_group(extras, self.requirements_extras)
-        _extend_extra_or_group(groups, self.requirements_groups)
-
-        return out
 
     def pip_requirements(
         self,
-        *,
         extras: Iterable[str],
         groups: Iterable[str],
         no_project_dependencies: bool = False,
-        exclude: Container[str] = (),
-    ) -> list[str]:
-        """Pip dependencies."""
-        return sorted(
-            {
-                str(requirement)
-                for requirement in self._get_requirements(
-                    extras=extras,
-                    groups=groups,
-                    no_project_dependencies=no_project_dependencies,
-                )
-                if requirement.name not in exclude
-            }
-        )
+    ) -> Iterator[Requirement]:
+        """Iterator of requirements"""
+        if not no_project_dependencies:
+            yield from self.dependencies
+
+        yield from self.optional_dependencies.get(extras)
+        yield from self.dependency_groups.get(groups)
 
     @classmethod
     def from_string(
@@ -238,15 +240,13 @@ class ParseDepends:
 
 def parse_requirements_file(
     requirements_path: Path,
-    exclude: Container[str],
-) -> list[str]:
+) -> Iterator[Requirement]:
     """Get list of requirements for requirement.txt file"""
     from requirements import parse
 
     with requirements_path.open(encoding="utf-8") as f:
-        reqs = {Requirement(req.line) for req in parse(f)}
-
-    return sorted({str(req) for req in reqs if req.name not in exclude})
+        for req in parse(f):
+            yield Requirement(req.line)
 
 
 def _update_yaml_file(
@@ -257,11 +257,7 @@ def _update_yaml_file(
     yaml_sequence: int = 4,
     yaml_offset: int = 2,
 ) -> int:
-    import ruamel.yaml
-
-    yaml = ruamel.yaml.YAML()
-    yaml.preserve_quotes = True
-    yaml.indent(yaml_mapping, yaml_sequence, yaml_offset)
+    yaml = get_yaml(yaml_mapping, yaml_sequence, yaml_offset)
     with path.open(encoding="utf-8") as f:
         loaded: dict[str, Any] = yaml.load(f)
 
@@ -290,22 +286,20 @@ def get_options(argv: Sequence[str] | None = None) -> Namespace:
     parser = ArgumentParser(description=__doc__)
     parser = add_yaml_arguments(parser)
     parser.add_argument(
-        "--hook", dest="hook_id", required=True, help="Hook id to apply to."
-    )
-    parser.add_argument(
-        "--pyproject",
-        type=Path,
-        default="pyproject.toml",
-        help="pyproject.toml file (Default: 'pyproject.toml')",
-    )
-    parser.add_argument(
         "--config",
         type=Path,
         default=".pre-commit-config.yaml",
         help="pre-commit config file (Default '.pre-commit-config.yaml')",
     )
     parser.add_argument(
-        "-r", "--requirements", type=Path, default=None, help="Requirements file."
+        "--hook", dest="hook_id", required=True, help="Hook id to apply to."
+    )
+    # pyproject
+    parser.add_argument(
+        "--pyproject",
+        type=Path,
+        default="pyproject.toml",
+        help="pyproject.toml file (Default: 'pyproject.toml')",
     )
     parser.add_argument(
         "-g",
@@ -332,8 +326,47 @@ def get_options(argv: Sequence[str] | None = None) -> Namespace:
         """,
     )
     parser.add_argument(
-        "--exclude", action="append", default=[], help="Exclude package."
+        "--exclude",
+        action="append",
+        default=[],
+        help="Exclude package.",
     )
+    parser.add_argument(
+        "--include",
+        action="append",
+        default=[],
+        help="""
+        Include package.  Default is to include all packages.  If you
+        specify, `--include``, only those packages are included.
+        """,
+    )
+    # requirements
+    parser.add_argument(
+        "-r",
+        "--req",
+        "--requirements",
+        dest="requirements",
+        type=Path,
+        default=None,
+        help="Requirements file.",
+    )
+    parser.add_argument(
+        "--req-exclude",
+        action="append",
+        default=[],
+        help="Exclude package from read `requirements.txt`.",
+    )
+    parser.add_argument(
+        "--req-include",
+        action="append",
+        default=[],
+        help="""
+        Include package from read `requirements.txt`. Default is to include all
+        packages from requirements.txt. If you specify, `--include``, only
+        those packages are included.
+        """,
+    )
+    # extra deps
     parser.add_argument(
         "extra_deps",
         nargs="*",
@@ -341,8 +374,8 @@ def get_options(argv: Sequence[str] | None = None) -> Namespace:
         help="""
         Extra dependencies.  These are are prepended to any dependencies
         found from extras/groups/requirements.  These should be passed
-        after ``"--"``.  For example, to include an editable package, use
-        ``fill-pre-commit-deps -g typecheck -- --editable=.``.
+        after `"--"``.  For example, to include an editable package, use
+        `fill-pre-commit-deps -g typecheck -- --editable=.``.
         """,
     )
 
@@ -353,23 +386,31 @@ def main(argv: Sequence[str] | None = None) -> int:
     """CLI."""
     options = get_options(argv)
 
-    if options.requirements is not None:
-        deps = parse_requirements_file(options.requirements, options.exclude)
-
-    else:
-        deps = ParseDepends.from_path(options.pyproject).pip_requirements(
+    deps = _limit_requirements(
+        deps=ParseDepends.from_path(options.pyproject).pip_requirements(
             extras=options.extras,
             groups=options.groups,
             no_project_dependencies=options.no_project_dependencies,
-            exclude=options.exclude,
+        ),
+        exclude=options.exclude,
+        include=options.include,
+    )
+
+    if options.requirements is not None:
+        deps_req = _limit_requirements(
+            deps=parse_requirements_file(options.requirements),
+            exclude=options.req_exclude,
+            include=options.req_include,
         )
 
-    deps = [*options.extra_deps, *deps]
+        deps = chain(deps, deps_req)
+
+    deps_clean = [*options.extra_deps, *sorted(set(map(str, deps)))]
 
     _update_yaml_file(
         path=options.config,
         hook_id=options.hook_id,
-        deps=deps,
+        deps=deps_clean,
         yaml_mapping=options.yaml_mapping,
         yaml_sequence=options.yaml_sequence,
         yaml_offset=options.yaml_offset,

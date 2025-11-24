@@ -9,10 +9,8 @@ from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
-import ruamel.yaml
-
 from ._logging import get_logger
-from ._utils import add_yaml_arguments
+from ._utils import add_yaml_arguments, get_yaml
 
 if TYPE_CHECKING:
     from collections.abc import Container, Sequence
@@ -111,10 +109,7 @@ def _process_file(
     lastversion_dependencies: Sequence[str],
     id_to_package_mapping: dict[str, str],
 ) -> int:
-    yaml = ruamel.yaml.YAML()
-    yaml.preserve_quotes = True
-    yaml.indent(yaml_mapping, yaml_sequence, yaml_offset)
-
+    yaml = get_yaml(yaml_mapping, yaml_sequence, yaml_offset)
     with path.open(encoding="utf-8") as f:
         loaded: dict[str, Any] = yaml.load(f)
 
@@ -127,7 +122,7 @@ def _process_file(
     versions.update(_get_versions_from_lastversion(lastversion_dependencies))
 
     updated = False
-    for repo in loaded["repos"]:  # noqa: PLR1702
+    for repo in loaded["repos"]:  # noqa: PLR1702 # pylint: disable=too-many-nested-blocks
         for hook in repo["hooks"]:
             if hook["id"] in hook_ids_update:
                 for i, dep in enumerate(hook.get("additional_dependencies", ())):
