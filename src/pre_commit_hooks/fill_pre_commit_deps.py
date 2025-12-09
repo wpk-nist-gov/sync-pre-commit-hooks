@@ -8,42 +8,55 @@ Works on single hook.
 # pylint: disable=bad-builtin,missing-class-docstring,duplicate-code
 from __future__ import annotations
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from dataclasses import dataclass, field
 from functools import cached_property
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Protocol, cast
+from typing import TYPE_CHECKING, cast
 
-from dependency_groups import resolve as resolve_dependency_groups
+from dependency_groups import DependencyGroupResolver
 from packaging.requirements import Requirement
+from packaging.utils import canonicalize_name
 
 from ._logging import get_logger
 from ._utils import add_yaml_arguments, get_in, get_yaml
 
 if TYPE_CHECKING:
     from argparse import Namespace
-    from collections.abc import Callable, Collection, Iterable, Iterator, Sequence
-    from typing import Any, Self
+    from collections.abc import (
+        Callable,
+        Collection,
+        Iterable,
+        Iterator,
+        Mapping,
+        Sequence,
+    )
+    from typing import Any, NewType, Self
+
+    from packaging.utils import NormalizedName
+
+    NormalizedRequirement = NewType("NormalizedRequirement", Requirement)
+
 
 logger = get_logger("fill-pre-commit-deps")
 
 
 # Not used, but keep for posterity
-def _resolve_requirements(
-    requirements: Iterable[Requirement],
-    package_name: str,
-    optional_dependencies: dict[str, list[Requirement]],
-) -> Iterator[Requirement]:
-    for requirement in requirements:
-        if requirement.name == package_name:
-            for extra in requirement.extras:
-                yield from _resolve_requirements(
-                    optional_dependencies[extra], package_name, optional_dependencies
-                )
-        else:
-            yield requirement
+# def _resolve_requirements(  # pragma: no cover
+#     requirements: Iterable[Requirement],
+#     package_name: str,
+#     optional_dependencies: dict[str, list[Requirement]],
+# ) -> Iterator[Requirement]:
+#     for requirement in requirements:
+#         if requirement.name == package_name:
+#             for extra in requirement.extras:
+#                 yield from _resolve_requirements(
+#                     optional_dependencies[extra], package_name, optional_dependencies  # noqa: ERA001
+#                 )  # noqa: ERA001,RUF100
+#         else:  # noqa: ERA001
+#             yield requirement
 
 
 def _limit_requirements(
@@ -65,34 +78,48 @@ def _limit_requirements(
     return deps
 
 
-class _Resolve(Protocol):
-    package_name: str
-    unresolved: dict[str, Any]
-    resolved: dict[str, Any]
+def _canonicalize_requirement(dep: Requirement) -> NormalizedRequirement:
+    dep.name = canonicalize_name(dep.name)
+    dep.extras = {canonicalize_name(e) for e in dep.extras}
+    return cast("NormalizedRequirement", dep)
+
+
+@dataclass
+class _Resolve(ABC):
+    package_name: NormalizedName
+    unresolved: Mapping[str, Any]
+    resolved: dict[NormalizedName, set[NormalizedRequirement]] = field(
+        init=False, default_factory=dict
+    )
 
     @abstractmethod
-    def _get_unresolved_deps(self, key: str) -> Iterable[Requirement]: ...
+    def _get_unresolved_deps(
+        self, key: NormalizedName
+    ) -> Iterable[NormalizedRequirement]: ...
 
     @abstractmethod
     def _get_resolved_package_extras(
-        self, extras: Iterable[str]
-    ) -> Iterable[Requirement]: ...
+        self, extras: Iterable[NormalizedName]
+    ) -> Iterable[NormalizedRequirement]: ...
 
-    def _resolve(self, key: str) -> Iterator[Requirement]:
+    def _resolve(self, key: NormalizedName) -> Iterator[NormalizedRequirement]:
+        """Do underlying resolve of normalized group/extra"""
         if key in self.resolved:
             yield from self.resolved[key]
         else:
             for dep in self._get_unresolved_deps(key):
                 if dep.name == self.package_name:
-                    yield from self._get_resolved_package_extras(dep.extras)
+                    yield from self._get_resolved_package_extras(
+                        map(canonicalize_name, dep.extras)
+                    )
                 else:
                     yield dep
 
-    def get(self, key: str | Iterable[str]) -> Iterator[Requirement]:
+    def get(self, key: str | Iterable[str]) -> Iterator[NormalizedRequirement]:
         if isinstance(key, str):
             key = [key]
 
-        for extra in key:
+        for extra in map(canonicalize_name, key):
             if extra in self.resolved:
                 yield from self.resolved[extra]
             else:
@@ -102,33 +129,36 @@ class _Resolve(Protocol):
 
 @dataclass
 class _ResolveOptionalDependencies(_Resolve):
-    package_name: str
-    unresolved: dict[str, Sequence[Requirement]]
-    resolved: dict[str, set[Requirement]] = field(init=False, default_factory=dict)
+    unresolved: Mapping[NormalizedName, Sequence[NormalizedRequirement]]
 
-    def _get_unresolved_deps(self, key: str) -> Iterable[Requirement]:
+    def _get_unresolved_deps(
+        self, key: NormalizedName
+    ) -> Iterable[NormalizedRequirement]:
         yield from self.unresolved[key]
 
     def _get_resolved_package_extras(
-        self, extras: Iterable[str]
-    ) -> Iterable[Requirement]:
+        self, extras: Iterable[NormalizedName]
+    ) -> Iterable[NormalizedRequirement]:
         for e in extras:
             yield from self._resolve(e)
 
 
 @dataclass
 class _ResolveDependencyGroups(_Resolve):
-    package_name: str
-    unresolved: dict[str, Any]
     optional_dependencies: _ResolveOptionalDependencies
-    resolved: dict[str, set[Requirement]] = field(init=False, default_factory=dict)
+    _resolver: DependencyGroupResolver = field(init=False)
 
-    def _get_unresolved_deps(self, key: str) -> Iterable[Requirement]:
-        return map(Requirement, resolve_dependency_groups(self.unresolved, key))
+    def __post_init__(self) -> None:
+        self._resolver = DependencyGroupResolver(self.unresolved)
+
+    def _get_unresolved_deps(
+        self, key: NormalizedName
+    ) -> Iterable[NormalizedRequirement]:
+        return map(_canonicalize_requirement, self._resolver.resolve(key))
 
     def _get_resolved_package_extras(
-        self, extras: Iterable[str]
-    ) -> Iterable[Requirement]:
+        self, extras: Iterable[NormalizedName]
+    ) -> Iterable[NormalizedRequirement]:
         yield from self.optional_dependencies.get(extras)
 
 
@@ -153,19 +183,19 @@ class ParseDepends:
         )
 
     @cached_property
-    def package_name(self) -> str:
+    def package_name(self) -> NormalizedName:
         """Clean name of package."""
         if (out := self.get_in("project", "name")) is None:
             msg = "Must specify `project.name`"
             raise ValueError(msg)
-        return cast("str", out)
+        return canonicalize_name(out)
 
     @cached_property
-    def dependencies(self) -> list[Requirement]:
+    def dependencies(self) -> list[NormalizedRequirement]:
         """project.dependencies"""
         return list(
             map(
-                Requirement,
+                _canonicalize_requirement,
                 self.get_in(
                     "project",
                     "dependencies",
@@ -180,7 +210,9 @@ class ParseDepends:
         return _ResolveOptionalDependencies(
             package_name=self.package_name,
             unresolved={
-                k: list(map(Requirement, v))
+                canonicalize_name(k): list(
+                    map(_canonicalize_requirement, map(Requirement, v))
+                )
                 for k, v in self.get_in(
                     "project",
                     "optional-dependencies",
@@ -209,7 +241,7 @@ class ParseDepends:
         extras: Iterable[str],
         groups: Iterable[str],
         no_project_dependencies: bool = False,
-    ) -> Iterator[Requirement]:
+    ) -> Iterator[NormalizedRequirement]:
         """Iterator of requirements"""
         if not no_project_dependencies:
             yield from self.dependencies
@@ -240,13 +272,13 @@ class ParseDepends:
 
 def parse_requirements_file(
     requirements_path: Path,
-) -> Iterator[Requirement]:
+) -> Iterator[NormalizedRequirement]:
     """Get list of requirements for requirement.txt file"""
     from requirements import parse
 
     with requirements_path.open(encoding="utf-8") as f:
         for req in parse(f):
-            yield Requirement(req.line)
+            yield _canonicalize_requirement(Requirement(req.line))
 
 
 def _update_yaml_file(
@@ -372,10 +404,11 @@ def get_options(argv: Sequence[str] | None = None) -> Namespace:
         nargs="*",
         default=[],
         help="""
-        Extra dependencies.  These are are prepended to any dependencies
-        found from extras/groups/requirements.  These should be passed
-        after `"--"``.  For example, to include an editable package, use
-        `fill-pre-commit-deps -g typecheck -- --editable=.``.
+        Extra dependencies. These are are prepended to any dependencies found
+        from extras/groups/requirements. These should be passed after `"--"``.
+        For example, to include an editable package, use `fill-pre-commit-deps
+        -g typecheck -- --editable=.``. Note that these dependencies are
+        included as is, without any normalization.
         """,
     )
 
