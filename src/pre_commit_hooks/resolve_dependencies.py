@@ -1,4 +1,5 @@
 """Resolve ``optional-dependencies`` and ``dependency-groups``"""
+# pylint: disable=bad-builtin
 
 from __future__ import annotations
 
@@ -49,6 +50,8 @@ def canonicalize_requirement(dep: Requirement) -> NormalizedRequirement:
 
 @dataclass
 class _Resolve(ABC):
+    """Base resolver"""
+
     package_name: NormalizedName
     unresolved: Mapping[str, Any]
     resolved: dict[NormalizedName, set[NormalizedRequirement]] = field(

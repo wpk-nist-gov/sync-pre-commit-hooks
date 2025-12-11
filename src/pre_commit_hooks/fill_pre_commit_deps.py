@@ -4,7 +4,7 @@ Fill in `additional_dependencies`` extracted from `pyproject.toml` or `requireme
 Works on single hook.
 """
 
-# pylint: disable=bad-builtin,missing-class-docstring,duplicate-code
+# pylint: disable=bad-builtin,duplicate-code
 from __future__ import annotations
 
 from argparse import ArgumentParser
@@ -21,7 +21,6 @@ from ._utils import (
     add_pre_commit_config_argument,
     add_yaml_arguments,
     get_in,
-    get_language_version,
     pre_commit_config_load,
     pre_commit_config_repo_hook_iter,
 )
@@ -190,12 +189,11 @@ def _update_yaml_file(
     path: Path,
     hook_id: str,
     deps: list[str],
-    python_version: str | None = None,
     yaml_mapping: int = 2,
     yaml_sequence: int = 4,
     yaml_offset: int = 2,
 ) -> int:
-    if not deps and python_version is None:
+    if not deps:
         return 0
 
     loaded, yaml = pre_commit_config_load(
@@ -204,29 +202,16 @@ def _update_yaml_file(
 
     updated = False
     for _, hook in pre_commit_config_repo_hook_iter(loaded, include_hook_ids=hook_id):
-        if deps:
-            logger.info("Updating dependencies of hook %s", hook_id)
-            if (seq := hook.get("additional_dependencies")) is not None:
-                if seq != deps:
-                    seq.clear()
-                    seq.extend(deps)
-                    updated = True
-            else:
-                hook["additional_dependencies"] = deps
-                updated = True
+        logger.info("Updating dependencies of hook %s", hook_id)
+        if (seq := hook.get("additional_dependencies")) is not None:
+            if seq == deps:
+                continue
+            seq.clear()
+            seq.extend(deps)
+        else:
+            hook["additional_dependencies"] = deps
 
-        if (
-            python_version is not None
-            and (language_version := hook.get("language_version")) is not None
-            and python_version != language_version
-        ):
-            logger.info(
-                "Updating hook %s language_version to %s",
-                hook_id,
-                python_version,
-            )
-            hook["language_version"] = python_version
-            updated = True
+        updated = True
 
     if updated:
         logger.info("Updating %s", path)
@@ -331,25 +316,6 @@ def get_options(argv: Sequence[str] | None = None) -> Namespace:
         included as is, without any normalization.
         """,
     )
-    # python version (language_version)
-    _ = parser.add_argument(
-        "--python-version",
-        default=None,
-        help="""
-        Update `language_version` to this value.
-        Overrides ``--python-version-file``.
-        Note that `hook` must already have to key ``language_version`` for this to take effect.
-        """,
-    )
-    _ = parser.add_argument(
-        "--python-version-file",
-        default=None,
-        type=Path,
-        help="""
-        Update ``language_version`` to value read from file.  For example, ``--python-version-file=".python-version"``.
-        Note that `hook` must already have to key ``language_version`` for this to take effect.
-        """,
-    )
 
     return parser.parse_args(argv)
 
@@ -379,19 +345,10 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     deps_clean = [*options.extra_deps, *sorted(set(map(str, deps)))]
 
-    python_version = (
-        None
-        if options.python_version is None and options.python_version_file is None
-        else get_language_version(
-            options.python_version, options.python_version_file, logger
-        )
-    )
-
     return _update_yaml_file(
         path=options.config,
         hook_id=options.hook_id,
         deps=deps_clean,
-        python_version=python_version,
         yaml_mapping=options.yaml_mapping,
         yaml_sequence=options.yaml_sequence,
         yaml_offset=options.yaml_offset,
