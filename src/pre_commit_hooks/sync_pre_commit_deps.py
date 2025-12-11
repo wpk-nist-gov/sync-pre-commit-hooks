@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from ._logging import get_logger
 from ._utils import (
+    add_pre_commit_config_argument,
     add_yaml_arguments,
     pre_commit_config_load,
     pre_commit_config_repo_hook_iter,
@@ -102,8 +103,8 @@ def _parse_id_to_dep(id_to_package: Sequence[str]) -> dict[str, str]:
     return out
 
 
-def _process_file(
-    path: Path,
+def _update_yaml_file(
+    config: Path,
     yaml_mapping: int,
     yaml_sequence: int,
     yaml_offset: int,
@@ -116,7 +117,7 @@ def _process_file(
     id_to_package_mapping: dict[str, str],
 ) -> int:
     loaded, yaml = pre_commit_config_load(
-        path, mapping=yaml_mapping, sequence=yaml_sequence, offset=yaml_offset
+        config, mapping=yaml_mapping, sequence=yaml_sequence, offset=yaml_offset
     )
 
     hook_ids = _get_hook_ids(loaded)
@@ -150,21 +151,18 @@ def _process_file(
                 updated = True
 
     if updated:
-        yaml.dump(loaded, path)  # pyright: ignore[reportUnknownMemberType]
+        yaml.dump(loaded, config)  # pyright: ignore[reportUnknownMemberType]
         return 1
 
     return 0
 
 
-def _get_parser() -> ArgumentParser:
+def _get_options(
+    argv: Sequence[str] | None = None,
+) -> dict[str, Any]:
     parser = ArgumentParser(description=__doc__)
     parser = add_yaml_arguments(parser)
-    _ = parser.add_argument(
-        "paths",
-        type=Path,
-        nargs="*",
-        help="The pre-commit config file to sync to.",
-    )
+    parser = add_pre_commit_config_argument(parser)
 
     # hook id to extract from
     _ = parser.add_argument(
@@ -234,31 +232,18 @@ def _get_parser() -> ArgumentParser:
         """,
     )
 
-    return parser
+    options = parser.parse_args(argv)
+    kws = vars(options)
+
+    # updates
+    kws["id_to_package_mapping"] = _parse_id_to_dep(kws.pop("id_dep"))
+
+    return kws
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    parser = _get_parser()
-    args = parser.parse_args(argv)
-    paths: list[Path] = args.paths or [Path(".pre-commit-config.yaml")]
-
-    out = 0
-    for path in paths:
-        out += _process_file(
-            path,
-            yaml_mapping=args.yaml_mapping,
-            yaml_sequence=args.yaml_sequence,
-            yaml_offset=args.yaml_offset,
-            to_include=args.to_include,
-            to_exclude=args.to_exclude,
-            from_include=args.from_include,
-            from_exclude=args.from_exclude,
-            requirements=args.requirements,
-            lastversion_dependencies=args.lastversion_dependencies,
-            id_to_package_mapping=_parse_id_to_dep(args.id_dep),
-        )
-
-    return out
+    options = _get_options(argv)
+    return _update_yaml_file(**options)
 
 
 if __name__ == "__main__":

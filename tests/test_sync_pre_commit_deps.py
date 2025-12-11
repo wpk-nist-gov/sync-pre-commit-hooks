@@ -205,7 +205,7 @@ repos:
 def test_main_noop(options: Sequence[str], tmp_path: Path, s: str) -> None:
     cfg = create_config_file(tmp_path, s)
 
-    assert not main((*options, str(cfg)))
+    assert not main((f"--config={cfg}", *options))
 
     with cfg.open(encoding="utf-8") as f:
         assert f.read() == s
@@ -414,7 +414,7 @@ def test_main_from_to(
     with patch("lastversion.latest", return_value="abc"):
         cfg = create_config_file(tmp_path, text_in)
 
-        assert main([str(cfg), *options])
+        assert main([f"--config={cfg}", *options])
 
         with cfg.open(encoding="utf-8") as f:
             assert f.read() == text_out

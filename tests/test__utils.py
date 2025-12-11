@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from pre_commit_hooks._utils import get_python_version  # noqa: PLC2701
+from pre_commit_hooks._utils import get_language_version  # noqa: PLC2701
 
 
 @pytest.mark.parametrize(
@@ -20,11 +20,11 @@ from pre_commit_hooks._utils import get_python_version  # noqa: PLC2701
             None,
             None,
             False,
-            pytest.raises(ValueError, match=r"Must specify python_version .*"),
+            pytest.raises(ValueError, match=r"Must specify version .*"),
         ),
     ],
 )
-def test__get_python_version(
+def test_get_language_version(
     example_path: Path,  # noqa: ARG001
     python_version: str | None,
     python_version_file: str,
@@ -35,5 +35,5 @@ def test__get_python_version(
         Path(python_version_file).write_text("3.8", encoding="utf-8")
 
     with expected as e:
-        out = get_python_version(python_version, python_version_file)
+        out = get_language_version(python_version, python_version_file)
         assert out == e

@@ -18,9 +18,10 @@ from packaging.utils import canonicalize_name
 
 from ._logging import get_logger
 from ._utils import (
+    add_pre_commit_config_argument,
     add_yaml_arguments,
     get_in,
-    get_python_version,
+    get_language_version,
     pre_commit_config_load,
     pre_commit_config_repo_hook_iter,
 )
@@ -239,12 +240,7 @@ def get_options(argv: Sequence[str] | None = None) -> Namespace:
     """Get CLI options"""
     parser = ArgumentParser(description=__doc__)
     parser = add_yaml_arguments(parser)
-    _ = parser.add_argument(
-        "--config",
-        type=Path,
-        default=".pre-commit-config.yaml",
-        help="pre-commit config file (Default '.pre-commit-config.yaml')",
-    )
+    parser = add_pre_commit_config_argument(parser)
     _ = parser.add_argument(
         "--hook", dest="hook_id", required=True, help="Hook id to apply to."
     )
@@ -386,7 +382,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     python_version = (
         None
         if options.python_version is None and options.python_version_file is None
-        else get_python_version(
+        else get_language_version(
             options.python_version, options.python_version_file, logger
         )
     )

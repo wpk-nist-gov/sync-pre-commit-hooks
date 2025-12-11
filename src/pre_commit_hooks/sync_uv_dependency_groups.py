@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 from packaging.specifiers import Specifier
 
 from ._logging import get_logger
-from ._utils import get_python_version
+from ._utils import get_language_version
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -80,8 +80,7 @@ def _process_file(
     return 0
 
 
-def main(args: Sequence[str] | None = None) -> int:
-    """Main program."""
+def _get_options(argv: Sequence[str] | None = None) -> dict[str, Any]:
     parser = ArgumentParser(description=__doc__)
     _ = parser.add_argument(
         "--python-version",
@@ -104,13 +103,20 @@ def main(args: Sequence[str] | None = None) -> int:
         File containing dependency-groups table. Default is to look for `uv.toml` then `pyproject.toml`
         """,
     )
-    options = parser.parse_args(args)
-    return _process_file(
-        config_file=_get_config_file(options.config_file),
-        python_version=get_python_version(
+    options = parser.parse_args(argv)
+
+    return {
+        "config_file": _get_config_file(options.config_file),
+        "python_version": get_language_version(
             options.python_version, options.python_version_file
         ),
-    )
+    }
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    """Main program."""
+    options = _get_options(argv)
+    return _process_file(**options)
 
 
 if __name__ == "__main__":

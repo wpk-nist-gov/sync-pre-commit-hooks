@@ -79,9 +79,20 @@ def add_yaml_arguments(parser: ArgumentParser) -> ArgumentParser:
     return parser
 
 
-def get_python_version(
-    python_version: str | None,
-    python_version_file: str | None,
+def add_pre_commit_config_argument(parser: ArgumentParser) -> ArgumentParser:
+    _ = parser.add_argument(
+        "--config",
+        type=Path,
+        default=".pre-commit-config.yaml",
+        help="pre-commit config file (Default '.pre-commit-config.yaml')",
+    )
+
+    return parser
+
+
+def get_language_version(
+    version: str | None,
+    version_file: str | None,
     logger: Logger | None = None,
 ) -> str:
     if logger is None:
@@ -89,19 +100,17 @@ def get_python_version(
 
         logger = get_logger("_utils")
 
-    if python_version is not None:
-        logger.info("Using python_version %s", python_version)
-        return python_version
+    if version is not None:
+        logger.info("Using version %s", version)
+        return version
 
-    if python_version_file is None:
-        msg = "Must specify python_version or python_version_file"
+    if version_file is None:
+        msg = "Must specify version or version_file"
         raise ValueError(msg)
 
-    python_version = Path(python_version_file).read_text(encoding="utf-8").strip()
-    logger.info(
-        "Using python_version %s read from %s", python_version, python_version_file
-    )
-    return python_version
+    version = Path(version_file).read_text(encoding="utf-8").strip()
+    logger.info("Using version %s read from %s", version, version_file)
+    return version
 
 
 def pre_commit_config_load(
