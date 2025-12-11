@@ -27,7 +27,7 @@ def _apply_command(command: str, extras: Sequence[str], path: Path) -> int:
 def main(argv: Sequence[str] | None = None) -> int:
     """Main functionality"""
     parser = ArgumentParser()
-    parser.add_argument(
+    _ = parser.add_argument(
         "command",
         help="""
         Command to run. Extra arguments to ``command`` will be parsed as well.
@@ -38,7 +38,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "command --option a" file1 file2``
         """,
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         dest="paths",
         nargs="+",
         type=Path,

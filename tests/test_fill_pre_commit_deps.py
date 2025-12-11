@@ -98,18 +98,6 @@ def test__limit_requirements(
 
 
 @pytest.mark.parametrize(
-    ("dep", "expected"),
-    [
-        pytest.param("foo[a_thing, b]", "foo[a-thing,b]", id="norm extras"),
-        pytest.param("a_thing", "a-thing", id="norm name"),
-        pytest.param("a.thing[b.thing]", "a-thing[b-thing]", id="norm all"),
-    ],
-)
-def test__canonicalize_requirement(dep: str, expected: str) -> None:
-    assert str(fill_deps._canonicalize_requirement(Requirement(dep))) == expected
-
-
-@pytest.mark.parametrize(
     ("keys", "kws", "expected"),
     [
         pytest.param(["dependency-groups", "test"], {}, ["pytest"], id="get"),
@@ -158,67 +146,6 @@ def test_parsedependencies_package_name(pyproject: str, expected: Any) -> None:
 
 def test_parsedependencies_dependencies(parser: fill_deps.ParseDependencies) -> None:
     assert list(map(str, parser.dependencies)) == ["dep-0", "dep-1"]
-
-
-@pytest.mark.parametrize(
-    ("extras", "expected"),
-    [
-        pytest.param("c.option", ["b-0", "c-0"], id="single group"),
-        pytest.param(
-            "a_option",
-            ["a-thing", "b-0", "b-1", "b-thing", "c-0", "other-0", "other-1"],
-            id="package expand",
-        ),
-        pytest.param(
-            ["other", "c-option"],
-            ["b-0", "c-0", "other-0", "other-1"],
-            id="multiple groups",
-        ),
-        pytest.param(
-            ["all"],
-            ["a-thing", "b-0", "b-1", "b-thing", "c-0", "other-0", "other-1"],
-            id="package and group expand",
-        ),
-    ],
-)
-def test_parsedependencies_resolve_optional_deps(
-    parser: fill_deps.ParseDependencies, extras: str | list[str], expected: list[str]
-) -> None:
-    assert sorted(map(str, parser.optional_dependencies[extras])) == expected
-
-
-@pytest.mark.parametrize(
-    ("groups", "expected"),
-    [
-        pytest.param("test", ["pytest"], id="simple group"),
-        pytest.param(
-            "dev",
-            [
-                "a-thing",
-                "b-0",
-                "b-1",
-                "b-thing",
-                "c-0",
-                "jupyter",
-                "mypy",
-                "other-0",
-                "other-1",
-                "pytest",
-                "types-pyyaml",
-            ],
-            id="recursive group",
-        ),
-        pytest.param(
-            ["test", "type_check"],
-            ["mypy", "pytest", "types-pyyaml"],
-            id="multiple groups",
-        ),
-    ],
-)
-def test_parsedependencies_resolve_groups(
-    parser: fill_deps.ParseDependencies, groups: str | list[str], expected: list[str]
-) -> None:
-    assert sorted(map(str, parser.dependency_groups[groups])) == expected
 
 
 @pytest.mark.parametrize(

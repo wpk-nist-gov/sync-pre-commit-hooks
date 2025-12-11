@@ -83,20 +83,20 @@ def _process_file(
 def main(args: Sequence[str] | None = None) -> int:
     """Main program."""
     parser = ArgumentParser(description=__doc__)
-    parser.add_argument(
+    _ = parser.add_argument(
         "--python-version",
         "-p",
         help="Minimum python version.  Overrides ``--python-version-file``.",
         default=None,
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--python-version-file",
         "-f",
         default=".python-version",
         type=Path,
         help="Text file with python version",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "config_file",
         nargs="?",
         type=Path,

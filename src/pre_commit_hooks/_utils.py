@@ -57,19 +57,19 @@ _ARGUMENT_HELP_TEMPLATE = (
 
 def add_yaml_arguments(parser: ArgumentParser) -> ArgumentParser:
     # yaml defaults are my preference
-    parser.add_argument(
+    _ = parser.add_argument(
         "--yaml-mapping",
         type=int,
         default=2,
         help=_ARGUMENT_HELP_TEMPLATE.format("mapping"),
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--yaml-sequence",
         type=int,
         default=4,
         help=_ARGUMENT_HELP_TEMPLATE.format("sequence"),
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--yaml-offset",
         type=int,
         default=2,

@@ -1,6 +1,12 @@
+# pylint: disable=missing-class-docstring
 from __future__ import annotations
 
-from typing import Required, TypedDict
+from typing import TYPE_CHECKING, NewType, TypedDict
+
+if TYPE_CHECKING:
+    from packaging.requirements import Requirement
+
+    from ._typing_compat import Required
 
 
 class PreCommitHooksType(TypedDict, total=False):
@@ -25,3 +31,6 @@ class PreCommitConfigType(
     TypedDict,
 ):
     repos: list[PreCommitRepoType]
+
+
+NormalizedRequirement = NewType("NormalizedRequirement", "Requirement")

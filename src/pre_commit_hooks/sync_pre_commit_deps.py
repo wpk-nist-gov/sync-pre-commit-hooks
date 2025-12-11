@@ -159,7 +159,7 @@ def _process_file(
 def _get_parser() -> ArgumentParser:
     parser = ArgumentParser(description=__doc__)
     parser = add_yaml_arguments(parser)
-    parser.add_argument(
+    _ = parser.add_argument(
         "paths",
         type=Path,
         nargs="*",
@@ -167,7 +167,7 @@ def _get_parser() -> ArgumentParser:
     )
 
     # hook id to extract from
-    parser.add_argument(
+    _ = parser.add_argument(
         "--from",
         dest="from_include",
         action="append",
@@ -178,14 +178,14 @@ def _get_parser() -> ArgumentParser:
         will be used to extract versions.
         """,
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--from-exclude",
         action="append",
         default=[],
         help="Hook id's to exclude extracting from.",
     )
     # hook id's to update
-    parser.add_argument(
+    _ = parser.add_argument(
         "--to",
         dest="to_include",
         action="append",
@@ -196,13 +196,13 @@ def _get_parser() -> ArgumentParser:
         id``, then only those hooks explicitly passed will be updated.
         """,
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--to-exclude",
         action="append",
         default=[],
         help="Hook id's to exclude updating.",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "-r",
         "--requirements",
         type=Path,
@@ -210,7 +210,7 @@ def _get_parser() -> ArgumentParser:
         help="Requirements file to lookup pinned requirements to update.",
     )
     # use lastversion?
-    parser.add_argument(
+    _ = parser.add_argument(
         "-l",
         "--last",
         dest="lastversion_dependencies",
@@ -221,7 +221,7 @@ def _get_parser() -> ArgumentParser:
         `lastversion` to be installed.
         """,
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "-m",
         "--id-dep",
         type=str,

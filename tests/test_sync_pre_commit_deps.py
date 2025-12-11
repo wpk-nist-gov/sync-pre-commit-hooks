@@ -27,7 +27,7 @@ DATA = Path(__file__).parent / "data"
 def load_yaml_path(path: Path) -> dict[str, Any]:
     yaml = ruamel.yaml.YAML()
     with path.open(encoding="utf-8") as f:
-        return cast("dict[str, Any]", yaml.load(f))
+        return cast("dict[str, Any]", yaml.load(f))  # pyright: ignore[reportUnknownMemberType]
 
 
 @pytest.fixture
