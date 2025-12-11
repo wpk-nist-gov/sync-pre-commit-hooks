@@ -18,10 +18,15 @@ from typing import TYPE_CHECKING, cast
 from dependency_groups import DependencyGroupResolver
 from packaging.requirements import Requirement
 from packaging.utils import canonicalize_name
-from ruamel.yaml import YAML
 
 from ._logging import get_logger
-from ._utils import add_yaml_arguments, get_in, get_python_version
+from ._utils import (
+    add_yaml_arguments,
+    get_in,
+    get_python_version,
+    pre_commit_config_load,
+    pre_commit_config_repo_hook_iter,
+)
 
 if TYPE_CHECKING:
     from argparse import Namespace
@@ -298,45 +303,39 @@ def _update_yaml_file(
     if not deps and python_version is None:
         return 0
 
-    yaml = YAML()
-    yaml.preserve_quotes = True
-    yaml.indent(yaml_mapping, yaml_sequence, yaml_offset)  # pyright: ignore[reportUnknownMemberType]
-
-    with path.open(encoding="utf-8") as f:
-        loaded: dict[str, Any] = yaml.load(f)  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType]
+    loaded, yaml = pre_commit_config_load(
+        path, mapping=yaml_mapping, sequence=yaml_sequence, offset=yaml_offset
+    )
 
     updated = False
-    for repo in loaded["repos"]:  # pyright: ignore[reportUnknownVariableType]  # noqa: PLR1702
-        for hook in repo["hooks"]:  # pyright: ignore[reportUnknownVariableType]
-            if hook["id"] == hook_id:
-                if deps:
-                    logger.info("Updating dependencies of hook %s", hook_id)
-                    if (seq := hook.get("additional_dependencies")) is not None:  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType]
-                        if seq != deps:
-                            seq.clear()  # pyright: ignore[reportUnknownMemberType]
-                            seq.extend(deps)  # pyright: ignore[reportUnknownMemberType]
-                            updated = True
-                    else:
-                        hook["additional_dependencies"] = deps
-                        updated = True
-
-                if (
-                    python_version is not None
-                    and (language_version := hook.get("language_version")) is not None  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
-                    and python_version != language_version
-                ):
-                    logger.info(
-                        "Updating hook %s language_version to %s",
-                        hook_id,
-                        python_version,
-                    )
-                    hook["language_version"] = python_version
+    for _, hook in pre_commit_config_repo_hook_iter(loaded, include_hook_ids=hook_id):
+        if deps:
+            logger.info("Updating dependencies of hook %s", hook_id)
+            if (seq := hook.get("additional_dependencies")) is not None:
+                if seq != deps:
+                    seq.clear()
+                    seq.extend(deps)
                     updated = True
+            else:
+                hook["additional_dependencies"] = deps
+                updated = True
+
+        if (
+            python_version is not None
+            and (language_version := hook.get("language_version")) is not None
+            and python_version != language_version
+        ):
+            logger.info(
+                "Updating hook %s language_version to %s",
+                hook_id,
+                python_version,
+            )
+            hook["language_version"] = python_version
+            updated = True
 
     if updated:
         logger.info("Updating %s", path)
-        with path.open("w", encoding="utf-8") as f:
-            yaml.dump(loaded, f)  # pyright: ignore[reportUnknownMemberType]
+        yaml.dump(loaded, path)  # pyright: ignore[reportUnknownMemberType]
         return 1
 
     return 0

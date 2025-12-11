@@ -10,6 +10,7 @@ import pytest
 import ruamel.yaml
 
 from pre_commit_hooks import sync_pre_commit_deps
+from pre_commit_hooks._utils import pre_commit_config_load  # noqa: PLC2701
 from pre_commit_hooks.sync_pre_commit_deps import main
 
 from ._utils import create_config_file
@@ -17,6 +18,8 @@ from ._utils import create_config_file
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
+
+    from pre_commit_hooks._typing import PreCommitConfigType
 
 DATA = Path(__file__).parent / "data"
 
@@ -28,8 +31,8 @@ def load_yaml_path(path: Path) -> dict[str, Any]:
 
 
 @pytest.fixture
-def loaded_simple() -> dict[str, Any]:
-    return load_yaml_path(DATA / "simple-pre-commit-config.yaml")
+def loaded_simple() -> PreCommitConfigType:
+    return pre_commit_config_load(DATA / "simple-pre-commit-config.yaml")[0]
 
 
 @pytest.mark.parametrize(
@@ -41,7 +44,9 @@ def loaded_simple() -> dict[str, Any]:
     ],
 )
 def test__get_versions_from_ids(
-    loaded_simple: dict[str, Any], hook_ids_from: list[str], expected: dict[str, Any]
+    loaded_simple: PreCommitConfigType,
+    hook_ids_from: list[str],
+    expected: dict[str, Any],
 ) -> None:
     assert (
         sync_pre_commit_deps._get_versions_from_ids(
@@ -81,7 +86,7 @@ def test__lastversion() -> None:
         }
 
 
-def test__get_hook_ids(loaded_simple: dict[str, Any]) -> None:
+def test__get_hook_ids(loaded_simple: PreCommitConfigType) -> None:
     assert sync_pre_commit_deps._get_hook_ids(loaded_simple) == [
         "black",
         "blacken-docs",

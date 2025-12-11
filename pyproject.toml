@@ -248,7 +248,7 @@ pythonVersion = "3.11"
 # typeCheckingMode = "basic"
 typeCheckingMode = "standard"
 strict = [
-    "**/fill_pre_commit_deps.py",
+    "src/**/*.py",
     # "tests",
     "noxfile.py",
     "tools/*.py",

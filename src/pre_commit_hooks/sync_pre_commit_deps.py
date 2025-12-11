@@ -9,13 +9,17 @@ from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
-from ruamel.yaml import YAML
-
 from ._logging import get_logger
-from ._utils import add_yaml_arguments
+from ._utils import (
+    add_yaml_arguments,
+    pre_commit_config_load,
+    pre_commit_config_repo_hook_iter,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Container, Sequence
+
+    from ._typing import PreCommitConfigType
 
 ID_TO_PACKAGE = ["ruff-format:ruff", "ruff-check:ruff"]
 
@@ -23,20 +27,20 @@ logger = get_logger("sync-pre-commit-deps")
 
 
 def _get_versions_from_ids(
-    loaded: dict[str, Any],
+    loaded: PreCommitConfigType,
     hook_ids_from: Container[str],
     id_to_package_mapping: dict[str, str],
 ) -> dict[str, str]:
     versions: dict[str, str] = {}
-    for repo in loaded["repos"]:
-        if repo["repo"] not in {"local", "meta"}:
-            for hook in repo["hooks"]:
-                if (hid := hook["id"]) in hook_ids_from:
-                    # `mirrors-mypy` uses versions with a 'v' prefix, so we
-                    # have to strip it out to get the mypy version.
-                    cleaned_rev = repo["rev"].removeprefix("v")
-                    key: str = id_to_package_mapping.get(hid, hid)  # pyright: ignore[reportAssignmentType]
-                    versions[key] = cleaned_rev
+    for repo, hook in pre_commit_config_repo_hook_iter(
+        loaded, include_hook_ids=hook_ids_from, exclude_repos={"local", "meta"}
+    ):
+        hid = hook["id"]
+        # `mirrors-mypy` uses versions with a 'v' prefix, so we
+        # have to strip it out to get the mypy version.
+        cleaned_rev = repo["rev"].removeprefix("v")
+        key: str = id_to_package_mapping.get(hid, hid)
+        versions[key] = cleaned_rev
 
     return versions
 
@@ -53,15 +57,14 @@ def _get_versions_from_requirements(
     versions: dict[str, str] = {}
     with requirements_path.open(encoding="utf-8") as f:
         for requirement in parse(f):
-            versions[requirement.name] = requirement.specs[0][-1]  # type: ignore[index]  # pyright: ignore[reportArgumentType]
+            name = cast("str", requirement.name)
+            versions[name] = requirement.specs[0][-1]
     return versions
 
 
 @lru_cache
 def _get_version_from_lastversion(dep: str) -> str:
-    from lastversion import (
-        latest,
-    )
+    from lastversion import latest  # pyright: ignore[reportMissingTypeStubs, reportUnknownVariableType]  # noqa: I001
 
     return cast("str", latest(dep, output_format="tag"))
 
@@ -70,12 +73,13 @@ def _get_versions_from_lastversion(dependencies: Sequence[str]) -> dict[str, Any
     return {dep: _get_version_from_lastversion(dep) for dep in dependencies}
 
 
-def _get_hook_ids(loaded: dict[str, Any]) -> list[str]:
-    out: list[str] = []
-    for repo in loaded["repos"]:
-        if repo["repo"] not in {"local", "meta"}:
-            out.extend(hook["id"] for hook in repo["hooks"])
-    return out
+def _get_hook_ids(loaded: PreCommitConfigType) -> list[str]:
+    return [
+        hook["id"]
+        for _, hook in pre_commit_config_repo_hook_iter(
+            loaded, exclude_repos={"local", "meta"}
+        )
+    ]
 
 
 def _limit_hooks(
@@ -111,12 +115,9 @@ def _process_file(
     lastversion_dependencies: Sequence[str],
     id_to_package_mapping: dict[str, str],
 ) -> int:
-    yaml = YAML()
-    yaml.preserve_quotes = True
-    yaml.indent(yaml_mapping, yaml_sequence, yaml_offset)
-
-    with path.open(encoding="utf-8") as f:
-        loaded: dict[str, Any] = yaml.load(f)
+    loaded, yaml = pre_commit_config_load(
+        path, mapping=yaml_mapping, sequence=yaml_sequence, offset=yaml_offset
+    )
 
     hook_ids = _get_hook_ids(loaded)
     hook_ids_update = _limit_hooks(hook_ids, include=to_include, exclude=to_exclude)
@@ -127,32 +128,29 @@ def _process_file(
     versions.update(_get_versions_from_lastversion(lastversion_dependencies))
 
     updated = False
-    for repo in loaded["repos"]:  # noqa: PLR1702 # pylint: disable=too-many-nested-blocks
-        for hook in repo["hooks"]:
-            if hook["id"] in hook_ids_update:
-                for i, dep in enumerate(hook.get("additional_dependencies", ())):
-                    name, _, cur_version = dep.partition("==")
-                    if (
-                        target_version := versions.get(name, cur_version)
-                    ) != cur_version:
-                        name_and_version = type(dep)(f"{name}=={target_version}")
-                        if hasattr(dep, "anchor"):
-                            name_and_version.yaml_set_anchor(
-                                dep.anchor.value, always_dump=True
-                            )
+    for _repo, hook in pre_commit_config_repo_hook_iter(
+        loaded, include_hook_ids=hook_ids_update
+    ):
+        if "additional_dependencies" not in hook:
+            continue
 
-                        hook["additional_dependencies"][i] = name_and_version
-                        logger.info(
-                            "Setting %s dependency %s to %s",
-                            hook["id"],
-                            name,
-                            target_version,
-                        )
-                        updated = True
+        for i, dep in enumerate(hook["additional_dependencies"]):
+            name, _, cur_version = dep.partition("==")
+            if (target_version := versions.get(name, cur_version)) != cur_version:
+                name_and_version = type(dep)(f"{name}=={target_version}")
+                if hasattr(dep, "anchor"):
+                    name_and_version.yaml_set_anchor(dep.anchor.value, always_dump=True)  # type: ignore[attr-defined]  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+                hook["additional_dependencies"][i] = name_and_version
+                logger.info(
+                    "Setting %s dependency %s to %s",
+                    hook["id"],
+                    name,
+                    target_version,
+                )
+                updated = True
 
     if updated:
-        with path.open("w+", encoding="utf-8") as f:
-            yaml.dump(loaded, f)
+        yaml.dump(loaded, path)  # pyright: ignore[reportUnknownMemberType]
         return 1
 
     return 0

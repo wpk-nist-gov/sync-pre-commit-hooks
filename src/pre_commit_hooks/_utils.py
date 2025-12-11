@@ -1,13 +1,24 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser
-    from collections.abc import Callable, Mapping, Sequence
+    from collections.abc import (
+        Callable,
+        Container,
+        Iterable,
+        Iterator,
+        Mapping,
+        Sequence,
+    )
     from logging import Logger
     from typing import Any
+
+    from ruamel.yaml import YAML
+
+    from ._typing import PreCommitConfigType, PreCommitHooksType, PreCommitRepoType
 
 
 def get_in(
@@ -91,3 +102,44 @@ def get_python_version(
         "Using python_version %s read from %s", python_version, python_version_file
     )
     return python_version
+
+
+def pre_commit_config_load(
+    path: Path,
+    mapping: int = 2,
+    sequence: int = 4,
+    offset: int = 2,
+) -> tuple[PreCommitConfigType, YAML]:
+    from ruamel.yaml import YAML
+
+    yaml = YAML()
+    yaml.preserve_quotes = True
+    yaml.indent(mapping, sequence, offset)  # pyright: ignore[reportUnknownMemberType]
+
+    return cast("PreCommitConfigType", yaml.load(path)), yaml  # pyright: ignore[reportUnknownMemberType]
+
+
+def pre_commit_config_repo_hook_iter(
+    config: PreCommitConfigType,
+    include_hook_ids: str | Container[str] | None = None,
+    exclude_repos: str | Container[str] | None = None,
+) -> Iterator[tuple[PreCommitRepoType, PreCommitHooksType]]:
+    def _str_to_set(x: str | Container[str]) -> Container[str]:
+        if isinstance(x, str):
+            return {x}
+        return x
+
+    repo_iter: Iterable[PreCommitRepoType] = iter(config["repos"])
+    if exclude_repos:
+        repo_iter = (
+            repo for repo in repo_iter if repo["repo"] not in _str_to_set(exclude_repos)
+        )
+
+    repo_hook_iter = ((repo, hook) for repo in repo_iter for hook in repo["hooks"])
+    if include_hook_ids:
+        return (
+            (repo, hook)
+            for repo, hook in repo_hook_iter
+            if hook["id"] in _str_to_set(include_hook_ids)
+        )
+    return repo_hook_iter
