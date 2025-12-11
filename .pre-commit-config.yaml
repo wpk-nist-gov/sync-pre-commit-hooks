@@ -232,6 +232,7 @@ repos:
           - "--hook=mypy"
           - "--group=typecheck"
           - "--exclude=mypy"
+          - "--python-version-file=.python-version"
         additional_dependencies:
           - "--editable=."
           - "dependency-groups"
@@ -247,6 +248,7 @@ repos:
         files: ^(src/|tests/)
         args: []
         stages: [manual]
+        language_version: "3.13"
         additional_dependencies: &typecheck-deps
           - dependency-groups>=1.3.1
           - lastversion>=3.5.8
@@ -255,7 +257,9 @@ repos:
           - pytest
           - requirements-parser>=0.13.0
           - ruamel-yaml>=0.18.16
+          - tomli; python_version < "3.11"
           - tomlkit>=0.13.3
+          - typing-extensions; python_version < "3.11"
   - repo: https://github.com/DetachHead/basedpyright-pre-commit-mirror
     rev: 1.34.0
     hooks:

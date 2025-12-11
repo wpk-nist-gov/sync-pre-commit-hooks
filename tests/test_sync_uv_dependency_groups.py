@@ -2,24 +2,16 @@
 
 from __future__ import annotations
 
-import os
-from contextlib import nullcontext
 from pathlib import Path
 from textwrap import dedent
-from typing import TYPE_CHECKING
 
 import pytest
 
 from pre_commit_hooks import sync_uv_dependency_groups
 from pre_commit_hooks.sync_uv_dependency_groups import (
     _get_config_file,
-    _get_python_version,
     _update_spec,
 )
-
-if TYPE_CHECKING:
-    from collections.abc import Iterator
-    from typing import Any
 
 
 def get_data(pyproject: bool = True, python_version: str = "3.10") -> str:
@@ -51,14 +43,6 @@ def python_version_file(tmp_path: Path) -> Path:
     path = tmp_path / ".python-version"
     path.write_text("3.13", encoding="utf-8")
     return path
-
-
-@pytest.fixture
-def example_path(tmp_path: Path) -> Iterator[Path]:
-    old_cwd = Path.cwd()
-    os.chdir(tmp_path)
-    yield tmp_path
-    os.chdir(old_cwd)
 
 
 def test_fixtures(tmp_path: Path, uv_toml: Path, pyproject_toml: Path) -> None:
@@ -102,30 +86,6 @@ def test__get_config_file_uv_toml_and_pyproject_toml_default(
 
 
 @pytest.mark.parametrize(
-    ("python_version", "python_version_file", "create_file", "expected"),
-    [
-        ("3.13", ".python-version", False, nullcontext("3.13")),
-        ("3.13", ".python-version", True, nullcontext("3.13")),
-        (None, ".python-version", False, pytest.raises(FileNotFoundError)),
-        (None, ".python-version", True, nullcontext("3.8")),
-    ],
-)
-def test__get_python_version(
-    example_path: Path,
-    python_version: str | None,
-    python_version_file: str,
-    create_file: bool,
-    expected: Any,
-) -> None:
-    if create_file:
-        Path(python_version_file).write_text("3.8", encoding="utf-8")
-
-    with expected as e:
-        out = _get_python_version(python_version, python_version_file)
-        assert out == e
-
-
-@pytest.mark.parametrize(
     ("requires_python", "python_version", "expected"),
     [
         ("== 3.9", "3.10", "==3.10"),
@@ -140,13 +100,13 @@ def test__update_spec(requires_python: str, python_version: str, expected: str) 
 def test_main_uv_toml(
     example_path: Path, uv_toml: Path, pyproject_toml: Path, python_version_file: Path
 ) -> None:
-    assert not sync_uv_dependency_groups.main([])
+    assert sync_uv_dependency_groups.main([]) == 1
     assert uv_toml.read_text(encoding="utf-8") == get_data(False, "3.13")
     assert pyproject_toml.read_text(encoding="utf-8") == get_data(True, "3.10")
 
 
 @pytest.mark.parametrize(
-    ("data_in", "data_out"),
+    ("data_in", "data_out", "code"),
     [
         pytest.param(
             dedent("""\
@@ -155,6 +115,7 @@ def test_main_uv_toml(
             dedent("""\
             managed = true
             """),
+            0,
             id="no dependency-groups",
         ),
         pytest.param(
@@ -168,6 +129,7 @@ def test_main_uv_toml(
             dev.requires-python = "==3.13"
             docs = {}
             """),
+            1,
             id="no requires-python",
         ),
         pytest.param(
@@ -181,6 +143,7 @@ def test_main_uv_toml(
             dev.requires-python = "==3.13"
             docs = {}
             """),
+            0,
             id="same spec",
         ),
         pytest.param(
@@ -194,16 +157,21 @@ def test_main_uv_toml(
             dev.requires-python = ">=3.13"
             docs = {}
             """),
+            1,
             id="reformat spec",
         ),
     ],
 )
 def test_main_edge(
-    example_path: Path, python_version_file: Path, data_in: str, data_out: str
+    example_path: Path,
+    python_version_file: Path,
+    data_in: str,
+    data_out: str,
+    code: int,
 ) -> None:
     uv_toml = example_path / "uv.toml"
     uv_toml.write_text(data_in)
 
-    sync_uv_dependency_groups.main([])
+    assert sync_uv_dependency_groups.main([]) == code
 
     assert uv_toml.read_text() == data_out

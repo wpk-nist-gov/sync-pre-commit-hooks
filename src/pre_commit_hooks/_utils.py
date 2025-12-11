@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
-
-from ruamel.yaml import YAML
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser
     from collections.abc import Callable, Mapping, Sequence
+    from logging import Logger
     from typing import Any
 
 
@@ -68,12 +68,26 @@ def add_yaml_arguments(parser: ArgumentParser) -> ArgumentParser:
     return parser
 
 
-def get_yaml(
-    mapping: int,
-    sequence: int,
-    offset: int,
-) -> YAML:
-    yaml = YAML()
-    yaml.preserve_quotes = True
-    yaml.indent(mapping, sequence, offset)
-    return yaml
+def get_python_version(
+    python_version: str | None,
+    python_version_file: str | None,
+    logger: Logger | None = None,
+) -> str:
+    if logger is None:
+        from ._logging import get_logger
+
+        logger = get_logger("_utils")
+
+    if python_version is not None:
+        logger.info("Using python_version %s", python_version)
+        return python_version
+
+    if python_version_file is None:
+        msg = "Must specify python_version or python_version_file"
+        raise ValueError(msg)
+
+    python_version = Path(python_version_file).read_text(encoding="utf-8").strip()
+    logger.info(
+        "Using python_version %s read from %s", python_version, python_version_file
+    )
+    return python_version

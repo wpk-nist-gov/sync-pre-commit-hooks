@@ -12,6 +12,8 @@ import ruamel.yaml
 from pre_commit_hooks import sync_pre_commit_deps
 from pre_commit_hooks.sync_pre_commit_deps import main
 
+from ._utils import create_config_file
+
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
@@ -122,13 +124,6 @@ def test__limit_hooks(
 def test__parse_id_to_dep(id_to_package: list[str], expected: Any) -> None:
     with expected as e:
         assert sync_pre_commit_deps._parse_id_to_dep(id_to_package) == e
-
-
-def create_config_file(tmp_path: Path, contents: str) -> Path:
-    cfg = tmp_path / ".pre-commit-config.yaml"
-    cfg.write_text(contents)
-
-    return cfg
 
 
 @pytest.mark.parametrize(

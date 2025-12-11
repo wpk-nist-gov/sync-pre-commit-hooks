@@ -9,8 +9,10 @@ from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
+from ruamel.yaml import YAML
+
 from ._logging import get_logger
-from ._utils import add_yaml_arguments, get_yaml
+from ._utils import add_yaml_arguments
 
 if TYPE_CHECKING:
     from collections.abc import Container, Sequence
@@ -109,7 +111,10 @@ def _process_file(
     lastversion_dependencies: Sequence[str],
     id_to_package_mapping: dict[str, str],
 ) -> int:
-    yaml = get_yaml(yaml_mapping, yaml_sequence, yaml_offset)
+    yaml = YAML()
+    yaml.preserve_quotes = True
+    yaml.indent(yaml_mapping, yaml_sequence, yaml_offset)
+
     with path.open(encoding="utf-8") as f:
         loaded: dict[str, Any] = yaml.load(f)
 

@@ -4,7 +4,6 @@ Fill in `additional_dependencies`` extracted from `pyproject.toml` or `requireme
 Works on single hook.
 """
 
-# ruff: noqa: DOC402
 # pylint: disable=bad-builtin,missing-class-docstring,duplicate-code
 from __future__ import annotations
 
@@ -19,9 +18,10 @@ from typing import TYPE_CHECKING, cast
 from dependency_groups import DependencyGroupResolver
 from packaging.requirements import Requirement
 from packaging.utils import canonicalize_name
+from ruamel.yaml import YAML
 
 from ._logging import get_logger
-from ._utils import add_yaml_arguments, get_in, get_yaml
+from ._utils import add_yaml_arguments, get_in, get_python_version
 
 if TYPE_CHECKING:
     from argparse import Namespace
@@ -29,13 +29,14 @@ if TYPE_CHECKING:
         Callable,
         Collection,
         Iterable,
-        Iterator,
         Mapping,
         Sequence,
     )
-    from typing import Any, NewType, Self
+    from typing import Any, NewType
 
     from packaging.utils import NormalizedName
+
+    from ._typing_compat import Self
 
     NormalizedRequirement = NewType("NormalizedRequirement", Requirement)
 
@@ -89,7 +90,7 @@ class _Resolve(ABC):
     package_name: NormalizedName
     unresolved: Mapping[str, Any]
     resolved: dict[NormalizedName, set[NormalizedRequirement]] = field(
-        init=False, default_factory=dict
+        init=False, default_factory=dict["NormalizedName", "set[NormalizedRequirement]"]
     )
 
     @abstractmethod
@@ -102,34 +103,40 @@ class _Resolve(ABC):
         self, extras: Iterable[NormalizedName]
     ) -> Iterable[NormalizedRequirement]: ...
 
-    def _resolve(self, key: NormalizedName) -> Iterator[NormalizedRequirement]:
+    def _resolve(self, key: NormalizedName) -> set[NormalizedRequirement]:
         """Do underlying resolve of normalized group/extra"""
         if key in self.resolved:
-            yield from self.resolved[key]
-        else:
-            for dep in self._get_unresolved_deps(key):
-                if dep.name == self.package_name:
-                    yield from self._get_resolved_package_extras(
+            return self.resolved[key]
+
+        resolved: set[NormalizedRequirement] = set()
+        for dep in self._get_unresolved_deps(key):
+            if dep in resolved:
+                continue
+            if dep.name == self.package_name:
+                resolved.update(
+                    self._get_resolved_package_extras(
                         map(canonicalize_name, dep.extras)
                     )
-                else:
-                    yield dep
+                )
+            else:
+                resolved.add(dep)
 
-    def get(self, key: str | Iterable[str]) -> Iterator[NormalizedRequirement]:
+        self.resolved[key] = resolved
+        return resolved
+
+    def __getitem__(self, key: str | Iterable[str]) -> set[NormalizedRequirement]:
         if isinstance(key, str):
             key = [key]
 
-        for extra in map(canonicalize_name, key):
-            if extra in self.resolved:
-                yield from self.resolved[extra]
-            else:
-                val = self.resolved[extra] = set(self._resolve(extra))
-                yield from val
+        out: set[NormalizedRequirement] = set()
+        for k in map(canonicalize_name, key):
+            out.update(self._resolve(k))
+        return out
 
 
 @dataclass
 class _ResolveOptionalDependencies(_Resolve):
-    unresolved: Mapping[NormalizedName, Sequence[NormalizedRequirement]]
+    unresolved: Mapping[NormalizedName, Sequence[NormalizedRequirement]]  # type: ignore[assignment]  # pyright: ignore[reportIncompatibleVariableOverride]
 
     def _get_unresolved_deps(
         self, key: NormalizedName
@@ -159,10 +166,10 @@ class _ResolveDependencyGroups(_Resolve):
     def _get_resolved_package_extras(
         self, extras: Iterable[NormalizedName]
     ) -> Iterable[NormalizedRequirement]:
-        yield from self.optional_dependencies.get(extras)
+        yield from self.optional_dependencies[extras]
 
 
-class ParseDepends:
+class ParseDependencies:
     """
     Parse pyproject.toml file for dependencies
 
@@ -193,16 +200,14 @@ class ParseDepends:
     @cached_property
     def dependencies(self) -> list[NormalizedRequirement]:
         """project.dependencies"""
-        return list(
-            map(
-                _canonicalize_requirement,
-                self.get_in(
-                    "project",
-                    "dependencies",
-                    factory=list,
-                ),
+        return [
+            _canonicalize_requirement(Requirement(x))
+            for x in self.get_in(
+                "project",
+                "dependencies",
+                factory=list,
             )
-        )
+        ]
 
     @cached_property
     def optional_dependencies(self) -> _ResolveOptionalDependencies:
@@ -241,13 +246,14 @@ class ParseDepends:
         extras: Iterable[str],
         groups: Iterable[str],
         no_project_dependencies: bool = False,
-    ) -> Iterator[NormalizedRequirement]:
+    ) -> set[NormalizedRequirement]:
         """Iterator of requirements"""
-        if not no_project_dependencies:
-            yield from self.dependencies
-
-        yield from self.optional_dependencies.get(extras)
-        yield from self.dependency_groups.get(groups)
+        out: set[NormalizedRequirement] = (
+            set() if no_project_dependencies else set(self.dependencies)
+        )
+        out.update(self.optional_dependencies[extras])
+        out.update(self.dependency_groups[groups])
+        return out
 
     @classmethod
     def from_string(
@@ -255,7 +261,7 @@ class ParseDepends:
         toml_string: str,
     ) -> Self:
         """Create object from string."""
-        import tomllib
+        from ._compat import tomllib
 
         data = tomllib.loads(toml_string)
         return cls(data=data)
@@ -263,7 +269,7 @@ class ParseDepends:
     @classmethod
     def from_path(cls, path: str | Path) -> Self:
         """Create object from path."""
-        import tomllib
+        from ._compat import tomllib
 
         with Path(path).open("rb") as f:
             data = tomllib.load(f)
@@ -272,42 +278,65 @@ class ParseDepends:
 
 def parse_requirements_file(
     requirements_path: Path,
-) -> Iterator[NormalizedRequirement]:
+) -> set[NormalizedRequirement]:
     """Get list of requirements for requirement.txt file"""
     from requirements import parse
 
     with requirements_path.open(encoding="utf-8") as f:
-        for req in parse(f):
-            yield _canonicalize_requirement(Requirement(req.line))
+        return {_canonicalize_requirement(Requirement(req.line)) for req in parse(f)}
 
 
 def _update_yaml_file(
     path: Path,
     hook_id: str,
     deps: list[str],
+    python_version: str | None = None,
     yaml_mapping: int = 2,
     yaml_sequence: int = 4,
     yaml_offset: int = 2,
 ) -> int:
-    yaml = get_yaml(yaml_mapping, yaml_sequence, yaml_offset)
+    if not deps and python_version is None:
+        return 0
+
+    yaml = YAML()
+    yaml.preserve_quotes = True
+    yaml.indent(yaml_mapping, yaml_sequence, yaml_offset)  # pyright: ignore[reportUnknownMemberType]
+
     with path.open(encoding="utf-8") as f:
-        loaded: dict[str, Any] = yaml.load(f)
+        loaded: dict[str, Any] = yaml.load(f)  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType]
 
     updated = False
-    for repo in loaded["repos"]:
-        for hook in repo["hooks"]:
+    for repo in loaded["repos"]:  # pyright: ignore[reportUnknownVariableType]  # noqa: PLR1702
+        for hook in repo["hooks"]:  # pyright: ignore[reportUnknownVariableType]
             if hook["id"] == hook_id:
-                if "additional_dependencies" in hook:
-                    seq = hook["additional_dependencies"]
-                    seq.clear()
-                    seq.extend(deps)
-                else:
-                    hook["additional_dependencies"] = deps
-                updated = True
+                if deps:
+                    logger.info("Updating dependencies of hook %s", hook_id)
+                    if (seq := hook.get("additional_dependencies")) is not None:  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType]
+                        if seq != deps:
+                            seq.clear()  # pyright: ignore[reportUnknownMemberType]
+                            seq.extend(deps)  # pyright: ignore[reportUnknownMemberType]
+                            updated = True
+                    else:
+                        hook["additional_dependencies"] = deps
+                        updated = True
+
+                if (
+                    python_version is not None
+                    and (language_version := hook.get("language_version")) is not None  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
+                    and python_version != language_version
+                ):
+                    logger.info(
+                        "Updating hook %s language_version to %s",
+                        hook_id,
+                        python_version,
+                    )
+                    hook["language_version"] = python_version
+                    updated = True
 
     if updated:
+        logger.info("Updating %s", path)
         with path.open("w", encoding="utf-8") as f:
-            yaml.dump(loaded, f)
+            yaml.dump(loaded, f)  # pyright: ignore[reportUnknownMemberType]
         return 1
 
     return 0
@@ -383,13 +412,15 @@ def get_options(argv: Sequence[str] | None = None) -> Namespace:
         help="Requirements file.",
     )
     parser.add_argument(
-        "--req-exclude",
+        "--requirements-exclude",
+        dest="requirements_exclude",
         action="append",
         default=[],
         help="Exclude package from read `requirements.txt`.",
     )
     parser.add_argument(
-        "--req-include",
+        "--requirements-include",
+        dest="requirements_include",
         action="append",
         default=[],
         help="""
@@ -411,6 +442,25 @@ def get_options(argv: Sequence[str] | None = None) -> Namespace:
         included as is, without any normalization.
         """,
     )
+    # python version (language_version)
+    parser.add_argument(
+        "--python-version",
+        default=None,
+        help="""
+        Update `language_version` to this value.
+        Overrides ``--python-version-file``.
+        Note that `hook` must already have to key ``language_version`` for this to take effect.
+        """,
+    )
+    parser.add_argument(
+        "--python-version-file",
+        default=None,
+        type=Path,
+        help="""
+        Update ``language_version`` to value read from file.  For example, ``--python-version-file=".python-version"``.
+        Note that `hook` must already have to key ``language_version`` for this to take effect.
+        """,
+    )
 
     return parser.parse_args(argv)
 
@@ -420,7 +470,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     options = get_options(argv)
 
     deps = _limit_requirements(
-        deps=ParseDepends.from_path(options.pyproject).pip_requirements(
+        deps=ParseDependencies.from_path(options.pyproject).pip_requirements(
             extras=options.extras,
             groups=options.groups,
             no_project_dependencies=options.no_project_dependencies,
@@ -432,24 +482,31 @@ def main(argv: Sequence[str] | None = None) -> int:
     if options.requirements is not None:
         deps_req = _limit_requirements(
             deps=parse_requirements_file(options.requirements),
-            exclude=options.req_exclude,
-            include=options.req_include,
+            exclude=options.requirements_exclude,
+            include=options.requirements_include,
         )
 
         deps = chain(deps, deps_req)
 
     deps_clean = [*options.extra_deps, *sorted(set(map(str, deps)))]
 
-    _update_yaml_file(
+    python_version = (
+        None
+        if options.python_version is None and options.python_version_file is None
+        else get_python_version(
+            options.python_version, options.python_version_file, logger
+        )
+    )
+
+    return _update_yaml_file(
         path=options.config,
         hook_id=options.hook_id,
         deps=deps_clean,
+        python_version=python_version,
         yaml_mapping=options.yaml_mapping,
         yaml_sequence=options.yaml_sequence,
         yaml_offset=options.yaml_offset,
     )
-
-    return 0
 
 
 if __name__ == "__main__":

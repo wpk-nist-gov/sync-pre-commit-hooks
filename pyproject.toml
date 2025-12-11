@@ -32,6 +32,8 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
+    "tomli; python_version<'3.11'",
+    "typing-extensions; python_version<'3.11'",
 ]
 
 optional-dependencies.all = [
@@ -242,14 +244,15 @@ exclude = [
     "**/.numba_cache",
 ]
 pythonVersion = "3.11"
-typeCheckingMode = "basic"
-# typeCheckingMode = "standard"
-# strict = [
-#     "src",
-#     "tests",
-#     "noxfile.py",
-#     "tools/*.py",
-# ]
+# typeCheckingMode = "strict"
+# typeCheckingMode = "basic"
+typeCheckingMode = "standard"
+strict = [
+    "**/fill_pre_commit_deps.py",
+    # "tests",
+    "noxfile.py",
+    "tools/*.py",
+]
 # reportDuplicateImport = true
 # reportInvalidStubStatement = true
 # reportOverlappingOverload = true

@@ -21,5 +21,7 @@ dependencies:
   - pytest-xdist
   - requirements-parser>=0.13.0
   - ruamel-yaml>=0.18.16
+  - tomli
   - tomlkit>=0.13.3
+  - typing-extensions
   - pip
