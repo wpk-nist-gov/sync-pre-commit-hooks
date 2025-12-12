@@ -108,8 +108,8 @@ def _update_yaml_file(
     yaml_mapping: int,
     yaml_sequence: int,
     yaml_offset: int,
-    to_include: Sequence[str],
-    to_exclude: Sequence[str],
+    hook_include: Sequence[str],
+    hook_exclude: Sequence[str],
     from_include: Sequence[str],
     from_exclude: Sequence[str],
     requirements: Path | None,
@@ -121,7 +121,7 @@ def _update_yaml_file(
     )
 
     hook_ids = _get_hook_ids(loaded)
-    hook_ids_update = _limit_hooks(hook_ids, include=to_include, exclude=to_exclude)
+    hook_ids_update = _limit_hooks(hook_ids, include=hook_include, exclude=hook_exclude)
     hook_ids_from = _limit_hooks(hook_ids, include=from_include, exclude=from_exclude)
 
     versions = _get_versions_from_ids(loaded, hook_ids_from, id_to_package_mapping)
@@ -161,8 +161,6 @@ def _get_options(
     argv: Sequence[str] | None = None,
 ) -> dict[str, Any]:
     parser = ArgumentParser(description=__doc__)
-    parser = add_yaml_arguments(parser)
-    parser = add_pre_commit_config_argument(parser)
 
     # hook id to extract from
     _ = parser.add_argument(
@@ -184,18 +182,18 @@ def _get_options(
     )
     # hook id's to update
     _ = parser.add_argument(
-        "--to",
-        dest="to_include",
+        "--hook",
+        dest="hook_include",
         action="append",
         default=[],
         help="""
         Hook id's to allow update of additional_dependencies. The default is to
-        allow updates to all hook id's additional_dependencies. If pass ``--to
+        allow updates to all hook id's additional_dependencies. If pass ``--hook
         id``, then only those hooks explicitly passed will be updated.
         """,
     )
     _ = parser.add_argument(
-        "--to-exclude",
+        "--hook-exclude",
         action="append",
         default=[],
         help="Hook id's to exclude updating.",
@@ -231,6 +229,9 @@ def _get_options(
         pass ``-m 'ruff-check:ruff'. (Default: {ID_TO_PACKAGE})
         """,
     )
+
+    parser = add_pre_commit_config_argument(parser)
+    parser = add_yaml_arguments(parser)
 
     options = parser.parse_args(argv)
     kws = vars(options)

@@ -224,8 +224,8 @@ repos:
         language: python
         args:
           - "--language-version-file=.python-version"
-          - mypy
-        files: \.python-version
+          - "--hook=mypy"
+        files: ^\.python-version$
         pass_filenames: false
         additional_dependencies:
           - "--editable=.[all]"

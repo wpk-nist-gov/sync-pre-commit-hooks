@@ -50,8 +50,10 @@ def _get_options(argv: Sequence[str] | None = None) -> dict[str, Any]:
         """,
     )
     _ = parser.add_argument(
-        "hook_ids",
-        nargs="+",
+        "--hook",
+        dest="hook_ids",
+        action="append",
+        required=True,
         type=str,
         help="""
         Hook id's to update ``language_version`` value.

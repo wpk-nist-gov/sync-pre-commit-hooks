@@ -152,7 +152,7 @@ repos:
             id="already correct version",
         ),
         pytest.param(
-            ["--to-exclude", "blacken-docs"],
+            ["--hook-exclude", "blacken-docs"],
             dedent("""\
 repos:
   - repo: https://github.com/psf/black

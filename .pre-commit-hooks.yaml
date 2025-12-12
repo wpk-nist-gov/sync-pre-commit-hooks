@@ -1,13 +1,54 @@
 - id: sync-pre-commit-deps
   name: sync-pre-commit-deps
-  description: Sync pre-commit hook dependencies base on installed hooks
+  description:
+    Sync pre-commit hook additional_dependencies based on installed hooks
   entry: sync-pre-commit-deps
   language: python
   additional_dependencies:
     - ".[sync-pre-commit-deps]"
   files: ^\.pre-commit-config\.yaml$
   pass_filenames: false
-  minimum_pre_commit_version: "2.9.2"
+  minimum_pre_commit_version: &min_pre_commit "2.9.2"
+- id: fill-pre-commit-hook-deps
+  name: fill-pre-commit-hook-deps
+  description:
+    Fill additions dependencies for hook from pyproject.toml or requirements.txt
+  entry: fill-pre-commit-deps
+  args: ["--help"]
+  language: python
+  additional_dependencies:
+    - ".[fill-pre-commit-hook-deps]"
+  files: ^\.pre-commit-config\.yaml$|^pyproject\.toml$
+  pass_filenames: false
+  minimum_pre_commit_version: *min_pre_commit
+- id: sync-pre-commit-language-version
+  name: sync-pre-commit-language-version
+  description: Sync pre-commit language_version
+  entry: sync-pre-commit-language-version
+  args: ["--help"]
+  language: python
+  additional_dependencies:
+    - ".[sync-pre-commit-language-version]"
+  files: ^\.pre-commit-config\.yaml$|^\.python-version$
+  pass_filenames: false
+  minimum_pre_commit_version: *min_pre_commit
+- id: apply-command
+  name: apply-command
+  description: Apply single file executable to multiple files
+  entry: apply-command
+  args: ["python -c 'print(0)'"]
+  language: python
+  pass_filenames: true
+  minimum_pre_commit_version: *min_pre_commit
+- id: justfile-format
+  name: justfile-format
+  description: Format justfiles
+  entry: apply-command
+  args: [just, --fmt, --unstable, --justfile]
+  language: python
+  files: \.?[jJ]ustfile$|.*\.just$
+  pass_filenames: true
+  minimum_pre_commit_version: *min_pre_commit
 - id: sync-uv-dependency-groups
   name: sync-uv-dependency-groups
   description:
@@ -19,32 +60,4 @@
     - ".[sync-uv-dependency-groups]"
   files: ^pyproject\.toml$|^\.python-version$
   pass_filenames: false
-  minimum_pre_commit_version: "2.9.2"
-- id: apply-command
-  name: apply-command
-  description: Apply single file executable to multiple files
-  entry: apply-command
-  args: ["python -c 'print(0)'"]
-  language: python
-  pass_filenames: true
-  minimum_pre_commit_version: "2.9.2"
-- id: justfile-format
-  name: justfile-format
-  description: Format justfiles
-  entry: apply-command
-  args: [just, --fmt, --unstable, --justfile]
-  language: python
-  files: \.?[jJ]ustfile$|.*\.just$
-  pass_filenames: true
-  minimum_pre_commit_version: "2.9.2"
-- id: fill-pre-commit-hook-deps
-  name: fill-pre-commit-hook-deps
-  description:
-    Fill additions dependencies for hook from pyproject.toml or requirements.txt
-  entry: fill-pre-commit-deps
-  args: ["--help"]
-  language: python
-  additional_dependencies:
-    - ".[fill-pre-commit-hook-deps]"
-  pass_filenames: false
-  minimum_pre_commit_version: "2.9.2"
+  minimum_pre_commit_version: *min_pre_commit

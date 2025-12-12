@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     ("options", "pre_commit_str", "language_version_file_str", "expected", "code"),
     [
         pytest.param(
-            ["mypy", "--language-version=3.12"],
+            ["--hook=mypy", "--language-version=3.12"],
             dedent("""\
 repos:
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -38,7 +38,7 @@ repos:
             id="no_op",
         ),
         pytest.param(
-            ["mypy", "--language-version=3.12"],
+            ["--hook=mypy", "--language-version=3.12"],
             dedent("""\
 repos:
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -60,7 +60,7 @@ repos:
             id="no_op with version",
         ),
         pytest.param(
-            ["mypy", "--language-version-file=.python-version"],
+            ["--hook=mypy", "--language-version-file=.python-version"],
             dedent("""\
 repos:
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -93,7 +93,7 @@ repos:
         ),
         pytest.param(
             [
-                "mypy",
+                "--hook=mypy",
                 "--language-version=3.14",
                 "--language-version-file=.python-version",
             ],

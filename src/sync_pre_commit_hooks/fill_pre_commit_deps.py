@@ -221,21 +221,13 @@ def _update_yaml_file(
     return 0
 
 
-def get_options(argv: Sequence[str] | None = None) -> Namespace:
+def _get_options(argv: Sequence[str] | None = None) -> Namespace:
     """Get CLI options"""
     parser = ArgumentParser(description=__doc__)
-    parser = add_yaml_arguments(parser)
-    parser = add_pre_commit_config_argument(parser)
     _ = parser.add_argument(
         "--hook", dest="hook_id", required=True, help="Hook id to apply to."
     )
     # pyproject
-    _ = parser.add_argument(
-        "--pyproject",
-        type=Path,
-        default="pyproject.toml",
-        help="pyproject.toml file (Default: 'pyproject.toml')",
-    )
     _ = parser.add_argument(
         "-g",
         "--group",
@@ -317,12 +309,21 @@ def get_options(argv: Sequence[str] | None = None) -> Namespace:
         """,
     )
 
+    _ = parser.add_argument(
+        "--pyproject",
+        type=Path,
+        default="pyproject.toml",
+        help="pyproject.toml file (Default: 'pyproject.toml')",
+    )
+    parser = add_pre_commit_config_argument(parser)
+    parser = add_yaml_arguments(parser)
+
     return parser.parse_args(argv)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     """CLI."""
-    options = get_options(argv)
+    options = _get_options(argv)
 
     deps = _limit_requirements(
         deps=ParseDependencies.from_path(options.pyproject).pip_requirements(

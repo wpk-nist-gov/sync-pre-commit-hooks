@@ -37,7 +37,10 @@ dependencies = [
 ]
 
 optional-dependencies.all = [
-    "sync-pre-commit-hooks[fill-pre-commit-hook-deps,lastversion,sync-pre-commit-deps,sync-uv-dependency-groups]",
+    "sync-pre-commit-hooks[ci,lastversion]",
+]
+optional-dependencies.ci = [
+    "sync-pre-commit-hooks[fill-pre-commit-hook-deps,sync-pre-commit-deps,sync-pre-commit-language-version,sync-uv-dependency-groups]",
 ]
 
 optional-dependencies.fill-pre-commit-hook-deps = [
@@ -53,6 +56,9 @@ optional-dependencies.requirements-parser = [
 ]
 optional-dependencies.sync-pre-commit-deps = [
     "sync-pre-commit-hooks[requirements-parser,yaml]",
+]
+optional-dependencies.sync-pre-commit-language-version = [
+    "sync-pre-commit-hooks[yaml]",
 ]
 optional-dependencies.sync-uv-dependency-groups = [
     "packaging>=25.0",
