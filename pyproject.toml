@@ -31,41 +31,21 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering",
 ]
-dependencies = [
-    "tomli; python_version<'3.11'",
-    "typing-extensions; python_version<'3.11'",
-]
-
+dependencies = [  ]
 optional-dependencies.all = [
-    "sync-pre-commit-hooks[ci,lastversion]",
-]
-optional-dependencies.ci = [
-    "sync-pre-commit-hooks[fill-pre-commit-hook-deps,sync-pre-commit-deps,sync-pre-commit-language-version,sync-uv-dependency-groups]",
-]
-
-optional-dependencies.fill-pre-commit-hook-deps = [
     "dependency-groups>=1.3.1",
     "packaging>=25.0",
-    "sync-pre-commit-hooks[requirements-parser,yaml]",
+    "requirements-parser>=0.13.0",
+    "ruamel-yaml>=0.18.16",
+    "tomli; python_version<'3.11'",
+    "tomlkit>=0.13.3",
+    "typing-extensions; python_version<'3.11'",
+]
+optional-dependencies.complete = [
+    "sync-pre-commit-hooks[all,lastversion]",
 ]
 optional-dependencies.lastversion = [
     "lastversion>=3.5.8",
-]
-optional-dependencies.requirements-parser = [
-    "requirements-parser>=0.13.0",
-]
-optional-dependencies.sync-pre-commit-deps = [
-    "sync-pre-commit-hooks[requirements-parser,yaml]",
-]
-optional-dependencies.sync-pre-commit-language-version = [
-    "sync-pre-commit-hooks[yaml]",
-]
-optional-dependencies.sync-uv-dependency-groups = [
-    "packaging>=25.0",
-    "tomlkit>=0.13.3",
-]
-optional-dependencies.yaml = [
-    "ruamel-yaml>=0.18.16",
 ]
 urls.Documentation = "https://pages.nist.gov/sync-pre-commit-hooks/"
 urls.Homepage = "https://github.com/wpk-nist-gov/sync-pre-commit-hooks"
@@ -91,7 +71,7 @@ test = [
     { include-group = "pytest" },
 ]
 # other packages/tools
-optional-dependencies = [ "sync-pre-commit-hooks[all]" ]
+optional-dependencies = [ "sync-pre-commit-hooks[complete]" ]
 cog = [ "cogapp" ]
 ipython = [ "ipython" ]
 mypy = [ "mypy>=1.15.0", "orjson" ]
