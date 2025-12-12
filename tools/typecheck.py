@@ -44,7 +44,7 @@ def _uvx_run(
 ) -> int:
     import subprocess
 
-    cleaned_args = ["uvx", *(os.fsdecode(arg) for arg in args)]
+    cleaned_args = [*(os.fsdecode(arg) for arg in args)]
     full_cmd = shlex.join(cleaned_args)
     logger.info("Running %s", full_cmd)
 
@@ -71,6 +71,7 @@ def _run_checker(
     python_executable: str,
     constraints: list[Path],
     dry_run: bool = False,
+    use_uvx: bool = True,
 ) -> int:
     if _is_pyright_like(checker):
         python_flag = "pythonpath"
@@ -96,9 +97,18 @@ def _run_checker(
         f"--{version_flag}={python_version}",
     )
 
+    checker_args = (
+        (
+            "uvx",
+            *(f"--constraints={c}" for c in constraints),
+            *(["--with", "orjson"] if checker == "mypy" else []),
+        )
+        if use_uvx
+        else ()
+    )
+
     return _uvx_run(
-        *(f"--constraints={c}" for c in constraints),
-        *(["--with", "orjson"] if checker == "mypy" else []),
+        *checker_args,
         checker,
         *python_flags,
         *args,
@@ -166,6 +176,10 @@ def get_parser() -> ArgumentParser:
         action="store_true",
     )
     parser.add_argument(
+        "--no-uv",
+        action="store_true",
+    )
+    parser.add_argument(
         "args",
         type=str,
         nargs="*",
@@ -200,6 +214,7 @@ def main(args: Sequence[str] | None = None) -> int:
             python_executable=python_executable,
             constraints=options.constraints,
             dry_run=options.dry_run,
+            use_uvx=not options.no_uv,
         )
 
     return 0 if options.allow_errors else code

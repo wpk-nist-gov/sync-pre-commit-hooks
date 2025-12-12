@@ -8,4 +8,5 @@
 # Instead edit the corresponding pyproject.toml file.
 #
 cogapp
+pyrefly
 rust-just

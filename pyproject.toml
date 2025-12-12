@@ -5,12 +5,12 @@ requires = [
 ]
 
 [project]
-name = "pre-commit-hooks"
+name = "sync-pre-commit-hooks"
 version = "0.1.0"
-description = "Some useful pre-commit hooks"
+description = "Some useful pre-commit hooks dependencies, etc."
 readme = "README.md"
 keywords = [
-    "pre-commit-hooks",
+    "sync-pre-commit-hooks",
 ]
 license = "NIST-PD"
 license-files = [ "LICENSE" ]
@@ -31,29 +31,29 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering",
 ]
-dependencies = [
-]
-
+dependencies = [  ]
 optional-dependencies.all = [
-    "pre-commit-hooks[lastversion,sync-pre-commit-deps,sync-uv-dependency-groups]",
+    "dependency-groups>=1.3.1",
+    "packaging>=25.0",
+    "requirements-parser>=0.13.0",
+    "ruamel-yaml>=0.18.16",
+    "tomli; python_version<'3.11'",
+    "tomlkit>=0.13.3",
+    "typing-extensions; python_version<'3.11'",
 ]
-
+optional-dependencies.complete = [
+    "sync-pre-commit-hooks[all,lastversion]",
+]
 optional-dependencies.lastversion = [
-    "lastversion",
+    "lastversion>=3.5.8",
 ]
-optional-dependencies.sync-pre-commit-deps = [
-    "requirements-parser",
-    "ruamel-yaml",
-]
-optional-dependencies.sync-uv-dependency-groups = [
-    "packaging",
-    "tomlkit",
-]
-urls.Documentation = "https://pages.nist.gov/pre-commit-hooks/"
-urls.Homepage = "https://github.com/wpk-nist-gov/pre-commit-hooks"
-scripts.apply-command = "pre_commit_hooks.apply_command:main"
-scripts.sync-pre-commit-deps = "pre_commit_hooks.sync_pre_commit_deps:main"
-scripts.sync-uv-dependency-groups = "pre_commit_hooks.sync_uv_dependency_groups:main"
+urls.Documentation = "https://pages.nist.gov/sync-pre-commit-hooks/"
+urls.Homepage = "https://github.com/wpk-nist-gov/sync-pre-commit-hooks"
+scripts.apply-command = "sync_pre_commit_hooks.apply_command:main"
+scripts.fill-pre-commit-deps = "sync_pre_commit_hooks.fill_pre_commit_deps:main"
+scripts.sync-pre-commit-deps = "sync_pre_commit_hooks.sync_pre_commit_deps:main"
+scripts.sync-pre-commit-language-version = "sync_pre_commit_hooks.sync_pre_commit_language_version:main"
+scripts.sync-uv-dependency-groups = "sync_pre_commit_hooks.sync_uv_dependency_groups:main"
 
 [dependency-groups]
 dev = [
@@ -71,7 +71,7 @@ test = [
     { include-group = "pytest" },
 ]
 # other packages/tools
-optional-dependencies = [ "pre-commit-hooks[all]" ]
+optional-dependencies = [ "sync-pre-commit-hooks[complete]" ]
 cog = [ "cogapp" ]
 ipython = [ "ipython" ]
 mypy = [ "mypy>=1.15.0", "orjson" ]
@@ -127,7 +127,7 @@ ignore = [
 ]
 
 [tool.check-wheel-contents]
-toplevel = [ "pre_commit_hooks" ]
+toplevel = [ "sync_pre_commit_hooks" ]
 src_dir = [ "src" ]
 
 [tool.pyproject-fmt]
@@ -147,7 +147,7 @@ addopts = [
 ]
 testpaths = [
     "README.md",
-    "pre_commit_hooks",
+    "sync_pre_commit_hooks",
     "tests",
 ]
 minversion = "8"
@@ -213,6 +213,10 @@ module = [ "lastversion.*" ]
 # ignore_errors = true
 # module = [  ]
 
+[tool.pyrefly]
+#### configuring what to type check and where to import from
+project-includes = [ "src", "tests" ]
+
 [tool.pyright]
 include = [
     "src",
@@ -227,26 +231,46 @@ exclude = [
     "**/.numba_cache",
 ]
 pythonVersion = "3.11"
-typeCheckingMode = "basic"
+typeCheckingMode = "strict"
+# typeCheckingMode = "basic"
 # typeCheckingMode = "standard"
 # strict = [
-#     "src",
-#     "tests",
+#     "src/**/*.py",
+#     # "tests",
 #     "noxfile.py",
 #     "tools/*.py",
 # ]
-# reportDuplicateImport = true
-# reportInvalidStubStatement = true
-# reportOverlappingOverload = true
-# reportPropertyTypeMismatch = true
-# reportUntypedClassDecorator = true
-# reportUntypedFunctionDecorator = true
-# reportUntypedNamedTuple = true
-# reportUnusedImport = true
+reportOverlappingOverload = true
+reportPropertyTypeMismatch = true
+reportUntypedClassDecorator = true
+reportUntypedFunctionDecorator = true
 # Extra flags
 enableTypeIgnoreComments = false
 reportUnnecessaryTypeIgnoreComment = true
 reportUnreachable = "warning"
+
+deprecateTypingAliases = true
+enableReachabilityAnalysis = false
+reportCallInDefaultInitializer = true
+reportImplicitOverride = true
+reportImportCycles = true
+# reportMissingSuperCall = true
+reportUninitializedInstanceVariable = true
+reportUnusedCallResult = true
+
+# type-checkers should type-check; linters should lint
+reportImplicitStringConcatenation = false
+reportPrivateUsage = false                # dupe of PLC2701
+reportPrivateImportUsage = false          # dupe of PLC2701
+reportUnusedImport = false                # dupe of F401
+reportUnusedVariable = false              # dupe of F841
+
+[[tool.pyright.executionEnvironments]]
+root = "tests"
+# reportCallIssue = false
+# reportArgumentType = false
+# reportMissingImports = false
+reportUnusedCallResult = false
 
 [tool.pytype]
 inputs = [
@@ -309,6 +333,7 @@ style = "requirements"
 [tool.pyproject2conda.envs.pre-commit-additional-dependencies]
 reqs = [
     "rust-just",
+    "pyrefly",
 ]
 groups = [
     "cog",

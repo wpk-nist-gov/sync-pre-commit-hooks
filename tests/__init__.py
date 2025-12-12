@@ -1,1 +1,1 @@
-"""Unit test package for pre-commit-hooks."""
+"""Unit test package for sync-pre-commit-hooks."""

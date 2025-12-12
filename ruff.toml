@@ -52,7 +52,7 @@ ignore = [
 # Use extend-ignore for project specific ignores. Prefer lint.extend-per-file-ignores."src/**/*.py" below
 # extend-ignore = [ ]
 isort.known-first-party = [
-    "pre_commit_hooks",
+    "sync_pre_commit_hooks",
 ]
 pydocstyle.convention = "numpy"
 pylint.max-args = 15

@@ -1,13 +1,13 @@
 """
-Top level API (:mod:`pre_commit_hooks`)
-=======================================
+Top level API (:mod:`sync_pre_commit_hooks`)
+============================================
 """
 
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _version
 
 try:
-    __version__ = _version("pre-commit-hooks")
+    __version__ = _version("sync-pre-commit-hooks")
 except PackageNotFoundError:  # pragma: no cover
     __version__ = "999"
 

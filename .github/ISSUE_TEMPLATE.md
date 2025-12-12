@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD041 -->
 
-- pre-commit-hooks version:
+- sync-pre-commit-hooks version:
 - Python version:
 - Operating System:
 

@@ -142,14 +142,13 @@ repos:
     hooks:
       - id: sync-pre-commit-deps
         name: sync-pre-commit-deps
-        entry: python src/pre_commit_hooks/sync_pre_commit_deps.py
+        entry: sync-pre-commit-deps
         language: python
         files: >-
           ^\.pre-commit-config\.yaml$|^requirements/lock/pre-commit-additional-dependencies\.txt$
         pass_filenames: false
         additional_dependencies:
-          - ruamel.yaml
-          - requirements-parser
+          - "--editable=.[all]"
         args:
           - "--requirements=requirements/lock/pre-commit-additional-dependencies.txt"
 
@@ -165,13 +164,12 @@ repos:
     hooks:
       - id: justfile-format
         name: justfile format
-        entry:
-          python src/pre_commit_hooks/apply_command.py just --fmt --unstable
-          --justfile
+        entry: apply-command just --fmt --unstable --justfile
         language: python
         files: \.?[jJ]ustfile$|.*\.just$
         pass_filenames: true
         additional_dependencies:
+          - "--editable=."
           - rust-just==1.43.0
 
   # * Cruft
@@ -188,7 +186,7 @@ repos:
       - id: cog-readme
         name: cog-readme
         alias: cog
-        entry:
+        entry: >
           python tools/cog_runner.py --group=cog --group=optional-dependencies
           --no-dev --no-active -- README.md
         language: python
@@ -211,10 +209,70 @@ repos:
     hooks:
       - id: sync-uv-dependency-groups
         name: sync-uv-dependency-groups
-        entry: python src/pre_commit_hooks/sync_uv_dependency_groups.py
+        entry: sync-uv-dependency-groups
         language: python
         files: ^pyproject.toml$|^\.python-version$
         pass_filenames: false
         additional_dependencies:
-          - packaging
-          - tomlkit
+          - "--editable=.[all]"
+
+  - repo: local
+    hooks:
+      - id: sync-pre-commit-language-version
+        name: sync-pre-commit-language-version
+        entry: sync-pre-commit-language-version
+        language: python
+        args:
+          - "--language-version-file=.python-version"
+          - "--hook=mypy"
+        files: ^\.python-version$
+        pass_filenames: false
+        additional_dependencies:
+          - "--editable=.[all]"
+
+  - repo: local
+    hooks:
+      - id: fill-pre-commit-hook-deps
+        name: fill-pre-commit-hook-deps-mypy
+        entry: fill-pre-commit-deps
+        language: python
+        files: ^pyproject.toml$|^\.pre-commit-config.yaml$
+        pass_filenames: false
+        args:
+          - "--hook=basedpyright"
+          - "--group=typecheck"
+          - "--exclude=pylint"
+          - "orjson"
+        additional_dependencies:
+          - "--editable=.[all]"
+
+  - repo: https://github.com/DetachHead/basedpyright-pre-commit-mirror
+    rev: 1.34.0
+    hooks:
+      - id: basedpyright
+        alias: typecheck
+        files: ^(src/|tests/)
+        args: []
+        stages: [manual]
+        additional_dependencies: &typecheck-deps
+          - orjson
+          - dependency-groups>=1.3.1
+          - lastversion>=3.5.8
+          - packaging>=25.0
+          - pytest
+          - requirements-parser>=0.13.0
+          - ruamel-yaml>=0.18.16
+          - tomli; python_version < "3.11"
+          - tomlkit>=0.13.3
+          - typing-extensions; python_version < "3.11"
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+        alias: typecheck
+        files: ^(src/|tests/)
+        args: []
+        stages: [manual]
+        language_version: "3.13"
+        additional_dependencies: *typecheck-deps

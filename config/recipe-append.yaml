@@ -1,6 +1,6 @@
 test:
   imports:
-    - pre_commit_hooks
+    - sync_pre_commit_hooks
   commands:
     - pip check
   requires:
@@ -8,10 +8,10 @@ test:
     - python {{ python_min }}
 
 about:
-  home: https://github.com/wpk-nist-gov/pre-commit-hooks
-  summary: Some useful pre-commit hooks
+  home: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
+  summary: Some useful pre-commit hooks dependencies, etc.
   description: |
-    Some useful pre-commit hooks
+    Some useful pre-commit hooks dependencies, etc.
   license: NIST-PD
   license_file: LICENSE
 

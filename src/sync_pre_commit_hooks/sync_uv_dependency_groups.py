@@ -6,21 +6,21 @@ By default, set value to `>=python_version` with `python_version` taken from `.p
 
 from __future__ import annotations
 
-import logging
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from packaging.specifiers import Specifier
 
+from ._logging import get_logger
+from ._utils import get_language_version
+
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
 
-FORMAT = "[%(name)s - %(levelname)s] %(message)s"
-logging.basicConfig(level=logging.INFO, format=FORMAT)
-logger = logging.getLogger("sync-uv-dependency-groups")
+logger = get_logger("sync-uv-dependency-groups")
 
 
 def _get_config_file(config_file: Path | None) -> Path:
@@ -37,21 +37,6 @@ def _get_config_file(config_file: Path | None) -> Path:
     raise FileNotFoundError(msg)
 
 
-def _get_python_version(
-    python_version: str | None,
-    python_version_file: str,
-) -> str:
-    if python_version is not None:
-        logger.info("Using python_version %s", python_version)
-        return python_version
-
-    python_version = Path(python_version_file).read_text(encoding="utf-8").strip()
-    logger.info(
-        "Using python_version %s read from %s", python_version, python_version_file
-    )
-    return python_version
-
-
 def _update_spec(requires_python: str, python_version: str) -> str:
     spec = Specifier(requires_python)
     return str(Specifier(f"{spec.operator}{python_version}"))
@@ -60,7 +45,7 @@ def _update_spec(requires_python: str, python_version: str) -> str:
 def _process_file(
     config_file: Path,
     python_version: str,
-) -> None:
+) -> int:
     from tomlkit.toml_file import TOMLFile
 
     logger.info("Processing file %s", config_file)
@@ -69,43 +54,48 @@ def _process_file(
 
     data: Any = toml.read()
 
-    dependency_groups: dict[str, dict[str, Any]] | None = (
-        data["tool"]["uv"] if config_file.name == "pyproject.toml" else data
+    dependency_groups: dict[str, dict[str, Any]] | None = (  # ty: ignore[possibly-missing-attribute]
+        data["tool"]["uv"] if config_file.name == "pyproject.toml" else data  # ty: ignore[non-subscriptable]
     ).get("dependency-groups")
 
     if dependency_groups is None:
         logger.info("No dependency-group table found")
-        return
+        return 0
 
+    update = False
     for k, v in dependency_groups.items():
         if "requires-python" in v:
             requires_python = v["requires-python"]
             if requires_python != (
                 new_spec := _update_spec(requires_python, python_version)
             ):
+                update = True
                 logger.info("update %s from %s to %s", k, requires_python, new_spec)
                 v["requires-python"] = new_spec
 
-    toml.write(data)
+    if update:
+        toml.write(data)
+        return 1
+
+    return 0
 
 
-def main(args: Sequence[str] | None = None) -> int:
-    """Main program."""
+def _get_options(argv: Sequence[str] | None = None) -> dict[str, Any]:
     parser = ArgumentParser(description=__doc__)
-    parser.add_argument(
+    _ = parser.add_argument(
         "--python-version",
         "-p",
         help="Minimum python version.  Overrides ``--python-version-file``.",
         default=None,
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--python-version-file",
         "-f",
         default=".python-version",
         type=Path,
         help="Text file with python version",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "config_file",
         nargs="?",
         type=Path,
@@ -113,15 +103,20 @@ def main(args: Sequence[str] | None = None) -> int:
         File containing dependency-groups table. Default is to look for `uv.toml` then `pyproject.toml`
         """,
     )
-    options = parser.parse_args(args)
-    _process_file(
-        config_file=_get_config_file(options.config_file),
-        python_version=_get_python_version(
+    options = parser.parse_args(argv)
+
+    return {
+        "config_file": _get_config_file(options.config_file),
+        "python_version": get_language_version(
             options.python_version, options.python_version_file
         ),
-    )
+    }
 
-    return 0
+
+def main(argv: Sequence[str] | None = None) -> int:
+    """Main program."""
+    options = _get_options(argv)
+    return _process_file(**options)
 
 
 if __name__ == "__main__":

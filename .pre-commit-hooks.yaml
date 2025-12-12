@@ -1,25 +1,36 @@
 - id: sync-pre-commit-deps
   name: sync-pre-commit-deps
-  description: Sync pre-commit hook dependencies base on installed hooks
+  description:
+    Sync pre-commit hook additional_dependencies based on installed hooks
   entry: sync-pre-commit-deps
   language: python
   additional_dependencies:
-    - ".[sync-pre-commit-deps]"
+    - ".[all]"
   files: ^\.pre-commit-config\.yaml$
   pass_filenames: false
-  minimum_pre_commit_version: "2.9.2"
-- id: sync-uv-dependency-groups
-  name: sync-uv-dependency-groups
+  minimum_pre_commit_version: &min_pre_commit "2.9.2"
+- id: fill-pre-commit-hook-deps
+  name: fill-pre-commit-hook-deps
   description:
-    Sync minimum python version in "tool.uv.dependency-groups" table of
-    "pyproject.toml"
-  entry: sync-uv-dependency-groups
+    Fill additions dependencies for hook from pyproject.toml or requirements.txt
+  entry: fill-pre-commit-deps
+  args: ["--help"]
   language: python
   additional_dependencies:
-    - ".[sync-uv-dependency-groups]"
-  files: ^pyproject\.toml$|^\.python-version$
+    - ".[all]"
+  files: ^\.pre-commit-config\.yaml$|^pyproject\.toml$
   pass_filenames: false
-  minimum_pre_commit_version: "2.9.2"
+  minimum_pre_commit_version: *min_pre_commit
+- id: sync-pre-commit-language-version
+  name: sync-pre-commit-language-version
+  description: Sync pre-commit language_version
+  entry: sync-pre-commit-language-version
+  language: python
+  additional_dependencies:
+    - ".[all]"
+  files: ^\.pre-commit-config\.yaml$|^\.python-version$
+  pass_filenames: false
+  minimum_pre_commit_version: *min_pre_commit
 - id: apply-command
   name: apply-command
   description: Apply single file executable to multiple files
@@ -27,7 +38,7 @@
   args: ["python -c 'print(0)'"]
   language: python
   pass_filenames: true
-  minimum_pre_commit_version: "2.9.2"
+  minimum_pre_commit_version: *min_pre_commit
 - id: justfile-format
   name: justfile-format
   description: Format justfiles
@@ -36,4 +47,16 @@
   language: python
   files: \.?[jJ]ustfile$|.*\.just$
   pass_filenames: true
-  minimum_pre_commit_version: "2.9.2"
+  minimum_pre_commit_version: *min_pre_commit
+- id: sync-uv-dependency-groups
+  name: sync-uv-dependency-groups
+  description:
+    Sync minimum python version in "tool.uv.dependency-groups" table of
+    "pyproject.toml"
+  entry: sync-uv-dependency-groups
+  language: python
+  additional_dependencies:
+    - ".[all]"
+  files: ^pyproject\.toml$|^\.python-version$
+  pass_filenames: false
+  minimum_pre_commit_version: *min_pre_commit

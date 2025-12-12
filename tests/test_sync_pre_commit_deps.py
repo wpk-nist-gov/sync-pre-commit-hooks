@@ -9,12 +9,17 @@ from unittest.mock import patch
 import pytest
 import ruamel.yaml
 
-from pre_commit_hooks import sync_pre_commit_deps
-from pre_commit_hooks.sync_pre_commit_deps import main
+from sync_pre_commit_hooks import sync_pre_commit_deps
+from sync_pre_commit_hooks._utils import pre_commit_config_load  # noqa: PLC2701
+from sync_pre_commit_hooks.sync_pre_commit_deps import main
+
+from ._utils import create_config_file
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
+
+    from sync_pre_commit_hooks._typing import PreCommitConfigType
 
 DATA = Path(__file__).parent / "data"
 
@@ -22,12 +27,12 @@ DATA = Path(__file__).parent / "data"
 def load_yaml_path(path: Path) -> dict[str, Any]:
     yaml = ruamel.yaml.YAML()
     with path.open(encoding="utf-8") as f:
-        return cast("dict[str, Any]", yaml.load(f))
+        return cast("dict[str, Any]", yaml.load(f))  # pyright: ignore[reportUnknownMemberType]
 
 
 @pytest.fixture
-def loaded_simple() -> dict[str, Any]:
-    return load_yaml_path(DATA / "simple-pre-commit-config.yaml")
+def loaded_simple() -> PreCommitConfigType:
+    return pre_commit_config_load(DATA / "simple-pre-commit-config.yaml")[0]
 
 
 @pytest.mark.parametrize(
@@ -39,7 +44,9 @@ def loaded_simple() -> dict[str, Any]:
     ],
 )
 def test__get_versions_from_ids(
-    loaded_simple: dict[str, Any], hook_ids_from: list[str], expected: dict[str, Any]
+    loaded_simple: PreCommitConfigType,
+    hook_ids_from: list[str],
+    expected: dict[str, Any],
 ) -> None:
     assert (
         sync_pre_commit_deps._get_versions_from_ids(
@@ -79,7 +86,7 @@ def test__lastversion() -> None:
         }
 
 
-def test__get_hook_ids(loaded_simple: dict[str, Any]) -> None:
+def test__get_hook_ids(loaded_simple: PreCommitConfigType) -> None:
     assert sync_pre_commit_deps._get_hook_ids(loaded_simple) == [
         "black",
         "blacken-docs",
@@ -124,13 +131,6 @@ def test__parse_id_to_dep(id_to_package: list[str], expected: Any) -> None:
         assert sync_pre_commit_deps._parse_id_to_dep(id_to_package) == e
 
 
-def create_config_file(tmp_path: Path, contents: str) -> Path:
-    cfg = tmp_path / ".pre-commit-config.yaml"
-    cfg.write_text(contents)
-
-    return cfg
-
-
 @pytest.mark.parametrize(
     ("options", "s"),
     [
@@ -152,7 +152,7 @@ repos:
             id="already correct version",
         ),
         pytest.param(
-            ["--to-exclude", "blacken-docs"],
+            ["--hook-exclude", "blacken-docs"],
             dedent("""\
 repos:
   - repo: https://github.com/psf/black
@@ -205,7 +205,7 @@ repos:
 def test_main_noop(options: Sequence[str], tmp_path: Path, s: str) -> None:
     cfg = create_config_file(tmp_path, s)
 
-    assert not main((*options, str(cfg)))
+    assert not main((f"--config={cfg}", *options))
 
     with cfg.open(encoding="utf-8") as f:
         assert f.read() == s
@@ -321,7 +321,7 @@ repos:
     hooks:
       - id: blacken-docs
         additional_dependencies:
-          - black==23.2.0
+          - &black-dep black==23.2.0
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.5
     hooks:
@@ -349,7 +349,7 @@ repos:
     hooks:
       - id: blacken-docs
         additional_dependencies:
-          - black==23.4.0
+          - &black-dep black==23.4.0
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.5
     hooks:
@@ -414,7 +414,7 @@ def test_main_from_to(
     with patch("lastversion.latest", return_value="abc"):
         cfg = create_config_file(tmp_path, text_in)
 
-        assert main([str(cfg), *options])
+        assert main([f"--config={cfg}", *options])
 
         with cfg.open(encoding="utf-8") as f:
             assert f.read() == text_out
