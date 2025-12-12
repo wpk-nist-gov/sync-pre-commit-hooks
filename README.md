@@ -365,11 +365,6 @@ repos:
     hooks:
       - id: mypy
         language_version: "3.10"
-        additional_dependencies:
-          - orjson
-          - pytest
-          - pyyaml
-          - requests
 ```
 
 will lead to
