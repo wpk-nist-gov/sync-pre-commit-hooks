@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING
 import pytest
 from packaging.requirements import Requirement
 
-from pre_commit_hooks import fill_pre_commit_deps as fill_deps
-from pre_commit_hooks.fill_pre_commit_deps import (
+from sync_pre_commit_hooks import fill_pre_commit_deps as fill_deps
+from sync_pre_commit_hooks.fill_pre_commit_deps import (
     _limit_requirements,  # noqa: PLC2701
 )
 
@@ -183,7 +183,8 @@ def test_parsedependencies_pip_requirements(
 def test_parsedependencies_from_path() -> None:
     path = Path(__file__).parent.parent / "pyproject.toml"
     assert (
-        fill_deps.ParseDependencies.from_path(path).package_name == "pre-commit-hooks"
+        fill_deps.ParseDependencies.from_path(path).package_name
+        == "sync-pre-commit-hooks"
     )
 
 

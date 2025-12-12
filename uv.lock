@@ -896,167 +896,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pre-commit-hooks"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "tomli", marker = "python_full_version < '3.11'" },
-    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
-]
-
-[package.optional-dependencies]
-all = [
-    { name = "dependency-groups" },
-    { name = "lastversion" },
-    { name = "packaging" },
-    { name = "requirements-parser" },
-    { name = "ruamel-yaml" },
-    { name = "tomlkit" },
-]
-fill-pre-commit-hook-deps = [
-    { name = "dependency-groups" },
-    { name = "packaging" },
-    { name = "requirements-parser" },
-    { name = "ruamel-yaml" },
-]
-lastversion = [
-    { name = "lastversion" },
-]
-requirements-parser = [
-    { name = "requirements-parser" },
-]
-sync-pre-commit-deps = [
-    { name = "requirements-parser" },
-    { name = "ruamel-yaml" },
-]
-sync-uv-dependency-groups = [
-    { name = "packaging" },
-    { name = "tomlkit" },
-]
-yaml = [
-    { name = "ruamel-yaml" },
-]
-
-[package.dev-dependencies]
-cog = [
-    { name = "cogapp", marker = "python_full_version >= '3.13'" },
-]
-dev = [
-    { name = "mypy", marker = "python_full_version >= '3.13'" },
-    { name = "nox", marker = "python_full_version >= '3.13'" },
-    { name = "orjson", marker = "python_full_version >= '3.13'" },
-    { name = "pre-commit-hooks", extra = ["all"], marker = "python_full_version >= '3.13'" },
-    { name = "pylint", marker = "python_full_version >= '3.13'" },
-    { name = "pytest", marker = "python_full_version >= '3.13'" },
-    { name = "pytest-accept", marker = "python_full_version >= '3.13'" },
-    { name = "pytest-cov", marker = "python_full_version >= '3.13'" },
-    { name = "pytest-sugar", marker = "python_full_version >= '3.13'" },
-    { name = "pytest-xdist", marker = "python_full_version >= '3.13'" },
-]
-ipython = [
-    { name = "ipython", marker = "python_full_version >= '3.13'" },
-]
-mypy = [
-    { name = "mypy", marker = "python_full_version >= '3.13'" },
-    { name = "orjson", marker = "python_full_version >= '3.13'" },
-]
-nox = [
-    { name = "nox", marker = "python_full_version >= '3.13'" },
-]
-optional-dependencies = [
-    { name = "pre-commit-hooks", extra = ["all"] },
-]
-pylint = [
-    { name = "pylint" },
-]
-pytest = [
-    { name = "pytest" },
-]
-pytest-accept = [
-    { name = "pytest-accept" },
-]
-test = [
-    { name = "pre-commit-hooks", extra = ["all"] },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-sugar" },
-    { name = "pytest-xdist" },
-]
-test-extras = [
-    { name = "pre-commit-hooks", extra = ["all"] },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-sugar" },
-    { name = "pytest-xdist" },
-]
-typecheck = [
-    { name = "pre-commit-hooks", extra = ["all"] },
-    { name = "pylint" },
-    { name = "pytest" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "dependency-groups", marker = "extra == 'fill-pre-commit-hook-deps'", specifier = ">=1.3.1" },
-    { name = "lastversion", marker = "extra == 'lastversion'", specifier = ">=3.5.8" },
-    { name = "packaging", marker = "extra == 'fill-pre-commit-hook-deps'", specifier = ">=25.0" },
-    { name = "packaging", marker = "extra == 'sync-uv-dependency-groups'", specifier = ">=25.0" },
-    { name = "pre-commit-hooks", extras = ["fill-pre-commit-hook-deps", "lastversion", "sync-pre-commit-deps", "sync-uv-dependency-groups"], marker = "extra == 'all'" },
-    { name = "pre-commit-hooks", extras = ["requirements-parser", "yaml"], marker = "extra == 'fill-pre-commit-hook-deps'" },
-    { name = "pre-commit-hooks", extras = ["requirements-parser", "yaml"], marker = "extra == 'sync-pre-commit-deps'" },
-    { name = "requirements-parser", marker = "extra == 'requirements-parser'", specifier = ">=0.13.0" },
-    { name = "ruamel-yaml", marker = "extra == 'yaml'", specifier = ">=0.18.16" },
-    { name = "tomli", marker = "python_full_version < '3.11'" },
-    { name = "tomlkit", marker = "extra == 'sync-uv-dependency-groups'", specifier = ">=0.13.3" },
-    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
-]
-provides-extras = ["all", "fill-pre-commit-hook-deps", "lastversion", "requirements-parser", "sync-pre-commit-deps", "sync-uv-dependency-groups", "yaml"]
-
-[package.metadata.requires-dev]
-cog = [{ name = "cogapp", marker = "python_full_version >= '3.13'" }]
-dev = [
-    { name = "mypy", marker = "python_full_version >= '3.13'", specifier = ">=1.15.0" },
-    { name = "nox", marker = "python_full_version >= '3.13'", specifier = ">=2025.5.1" },
-    { name = "orjson", marker = "python_full_version >= '3.13'" },
-    { name = "pre-commit-hooks", extras = ["all"], marker = "python_full_version >= '3.13'" },
-    { name = "pylint", marker = "python_full_version >= '3.13'" },
-    { name = "pytest", marker = "python_full_version >= '3.13'" },
-    { name = "pytest-accept", marker = "python_full_version >= '3.13'" },
-    { name = "pytest-cov", marker = "python_full_version >= '3.13'" },
-    { name = "pytest-sugar", marker = "python_full_version >= '3.13'" },
-    { name = "pytest-xdist", marker = "python_full_version >= '3.13'" },
-]
-ipython = [{ name = "ipython", marker = "python_full_version >= '3.13'" }]
-mypy = [
-    { name = "mypy", marker = "python_full_version >= '3.13'", specifier = ">=1.15.0" },
-    { name = "orjson", marker = "python_full_version >= '3.13'" },
-]
-nox = [{ name = "nox", marker = "python_full_version >= '3.13'", specifier = ">=2025.5.1" }]
-optional-dependencies = [{ name = "pre-commit-hooks", extras = ["all"] }]
-pylint = [{ name = "pylint" }]
-pytest = [{ name = "pytest" }]
-pytest-accept = [{ name = "pytest-accept" }]
-test = [
-    { name = "pre-commit-hooks", extras = ["all"] },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-sugar" },
-    { name = "pytest-xdist" },
-]
-test-extras = [
-    { name = "pre-commit-hooks", extras = ["all"] },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-sugar" },
-    { name = "pytest-xdist" },
-]
-typecheck = [
-    { name = "pre-commit-hooks", extras = ["all"] },
-    { name = "pylint" },
-    { name = "pytest" },
-]
-
-[[package]]
 name = "prompt-toolkit"
 version = "3.0.52"
 source = { registry = "https://pypi.org/simple" }
@@ -1394,6 +1233,167 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/28/e3/55dcc2cfbc3ca9c29519eb6884dd1415ecb53b0e934862d3559ddcb7e20b/stack_data-0.6.3.tar.gz", hash = "sha256:836a778de4fec4dcd1dcd89ed8abff8a221f58308462e1c4aa2a3cf30148f0b9", size = 44707, upload-time = "2023-09-30T13:58:05.479Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f1/7b/ce1eafaf1a76852e2ec9b22edecf1daa58175c090266e9f6c64afcd81d91/stack_data-0.6.3-py3-none-any.whl", hash = "sha256:d5558e0c25a4cb0853cddad3d77da9891a08cb85dd9f9f91b9f8cd66e511e695", size = 24521, upload-time = "2023-09-30T13:58:03.53Z" },
+]
+
+[[package]]
+name = "sync-pre-commit-hooks"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "tomli", marker = "python_full_version < '3.11'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
+]
+
+[package.optional-dependencies]
+all = [
+    { name = "dependency-groups" },
+    { name = "lastversion" },
+    { name = "packaging" },
+    { name = "requirements-parser" },
+    { name = "ruamel-yaml" },
+    { name = "tomlkit" },
+]
+fill-pre-commit-hook-deps = [
+    { name = "dependency-groups" },
+    { name = "packaging" },
+    { name = "requirements-parser" },
+    { name = "ruamel-yaml" },
+]
+lastversion = [
+    { name = "lastversion" },
+]
+requirements-parser = [
+    { name = "requirements-parser" },
+]
+sync-pre-commit-deps = [
+    { name = "requirements-parser" },
+    { name = "ruamel-yaml" },
+]
+sync-uv-dependency-groups = [
+    { name = "packaging" },
+    { name = "tomlkit" },
+]
+yaml = [
+    { name = "ruamel-yaml" },
+]
+
+[package.dev-dependencies]
+cog = [
+    { name = "cogapp", marker = "python_full_version >= '3.13'" },
+]
+dev = [
+    { name = "mypy", marker = "python_full_version >= '3.13'" },
+    { name = "nox", marker = "python_full_version >= '3.13'" },
+    { name = "orjson", marker = "python_full_version >= '3.13'" },
+    { name = "pylint", marker = "python_full_version >= '3.13'" },
+    { name = "pytest", marker = "python_full_version >= '3.13'" },
+    { name = "pytest-accept", marker = "python_full_version >= '3.13'" },
+    { name = "pytest-cov", marker = "python_full_version >= '3.13'" },
+    { name = "pytest-sugar", marker = "python_full_version >= '3.13'" },
+    { name = "pytest-xdist", marker = "python_full_version >= '3.13'" },
+    { name = "sync-pre-commit-hooks", extra = ["all"], marker = "python_full_version >= '3.13'" },
+]
+ipython = [
+    { name = "ipython", marker = "python_full_version >= '3.13'" },
+]
+mypy = [
+    { name = "mypy", marker = "python_full_version >= '3.13'" },
+    { name = "orjson", marker = "python_full_version >= '3.13'" },
+]
+nox = [
+    { name = "nox", marker = "python_full_version >= '3.13'" },
+]
+optional-dependencies = [
+    { name = "sync-pre-commit-hooks", extra = ["all"] },
+]
+pylint = [
+    { name = "pylint" },
+]
+pytest = [
+    { name = "pytest" },
+]
+pytest-accept = [
+    { name = "pytest-accept" },
+]
+test = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-sugar" },
+    { name = "pytest-xdist" },
+    { name = "sync-pre-commit-hooks", extra = ["all"] },
+]
+test-extras = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-sugar" },
+    { name = "pytest-xdist" },
+    { name = "sync-pre-commit-hooks", extra = ["all"] },
+]
+typecheck = [
+    { name = "pylint" },
+    { name = "pytest" },
+    { name = "sync-pre-commit-hooks", extra = ["all"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "dependency-groups", marker = "extra == 'fill-pre-commit-hook-deps'", specifier = ">=1.3.1" },
+    { name = "lastversion", marker = "extra == 'lastversion'", specifier = ">=3.5.8" },
+    { name = "packaging", marker = "extra == 'fill-pre-commit-hook-deps'", specifier = ">=25.0" },
+    { name = "packaging", marker = "extra == 'sync-uv-dependency-groups'", specifier = ">=25.0" },
+    { name = "requirements-parser", marker = "extra == 'requirements-parser'", specifier = ">=0.13.0" },
+    { name = "ruamel-yaml", marker = "extra == 'yaml'", specifier = ">=0.18.16" },
+    { name = "sync-pre-commit-hooks", extras = ["fill-pre-commit-hook-deps", "lastversion", "sync-pre-commit-deps", "sync-uv-dependency-groups"], marker = "extra == 'all'" },
+    { name = "sync-pre-commit-hooks", extras = ["requirements-parser", "yaml"], marker = "extra == 'fill-pre-commit-hook-deps'" },
+    { name = "sync-pre-commit-hooks", extras = ["requirements-parser", "yaml"], marker = "extra == 'sync-pre-commit-deps'" },
+    { name = "tomli", marker = "python_full_version < '3.11'" },
+    { name = "tomlkit", marker = "extra == 'sync-uv-dependency-groups'", specifier = ">=0.13.3" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
+]
+provides-extras = ["all", "fill-pre-commit-hook-deps", "lastversion", "requirements-parser", "sync-pre-commit-deps", "sync-uv-dependency-groups", "yaml"]
+
+[package.metadata.requires-dev]
+cog = [{ name = "cogapp", marker = "python_full_version >= '3.13'" }]
+dev = [
+    { name = "mypy", marker = "python_full_version >= '3.13'", specifier = ">=1.15.0" },
+    { name = "nox", marker = "python_full_version >= '3.13'", specifier = ">=2025.5.1" },
+    { name = "orjson", marker = "python_full_version >= '3.13'" },
+    { name = "pylint", marker = "python_full_version >= '3.13'" },
+    { name = "pytest", marker = "python_full_version >= '3.13'" },
+    { name = "pytest-accept", marker = "python_full_version >= '3.13'" },
+    { name = "pytest-cov", marker = "python_full_version >= '3.13'" },
+    { name = "pytest-sugar", marker = "python_full_version >= '3.13'" },
+    { name = "pytest-xdist", marker = "python_full_version >= '3.13'" },
+    { name = "sync-pre-commit-hooks", extras = ["all"], marker = "python_full_version >= '3.13'" },
+]
+ipython = [{ name = "ipython", marker = "python_full_version >= '3.13'" }]
+mypy = [
+    { name = "mypy", marker = "python_full_version >= '3.13'", specifier = ">=1.15.0" },
+    { name = "orjson", marker = "python_full_version >= '3.13'" },
+]
+nox = [{ name = "nox", marker = "python_full_version >= '3.13'", specifier = ">=2025.5.1" }]
+optional-dependencies = [{ name = "sync-pre-commit-hooks", extras = ["all"] }]
+pylint = [{ name = "pylint" }]
+pytest = [{ name = "pytest" }]
+pytest-accept = [{ name = "pytest-accept" }]
+test = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-sugar" },
+    { name = "pytest-xdist" },
+    { name = "sync-pre-commit-hooks", extras = ["all"] },
+]
+test-extras = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-sugar" },
+    { name = "pytest-xdist" },
+    { name = "sync-pre-commit-hooks", extras = ["all"] },
+]
+typecheck = [
+    { name = "pylint" },
+    { name = "pytest" },
+    { name = "sync-pre-commit-hooks", extras = ["all"] },
 ]
 
 [[package]]

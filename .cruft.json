@@ -1,12 +1,12 @@
 {
   "template": "https://github.com/usnistgov/cookiecutter-nist-python.git",
   "commit": "15bfab0366aeee95c45e09e02c6f6d7767208c7c",
-  "checkout": "main",
+  "checkout": null,
   "context": {
     "cookiecutter": {
-      "project_name": "pre-commit-hooks",
-      "project_slug": "pre_commit_hooks",
-      "project_short_description": "Some useful pre-commit hooks",
+      "project_name": "sync-pre-commit-hooks",
+      "project_slug": "sync_pre_commit_hooks",
+      "project_short_description": "Some useful pre-commit hooks dependencies, etc.",
       "full_name": "William P. Krekelberg",
       "email": "wpk@nist.gov",
       "github_username": "wpk-nist-gov",

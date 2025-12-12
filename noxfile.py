@@ -56,9 +56,9 @@ if TYPE_CHECKING:
 
 # * Names ------------------------------------------------------------------------------
 
-PACKAGE_NAME = "pre-commit-hooks"
-IMPORT_NAME = "pre_commit_hooks"
-KERNEL_NAME = "pre-commit-hooks"
+PACKAGE_NAME = "sync-pre-commit-hooks"
+IMPORT_NAME = "sync_pre_commit_hooks"
+KERNEL_NAME = "sync-pre-commit-hooks"
 
 # * nox options ------------------------------------------------------------------------
 

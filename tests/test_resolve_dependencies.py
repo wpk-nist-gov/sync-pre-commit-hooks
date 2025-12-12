@@ -5,7 +5,7 @@ import pytest
 from packaging.requirements import Requirement
 from packaging.utils import NormalizedName, canonicalize_name
 
-from pre_commit_hooks.resolve_dependencies import (
+from sync_pre_commit_hooks.resolve_dependencies import (
     ResolveDependencyGroups,
     ResolveOptionalDependencies,
     canonicalize_requirement,

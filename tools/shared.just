@@ -1,7 +1,7 @@
 # * Variables ------------------------------------------------------------------
 
-PACKAGE_NAME := "pre-commit-hooks"
-IMPORT_NAME := "pre_commit_hooks"
+PACKAGE_NAME := "sync-pre-commit-hooks"
+IMPORT_NAME := "sync_pre_commit_hooks"
 CONSTRAINTS_MIN := "requirements/uvx-tools.txt"
 CONSTRAINTS_LOCK := "requirements/lock/uvx-tools.txt"
 PYLINT_OPTS := "--enable-all-extensions"

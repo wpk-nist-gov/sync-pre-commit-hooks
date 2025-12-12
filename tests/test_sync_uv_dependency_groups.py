@@ -7,8 +7,8 @@ from textwrap import dedent
 
 import pytest
 
-from pre_commit_hooks import sync_uv_dependency_groups
-from pre_commit_hooks.sync_uv_dependency_groups import (
+from sync_pre_commit_hooks import sync_uv_dependency_groups
+from sync_pre_commit_hooks.sync_uv_dependency_groups import (
     _get_config_file,
     _update_spec,
 )

@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from pre_commit_hooks._utils import get_language_version  # noqa: PLC2701
+from sync_pre_commit_hooks._utils import get_language_version  # noqa: PLC2701
 
 
 @pytest.mark.parametrize(

@@ -9,9 +9,9 @@ from unittest.mock import patch
 import pytest
 import ruamel.yaml
 
-from pre_commit_hooks import sync_pre_commit_deps
-from pre_commit_hooks._utils import pre_commit_config_load  # noqa: PLC2701
-from pre_commit_hooks.sync_pre_commit_deps import main
+from sync_pre_commit_hooks import sync_pre_commit_deps
+from sync_pre_commit_hooks._utils import pre_commit_config_load  # noqa: PLC2701
+from sync_pre_commit_hooks.sync_pre_commit_deps import main
 
 from ._utils import create_config_file
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
-    from pre_commit_hooks._typing import PreCommitConfigType
+    from sync_pre_commit_hooks._typing import PreCommitConfigType
 
 DATA = Path(__file__).parent / "data"
 

@@ -3,11 +3,11 @@
 <!-- prettier-ignore-start -->
 # Changelog
 
-Changelog for `pre-commit-hooks`
+Changelog for `sync-pre-commit-hooks`
 
 ## Unreleased
 
-[changelog.d]: https://github.com/wpk-nist-gov/pre-commit-hooks/tree/main/changelog.d
+[changelog.d]: https://github.com/wpk-nist-gov/sync-pre-commit-hooks/tree/main/changelog.d
 
 See the fragment files in [changelog.d]
 <!-- prettier-ignore-end -->

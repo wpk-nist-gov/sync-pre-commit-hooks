@@ -5,12 +5,12 @@ requires = [
 ]
 
 [project]
-name = "pre-commit-hooks"
+name = "sync-pre-commit-hooks"
 version = "0.1.0"
-description = "Some useful pre-commit hooks"
+description = "Some useful pre-commit hooks dependencies, etc."
 readme = "README.md"
 keywords = [
-    "pre-commit-hooks",
+    "sync-pre-commit-hooks",
 ]
 license = "NIST-PD"
 license-files = [ "LICENSE" ]
@@ -37,13 +37,13 @@ dependencies = [
 ]
 
 optional-dependencies.all = [
-    "pre-commit-hooks[fill-pre-commit-hook-deps,lastversion,sync-pre-commit-deps,sync-uv-dependency-groups]",
+    "sync-pre-commit-hooks[fill-pre-commit-hook-deps,lastversion,sync-pre-commit-deps,sync-uv-dependency-groups]",
 ]
 
 optional-dependencies.fill-pre-commit-hook-deps = [
     "dependency-groups>=1.3.1",
     "packaging>=25.0",
-    "pre-commit-hooks[requirements-parser,yaml]",
+    "sync-pre-commit-hooks[requirements-parser,yaml]",
 ]
 optional-dependencies.lastversion = [
     "lastversion>=3.5.8",
@@ -52,7 +52,7 @@ optional-dependencies.requirements-parser = [
     "requirements-parser>=0.13.0",
 ]
 optional-dependencies.sync-pre-commit-deps = [
-    "pre-commit-hooks[requirements-parser,yaml]",
+    "sync-pre-commit-hooks[requirements-parser,yaml]",
 ]
 optional-dependencies.sync-uv-dependency-groups = [
     "packaging>=25.0",
@@ -61,12 +61,13 @@ optional-dependencies.sync-uv-dependency-groups = [
 optional-dependencies.yaml = [
     "ruamel-yaml>=0.18.16",
 ]
-urls.Documentation = "https://pages.nist.gov/pre-commit-hooks/"
-urls.Homepage = "https://github.com/wpk-nist-gov/pre-commit-hooks"
-scripts.apply-command = "pre_commit_hooks.apply_command:main"
-scripts.fill-pre-commit-deps = "pre_commit_hooks.fill_pre_commit_deps:main"
-scripts.sync-pre-commit-deps = "pre_commit_hooks.sync_pre_commit_deps:main"
-scripts.sync-uv-dependency-groups = "pre_commit_hooks.sync_uv_dependency_groups:main"
+urls.Documentation = "https://pages.nist.gov/sync-pre-commit-hooks/"
+urls.Homepage = "https://github.com/wpk-nist-gov/sync-pre-commit-hooks"
+scripts.apply-command = "sync_pre_commit_hooks.apply_command:main"
+scripts.fill-pre-commit-deps = "sync_pre_commit_hooks.fill_pre_commit_deps:main"
+scripts.sync-pre-commit-deps = "sync_pre_commit_hooks.sync_pre_commit_deps:main"
+scripts.sync-pre-commit-language-version = "sync_pre_commit_hooks.sync_pre_commit_language_version:main"
+scripts.sync-uv-dependency-groups = "sync_pre_commit_hooks.sync_uv_dependency_groups:main"
 
 [dependency-groups]
 dev = [
@@ -84,7 +85,7 @@ test = [
     { include-group = "pytest" },
 ]
 # other packages/tools
-optional-dependencies = [ "pre-commit-hooks[all]" ]
+optional-dependencies = [ "sync-pre-commit-hooks[all]" ]
 cog = [ "cogapp" ]
 ipython = [ "ipython" ]
 mypy = [ "mypy>=1.15.0", "orjson" ]
@@ -140,7 +141,7 @@ ignore = [
 ]
 
 [tool.check-wheel-contents]
-toplevel = [ "pre_commit_hooks" ]
+toplevel = [ "sync_pre_commit_hooks" ]
 src_dir = [ "src" ]
 
 [tool.pyproject-fmt]
@@ -160,7 +161,7 @@ addopts = [
 ]
 testpaths = [
     "README.md",
-    "pre_commit_hooks",
+    "sync_pre_commit_hooks",
     "tests",
 ]
 minversion = "8"

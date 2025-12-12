@@ -121,7 +121,7 @@ cruft.patch
 /monkeytype.sqlite3
 /dist-conda/
 /tmp/
-/pre-commit-hooks-feedstock*/
+/sync-pre-commit-hooks-feedstock*/
 /src/**/_version.py
 tuna-loadtime.log
 /requirements/py*-dev-user.yaml

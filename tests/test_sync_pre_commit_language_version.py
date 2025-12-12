@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from pre_commit_hooks.sync_pre_commit_language_version import main
+from sync_pre_commit_hooks.sync_pre_commit_language_version import main
 
 from ._utils import create_config_file
 

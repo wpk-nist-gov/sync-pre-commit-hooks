@@ -8,7 +8,7 @@ You can contribute in many ways:
 ## Types of Contributions
 
 <!-- prettier-ignore-start -->
-[issues]: https://github.com/wpk-nist-gov/pre-commit-hooks/issues
+[issues]: https://github.com/wpk-nist-gov/sync-pre-commit-hooks/issues
 <!-- prettier-ignore-end -->
 
 ### Report Bugs
@@ -57,20 +57,20 @@ Ready to contribute? Here's how to make a contribution.
 - Clone your fork locally:
 
   ```bash
-  git clone git@github.com:your_name_here/pre-commit-hooks.git
+  git clone git@github.com:your_name_here/sync-pre-commit-hooks.git
   ```
 
   If the repo includes submodules, you can add them either with the initial
   close using:
 
   ```bash
-  git clone --recursive-submodules git@github.com:your_name_here/pre-commit-hooks.git
+  git clone --recursive-submodules git@github.com:your_name_here/sync-pre-commit-hooks.git
   ```
 
   or after the clone using
 
   ```bash
-  cd pre-commit-hooks
+  cd sync-pre-commit-hooks
   git submodule update --init --recursive
   ```
 

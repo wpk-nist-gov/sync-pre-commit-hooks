@@ -13,24 +13,26 @@
   For more badges, see
   https://shields.io/category/other
   https://naereen.github.io/badges/
-  [pypi-badge]: https://badge.fury.io/py/pre-commit-hooks
+  [pypi-badge]: https://badge.fury.io/py/sync-pre-commit-hooks
 -->
 
 [ruff-badge]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
 [ruff-link]: https://github.com/astral-sh/ruff
 [uv-badge]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json
 [uv-link]: https://github.com/astral-sh/uv
-[pypi-badge]: https://img.shields.io/pypi/v/pre-commit-hooks
-[pypi-link]: https://pypi.org/project/pre-commit-hooks
+[pypi-badge]: https://img.shields.io/pypi/v/sync-pre-commit-hooks
+[pypi-link]: https://pypi.org/project/sync-pre-commit-hooks
 [docs-badge]: https://img.shields.io/badge/docs-sphinx-informational
-[docs-link]: https://pages.nist.gov/pre-commit-hooks/
+[docs-link]: https://pages.nist.gov/sync-pre-commit-hooks/
 [repo-badge]: https://img.shields.io/badge/--181717?logo=github&logoColor=ffffff
-[repo-link]: https://github.com/wpk-nist-gov/pre-commit-hooks
-[conda-badge]: https://img.shields.io/conda/v/wpk-nist/pre-commit-hooks
-[conda-link]: https://anaconda.org/wpk-nist/pre-commit-hooks
-[license-badge]: https://img.shields.io/pypi/l/pre-commit-hooks?color=informational
-[license-link]: https://github.com/wpk-nist-gov/pre-commit-hooks/blob/main/LICENSE
-[changelog-link]: https://github.com/wpk-nist-gov/pre-commit-hooks/blob/main/CHANGELOG.md
+
+[repo-link]: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
+[conda-badge]: https://img.shields.io/conda/v/wpk-nist/sync-pre-commit-hooks
+[conda-link]: https://anaconda.org/wpk-nist/sync-pre-commit-hooks
+[license-badge]: https://img.shields.io/pypi/l/sync-pre-commit-hooks?color=informational
+[license-link]: https://github.com/wpk-nist-gov/sync-pre-commit-hooks/blob/main/LICENSE
+[changelog-link]: https://github.com/wpk-nist-gov/sync-pre-commit-hooks/blob/main/CHANGELOG.md
+
 [pre-commit]: https://pre-commit.com/
 [lastversion]:  https://github.com/dvershinin/lastversion
 [just]: https://github.com/casey/just
@@ -40,7 +42,7 @@
 
 <!-- prettier-ignore-end -->
 
-# `pre-commit-hooks`
+# `sync-pre-commit-hooks`
 
 Some [pre-commit] hooks I find useful in package development.
 
@@ -154,15 +156,12 @@ sys.path.pop(0)
 ```restructuredtext
 usage: sync-pre-commit-deps [-h] [--yaml-mapping YAML_MAPPING]
                             [--yaml-sequence YAML_SEQUENCE] [--yaml-offset YAML_OFFSET]
-                            [--from FROM_INCLUDE] [--from-exclude FROM_EXCLUDE]
-                            [--to TO_INCLUDE] [--to-exclude TO_EXCLUDE]
-                            [-r REQUIREMENTS] [-l LASTVERSION_DEPENDENCIES] [-m ID_DEP]
-                            [paths ...]
+                            [--config CONFIG] [--from FROM_INCLUDE]
+                            [--from-exclude FROM_EXCLUDE] [--to TO_INCLUDE]
+                            [--to-exclude TO_EXCLUDE] [-r REQUIREMENTS]
+                            [-l LASTVERSION_DEPENDENCIES] [-m ID_DEP]
 
 Update ``additional_dependencies`` in ``.pre-commit-config.yaml``
-
-positional arguments:
-  paths                 The pre-commit config file to sync to.
 
 options:
   -h, --help            show this help message and exit
@@ -178,6 +177,7 @@ options:
                         The `offset` argument to the YAML dumper. See
                         https://yaml.readthedocs.io/en/latest/detail/#indentation-of-
                         block-sequences
+  --config CONFIG       pre-commit config file (Default '.pre-commit-config.yaml')
   --from FROM_INCLUDE   Hook id's to extract versions from. The default is to extract
                         from all hooks. If pass ``--from id``, then only those hooks
                         explicitly passed will be used to extract versions.

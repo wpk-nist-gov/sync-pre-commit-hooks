@@ -5,7 +5,7 @@ from unittest.mock import call, patch
 
 import pytest
 
-from pre_commit_hooks import apply_command
+from sync_pre_commit_hooks import apply_command
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
