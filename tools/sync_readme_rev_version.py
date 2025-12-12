@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO, format=FORMAT)
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_REPO_URL = "https://github.com/wpk-nist-gov/sync-pre-commit-deps"
+DEFAULT_REPO_URL = "https://github.com/wpk-nist-gov/sync-pre-commit-hooks"
 
 
 def _get_current_package_version(config_file: Path) -> str:
