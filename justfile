@@ -186,11 +186,11 @@ basedpyright-verifytypes *options=("src/" + IMPORT_NAME): (basedpyright "--verif
 
 # Run ty (NOTE: in alpha)
 [group("typecheck")]
-ty *options="src tests": (_typecheck "ty" options)
+ty *options: (_typecheck "ty" options)
 
 # Run pyrefly (Note: in alpha)
 [group("typecheck")]
-pyrefly *options="src tests": (_typecheck "pyrefly" options)
+pyrefly *options: (_typecheck "pyrefly" options)
 
 # Run pylint (with optional args)
 [group("lint")]
@@ -200,7 +200,7 @@ pylint *options="src tests":
 
 # Run all checkers (with optional directories)
 [group("typecheck")]
-typecheck *options: (_typecheck "mypy basedpyright" options)
+typecheck *options: (_typecheck "mypy basedpyright pyrefly ty" options)
 
 # Run checkers on tools
 [group("tools")]

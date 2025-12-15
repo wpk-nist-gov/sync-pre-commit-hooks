@@ -272,6 +272,9 @@ root = "tests"
 # reportMissingImports = false
 reportUnusedCallResult = false
 
+[tool.ty.src]
+include = [ "src", "tests" ]
+
 [tool.pytype]
 inputs = [
     "src",

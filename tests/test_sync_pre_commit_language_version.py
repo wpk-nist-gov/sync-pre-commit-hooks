@@ -7,6 +7,7 @@ import pytest
 
 from sync_pre_commit_hooks.sync_pre_commit_language_version import main
 
+# pyrefly: ignore [missing-import]
 from ._utils import create_config_file
 
 if TYPE_CHECKING:

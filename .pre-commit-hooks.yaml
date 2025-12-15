@@ -25,6 +25,7 @@
   name: sync-pre-commit-language-version
   description: Sync pre-commit language_version
   entry: sync-pre-commit-language-version
+  args: ["--help"]
   language: python
   additional_dependencies:
     - ".[all]"

@@ -14,6 +14,7 @@ from sync_pre_commit_hooks.fill_pre_commit_deps import (
     _limit_requirements,  # noqa: PLC2701
 )
 
+# pyrefly: ignore [missing-import]
 from ._utils import create_config_file
 
 if TYPE_CHECKING:

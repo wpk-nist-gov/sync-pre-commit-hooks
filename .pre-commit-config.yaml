@@ -224,7 +224,7 @@ repos:
         language: python
         args:
           - "--language-version-file=.python-version"
-          - "--hook=mypy"
+          - "--hook=typecheck"
         files: ^\.python-version$
         pass_filenames: false
         additional_dependencies:
@@ -233,46 +233,86 @@ repos:
   - repo: local
     hooks:
       - id: fill-pre-commit-hook-deps
-        name: fill-pre-commit-hook-deps-mypy
+        name: fill-pre-commit-hook-deps
+        alias: typecheck
         entry: fill-pre-commit-deps
         language: python
-        files: ^pyproject.toml$|^\.pre-commit-config.yaml$
+        files: ^pyproject.toml$|^\.pre-commit-config.yaml$|^requirements/lock/uvx-tools\.txt$
         pass_filenames: false
         args:
-          - "--hook=basedpyright"
+          - "--hook=typecheck"
           - "--group=typecheck"
           - "--exclude=pylint"
-          - "orjson"
+          - "--requirements=requirements/lock/uvx-tools.txt"
+          - "--requirements-include=mypy"
+          - "--requirements-include=orjson"
+          - "--requirements-include=basedpyright"
+          - "--requirements-include=ty"
+          - "--requirements-include=pyrefly"
         additional_dependencies:
           - "--editable=.[all]"
 
-  - repo: https://github.com/DetachHead/basedpyright-pre-commit-mirror
-    rev: 1.34.0
+  - repo: local
     hooks:
-      - id: basedpyright
-        alias: typecheck
+      - id: typecheck
+        name: typecheck
+        entry: python tools/typecheck.py --verbose
+        language: python
+        args:
+          - "--no-uv"
+          # - "--checker=mypy"
+          # - "--checker=basedpyright"
+          # - "--checker=pylint --enable-all-extensions"
+          - "--checker=ty"
+          - "--checker=pyrefly"
         files: ^(src/|tests/)
-        args: []
+        types_or: [python, pyi]
+        require_serial: true
+        language_version: "3.13"
         stages: [manual]
-        additional_dependencies: &typecheck-deps
-          - orjson
+        additional_dependencies:
+          - basedpyright==1.36.1
           - dependency-groups>=1.3.1
           - lastversion>=3.5.8
+          - mypy==1.19.0
+          - orjson==3.11.5
           - packaging>=25.0
+          - pyrefly==0.45.2
           - pytest
           - requirements-parser>=0.13.0
           - ruamel-yaml>=0.18.16
           - tomli; python_version < "3.11"
           - tomlkit>=0.13.3
+          - ty==0.0.1a34
           - typing-extensions; python_version < "3.11"
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.19.0
-    hooks:
-      - id: mypy
-        alias: typecheck
-        files: ^(src/|tests/)
-        args: []
-        stages: [manual]
-        language_version: "3.13"
-        additional_dependencies: *typecheck-deps
+  # - repo: https://github.com/DetachHead/basedpyright-pre-commit-mirror
+  #   rev: 1.34.0
+  #   hooks:
+  #     - id: basedpyright
+  #       alias: typecheck
+  #       files: ^(src/|tests/)
+  #       args: []
+  #       stages: [manual]
+  #       additional_dependencies: &typecheck-deps
+  #         - orjson
+  #         - dependency-groups>=1.3.1
+  #         - lastversion>=3.5.8
+  #         - packaging>=25.0
+  #         - pytest
+  #         - requirements-parser>=0.13.0
+  #         - ruamel-yaml>=0.18.16
+  #         - tomli; python_version < "3.11"
+  #         - tomlkit>=0.13.3
+  #         - typing-extensions; python_version < "3.11"
+
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v1.19.0
+  #   hooks:
+  #     - id: mypy
+  #       alias: typecheck
+  #       files: ^(src/|tests/)
+  #       args: []
+  #       stages: [manual]
+  #       language_version: "3.13"
+  #       additional_dependencies: *typecheck-deps
