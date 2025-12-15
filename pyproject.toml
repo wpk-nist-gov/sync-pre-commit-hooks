@@ -152,6 +152,7 @@ testpaths = [
 ]
 minversion = "8"
 log_cli_level = "INFO"
+log_level = "INFO"
 strict_xfail = "true"
 filterwarnings = [ "error" ]
 
@@ -214,7 +215,6 @@ module = [ "lastversion.*" ]
 # module = [  ]
 
 [tool.pyrefly]
-#### configuring what to type check and where to import from
 project-includes = [ "src", "tests" ]
 
 [tool.pyright]

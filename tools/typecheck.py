@@ -137,7 +137,7 @@ def _run_checker(
 def get_parser() -> ArgumentParser:
     """Get argparser."""
     parser = ArgumentParser(description="Run executable using uvx.")
-    parser.add_argument(
+    _ = parser.add_argument(
         "--python-executable",
         dest="python_executable",
         default=None,  # Path(sys.executable),
@@ -147,7 +147,7 @@ def get_parser() -> ArgumentParser:
         passed to `--python-executable` in mypy and `--pythonpath` in (based)pyright.
         """,
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--python-version",
         dest="python_version",
         default=None,
@@ -158,7 +158,7 @@ def get_parser() -> ArgumentParser:
         to ``--pythonversion`` in pyright and ``--python-version`` otherwise.
         """,
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "-c",
         "--constraints",
         dest="constraints",
@@ -167,7 +167,7 @@ def get_parser() -> ArgumentParser:
         type=Path,
         help="Requirements (requirements.txt) specs for checker.  Can specify multiple times.",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "-v",
         "--verbose",
         dest="verbosity",
@@ -175,7 +175,7 @@ def get_parser() -> ArgumentParser:
         default=0,
         help="Set verbosity level.  Pass multiple times to up level.",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "-x",
         "--checker",
         dest="checkers",
@@ -183,19 +183,19 @@ def get_parser() -> ArgumentParser:
         action="append",
         help="Type checker to use.",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--allow-errors",
         action="store_true",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--dry-run",
         action="store_true",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--no-uv",
         action="store_true",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "args",
         type=str,
         nargs="*",
