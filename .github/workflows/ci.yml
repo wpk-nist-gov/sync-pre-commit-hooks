@@ -82,7 +82,7 @@ jobs:
             }}|${{ hashFiles('./**/.pre-commit-config.yaml') }}
 
       - name: Try repo
-        run: uvx prek==0.2.30 try-repo . --all-files -v
+        run: uvx -with rust-just prek==0.2.30 try-repo . --all-files -v
 
       - name: Run prek
         env:
