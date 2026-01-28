@@ -37,8 +37,8 @@ def get_in(
     from functools import reduce
 
     try:
-        return reduce(  # pyrefly: ignore[no-matching-overload] # ty: ignore[no-matching-overload]
-            operator.getitem,  # pyrefly: ignore[bad-argument-type]  # ty: ignore[invalid-argument-type]
+        return reduce(  # pyrefly: ignore[no-matching-overload]
+            operator.getitem,  # pyrefly: ignore[bad-argument-type]
             keys,
             nested_dict,
         )
@@ -123,7 +123,7 @@ def pre_commit_config_load(
 
     yaml = YAML()
     yaml.preserve_quotes = True
-    yaml.indent(mapping, sequence, offset)  # pyright: ignore[reportUnknownMemberType]
+    yaml.indent(mapping, sequence, offset)
 
     return cast("PreCommitConfigType", yaml.load(path)), yaml  # pyright: ignore[reportUnknownMemberType]
 

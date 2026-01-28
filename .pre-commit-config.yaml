@@ -297,7 +297,7 @@ repos:
         files: ^(src/|tests/)
         types_or: [python, pyi]
         require_serial: true
-        language_version: "3.13"
+        language_version: "3.14"
         stages: [manual]
         additional_dependencies:
           - basedpyright==1.37.2

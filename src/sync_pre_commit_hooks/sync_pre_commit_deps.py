@@ -140,7 +140,7 @@ def _update_yaml_file(
             if (target_version := versions.get(name, cur_version)) != cur_version:
                 name_and_version = type(dep)(f"{name}=={target_version}")
                 if hasattr(dep, "anchor"):
-                    name_and_version.yaml_set_anchor(dep.anchor.value, always_dump=True)  # type: ignore[attr-defined]  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+                    name_and_version.yaml_set_anchor(dep.anchor.value, always_dump=True)  # type: ignore[attr-defined]  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]  # ty: ignore[unresolved-attribute]
                 hook["additional_dependencies"][i] = name_and_version
                 logger.info(
                     "Setting %s dependency %s to %s",
