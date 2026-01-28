@@ -80,12 +80,15 @@ jobs:
           key:
             prek-v1|${{ runner.os }}|${{ runner.arch }}|${{ env.pythonLocation
             }}|${{ hashFiles('./**/.pre-commit-config.yaml') }}
+      - name: Try repo
+        run: $UVX_COMMAND prek try-repo . --all-files -v
+
       - name: Run prek
         env:
           SKIP: "cruft,typecheck-runner"
         run: >-
           $UVX_COMMAND prek run --show-diff-on-failure --color=always
-          --all-files --hook-stage=manual
+          --all-files --hook-stage=manual -v
 
   typecheck:
     name: Typecheck package
@@ -126,16 +129,10 @@ jobs:
           - ubuntu-latest
         python-version:
           ${{ fromJson(needs.build-package.outputs.matrix-test-python) }}
-        test-type:
-          - test
         include:
           - os: windows-latest
             python-version:
               ${{ needs.build-package.outputs.default-python-version }}
-          - os: ubuntu-latest
-            python-version:
-              ${{ needs.build-package.outputs.default-python-version }}
-            test-type: test-pre-commit
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -150,17 +147,11 @@ jobs:
           cache-dependency-path: uv.lock
 
       - name: Test with nox
-        if: ${{ matrix.test-type == 'test' }}
         env:
           python_version: ${{ matrix.python-version }}
         run: >-
           $UVX_COMMAND nox -s test-"$python_version" -- ++installpkg dist/*.whl
         shell: bash
-
-      - name: Test pre-commit
-        if: ${{ matrix.test-type == 'test-pre-commit' }}
-        run: >-
-          $UVX_COMMAND nox -s test-pre-commit
 
       - name: Upload coverage data
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
