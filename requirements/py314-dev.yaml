@@ -16,7 +16,6 @@ dependencies:
   - lastversion>=3.5.8
   - mypy>=1.15.0
   - nox>=2025.5.1
-  - orjson
   - packaging>=25.0
   - pylint
   - pytest
@@ -26,6 +25,7 @@ dependencies:
   - requirements-parser>=0.13.0
   - ruamel-yaml>=0.18.16
   - tomlkit>=0.13.3
+  - typecheck-runner>=0.1.0
   - pip
   - pip:
       - pytest-accept

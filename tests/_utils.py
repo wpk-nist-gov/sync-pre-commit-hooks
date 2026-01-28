@@ -10,6 +10,6 @@ def create_config_file(
     parent: Path, contents: str, name: str = ".pre-commit-config.yaml"
 ) -> Path:
     cfg = parent / name
-    cfg.write_text(contents)
+    cfg.write_text(contents, encoding="utf-8")
 
     return cfg

@@ -72,13 +72,15 @@ test = [
 ]
 # other packages/tools
 optional-dependencies = [ "sync-pre-commit-hooks[complete]" ]
+basedpyright = [ "basedpyright>=1.31.3" ]
 cog = [ "cogapp" ]
 ipython = [ "ipython" ]
-mypy = [ "mypy>=1.15.0", "orjson" ]
+mypy = [ "mypy[faster-cache]>=1.15.0" ]
 nox = [ "nox>=2025.5.1" ]
 pylint = [ "pylint" ]
 pytest = [ "pytest" ]
 pytest-accept = [ "pytest-accept" ]
+typecheck-runner = [ "typecheck-runner>=0.1.0; python_version>'3.9'" ]
 # other environments
 test-extras = [
     { include-group = "test" },
@@ -87,6 +89,7 @@ typecheck = [
     { include-group = "optional-dependencies" },
     { include-group = "pylint" },
     { include-group = "pytest" },
+    { include-group = "typecheck-runner" },
 ]
 
 # * uv -------------------------------------------------------------------------
@@ -116,12 +119,11 @@ source-include = [ "tests/**" ]
 
 [tool.repo-review]
 ignore = [
-    "GH",     # enable for actions
     "PC111",  # use doccmd instead of blacken-docs
     "PC140",  # do this externally
+    "PC160",  # use typos
     "PC170",  # pygrep
     "PC901",  # ci message
-    "RTD",
     "NOX103", # I prefer using "nox.options.sessions"
     "PY004",  # no docs for this
 ]
@@ -230,7 +232,6 @@ exclude = [
     "**/.mypy_cache",
     "**/.numba_cache",
 ]
-pythonVersion = "3.11"
 typeCheckingMode = "strict"
 # typeCheckingMode = "basic"
 # typeCheckingMode = "standard"
@@ -324,15 +325,16 @@ reqs = [
     "prek",
     "pyrefly>=0.37.0",
     "pyright>=1.1.396",
-    "basedpyright>=1.31.3",
     "scriv",
     "twine>=5.0.0",
     "ty",
 ]
 groups = [
+    "basedpyright",
     "cog",
     "mypy",
     "nox",
+    "typecheck-runner",
 ]
 skip-package = true
 style = "requirements"
