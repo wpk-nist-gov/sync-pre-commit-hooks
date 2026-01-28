@@ -17,6 +17,8 @@ ci:
     - sync-pre-commit-language-version
     - fill-pre-commit-hook-deps
 
+exclude: \.rej$
+
 default_install_hook_types:
   - pre-commit
   - commit-msg
