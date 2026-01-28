@@ -9,6 +9,13 @@ ci:
   skip:
     - uv-lock
     - pip-compile
+    # no way to use these on pre-commit-ci
+    - sync-pre-commit-deps
+    - justfile-format
+    - sync-uv-dependency-groups
+    - sync-pre-commit-language-version
+    - fill-pre-commit-hook-deps
+
 default_install_hook_types:
   - pre-commit
   - commit-msg
