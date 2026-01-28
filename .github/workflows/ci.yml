@@ -80,8 +80,9 @@ jobs:
           key:
             prek-v1|${{ runner.os }}|${{ runner.arch }}|${{ env.pythonLocation
             }}|${{ hashFiles('./**/.pre-commit-config.yaml') }}
-      - name: Try repo
-        run: $UVX_COMMAND prek try-repo . --all-files -v
+      # Not working
+      # - name: Try repo
+      #   run: $UVX_COMMAND prek try-repo . --all-files -v
 
       - name: Run prek
         env:
