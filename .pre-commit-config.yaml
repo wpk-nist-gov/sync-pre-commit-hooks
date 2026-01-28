@@ -9,6 +9,7 @@ ci:
   skip:
     - uv-lock
     - pip-compile
+    - typecheck
     # no way to use these on pre-commit-ci
     - sync-pre-commit-deps
     - justfile-format
