@@ -8,8 +8,9 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, cast
 
 from dependency_groups import DependencyGroupResolver
-from packaging.utils import canonicalize_name
+from packaging.utils import NormalizedName, canonicalize_name
 
+from ._typing import NormalizedRequirement
 from ._typing_compat import override
 
 if TYPE_CHECKING:
@@ -21,9 +22,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from packaging.requirements import Requirement
-    from packaging.utils import NormalizedName
 
-    from ._typing import NormalizedRequirement
 
 # Not used, but keep for posterity
 # def _resolve_requirements(  # pragma: no cover
@@ -55,7 +54,7 @@ class _Resolve(ABC):
     package_name: NormalizedName
     unresolved: Mapping[str, Any]
     resolved: dict[NormalizedName, set[NormalizedRequirement]] = field(
-        init=False, default_factory=dict["NormalizedName", "set[NormalizedRequirement]"]
+        init=False, default_factory=dict[NormalizedName, set[NormalizedRequirement]]
     )
 
     @abstractmethod

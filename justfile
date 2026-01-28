@@ -89,7 +89,7 @@ cog: (lint-manual "cog" "--verbose")
 lint-upgrade:
     just pre-commit autoupdate
     uv run --no-project --script tools/requirements_lock.py --upgrade requirements/pre-commit-additional-dependencies.txt
-    just pre-commit run -v update-pre-commit-additional-dependencies -a
+    just pre-commit run -v sync-pre-commit-deps -a
 
 # * User setup -----------------------------------------------------------------
 
@@ -186,11 +186,11 @@ basedpyright-verifytypes *options=("src/" + IMPORT_NAME): (basedpyright "--verif
 
 # Run ty (NOTE: in alpha)
 [group("typecheck")]
-ty *options="src tests": (_typecheck "ty" options)
+ty *options: (_typecheck "ty" options)
 
 # Run pyrefly (Note: in alpha)
 [group("typecheck")]
-pyrefly *options="src tests": (_typecheck "pyrefly" options)
+pyrefly *options: (_typecheck "pyrefly" options)
 
 # Run pylint (with optional args)
 [group("lint")]
@@ -200,7 +200,7 @@ pylint *options="src tests":
 
 # Run all checkers (with optional directories)
 [group("typecheck")]
-typecheck *options: (_typecheck "mypy basedpyright" options)
+typecheck *options: (_typecheck "mypy basedpyright pyrefly ty" options)
 
 # Run checkers on tools
 [group("tools")]
