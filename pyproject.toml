@@ -32,7 +32,8 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [  ]
-optional-dependencies.all = [
+[project.optional-dependencies]
+all = [
     "dependency-groups>=1.3.1",
     "packaging>=25.0",
     "requirements-parser>=0.13.0",
@@ -41,19 +42,21 @@ optional-dependencies.all = [
     "tomlkit>=0.13.3",
     "typing-extensions; python_version<'3.11'",
 ]
-optional-dependencies.complete = [
+complete = [
     "sync-pre-commit-hooks[all,lastversion]",
 ]
-optional-dependencies.lastversion = [
+lastversion = [
     "lastversion>=3.5.8",
 ]
-urls.Documentation = "https://pages.nist.gov/sync-pre-commit-hooks/"
-urls.Homepage = "https://github.com/wpk-nist-gov/sync-pre-commit-hooks"
-scripts.apply-command = "sync_pre_commit_hooks.apply_command:main"
-scripts.fill-pre-commit-deps = "sync_pre_commit_hooks.fill_pre_commit_deps:main"
-scripts.sync-pre-commit-deps = "sync_pre_commit_hooks.sync_pre_commit_deps:main"
-scripts.sync-pre-commit-language-version = "sync_pre_commit_hooks.sync_pre_commit_language_version:main"
-scripts.sync-uv-dependency-groups = "sync_pre_commit_hooks.sync_uv_dependency_groups:main"
+[project.scripts]
+apply-command = "sync_pre_commit_hooks.apply_command:main"
+fill-pre-commit-deps = "sync_pre_commit_hooks.fill_pre_commit_deps:main"
+sync-pre-commit-deps = "sync_pre_commit_hooks.sync_pre_commit_deps:main"
+sync-pre-commit-language-version = "sync_pre_commit_hooks.sync_pre_commit_language_version:main"
+sync-uv-dependency-groups = "sync_pre_commit_hooks.sync_uv_dependency_groups:main"
+[project.urls]
+Documentation = "https://pages.nist.gov/sync-pre-commit-hooks/"
+Homepage = "https://github.com/wpk-nist-gov/sync-pre-commit-hooks"
 
 [dependency-groups]
 dev = [
@@ -100,9 +103,8 @@ default-groups = [ "dev" ]
 fork-strategy = "requires-python"
 required-version = ">=0.7.15"
 
-[tool.uv.pip]
-annotation-style = "line"
-generate-hashes = true
+[tool.uv.build-backend]
+source-include = [ "tests/**" ]
 
 [tool.uv.dependency-groups]
 dev.requires-python = ">=3.14"
@@ -112,19 +114,20 @@ ipython.requires-python = ">=3.14"
 mypy.requires-python = ">=3.14"
 nox.requires-python = ">=3.14"
 
-[tool.uv.build-backend]
-source-include = [ "tests/**" ]
+[tool.uv.pip]
+annotation-style = "line"
+generate-hashes = true
 
 # * Checks ---------------------------------------------------------------------
 
 [tool.repo-review]
 ignore = [
+    "NOX103", # I prefer using "nox.options.sessions"
     "PC111",  # use doccmd instead of blacken-docs
     "PC140",  # do this externally
     "PC160",  # use typos
     "PC170",  # pygrep
     "PC901",  # ci message
-    "NOX103", # I prefer using "nox.options.sessions"
     "PY004",  # no docs for this
 ]
 
@@ -133,19 +136,28 @@ toplevel = [ "sync_pre_commit_hooks" ]
 src_dir = [ "src" ]
 
 [tool.pyproject-fmt]
+indent = 4
 # max_supported_python = "3.13"
+keep_full_version = true
+expand_tables = [
+    "project.entry-points",
+    "project.optional-dependencies",
+    "project.scripts",
+    "project.urls",
+]
+collapse_tables = [  ]
 
 # * Testing --------------------------------------------------------------------
 
 [tool.pytest.ini_options]
 addopts = [
-    "-ra",
+    "--cov-config=pyproject.toml",
+    "--doctest-glob=*.md",
+    "--doctest-modules",
+    "--pyargs",
     "--strict-config",
     "--strict-markers",
-    "--doctest-modules",
-    "--doctest-glob=*.md",
-    "--pyargs",
-    "--cov-config=pyproject.toml",
+    "-ra",
 ]
 testpaths = [
     "README.md",
@@ -158,29 +170,30 @@ log_level = "INFO"
 strict_xfail = "true"
 filterwarnings = [ "error" ]
 
-[tool.coverage.run]
-branch = true
+[tool.coverage.paths]
+source = [
+    "src/",
+    # needed for non editable doctests
+    ".nox/**/site-packages/",
+]
 
 [tool.coverage.report]
 show_missing = true
 exclude_also = [
-    "if TYPE_CHECKING:",
     "@overload",
+    "if TYPE_CHECKING:",
     'if __name__ == "__main__":',
 ]
 omit = [
-    "*/vendored/*",
     "*/_typing.py",
+    "*/vendored/*",
 ]
 include = [
     "src/*",
 ]
 
-[tool.coverage.paths]
-source = [
-    "src/",
-    ".nox/**/site-packages/",
-]
+[tool.coverage.run]
+branch = true
 
 # * typecheck ---------------------------------------------------------------------
 
@@ -195,10 +208,10 @@ warn_unused_configs = true
 warn_unreachable = true
 exclude = [
     ".eggs",
-    ".tox",
     ".nox",
-    ".venv",
     ".numba_cache",
+    ".tox",
+    ".venv",
 ]
 check_untyped_defs = true
 strict = true
@@ -225,12 +238,12 @@ include = [
     "tests",
 ]
 exclude = [
-    "**/__pycache__",
-    ".tox/**",
-    ".nox/**",
-    ".venv/**",
     "**/.mypy_cache",
     "**/.numba_cache",
+    "**/__pycache__",
+    ".nox/**",
+    ".tox/**",
+    ".venv/**",
 ]
 typeCheckingMode = "strict"
 # typeCheckingMode = "basic"
@@ -273,12 +286,12 @@ root = "tests"
 # reportMissingImports = false
 reportUnusedCallResult = false
 
-[tool.ty.src]
-include = [ "src", "tests" ]
-
 [tool.ty.analysis]
 # Disable support for `type: ignore` comments
 respect-type-ignore-comments = false
+
+[tool.ty.src]
+include = [ "src", "tests" ]
 
 [tool.pytype]
 inputs = [
@@ -304,6 +317,17 @@ pytest-accept = { pip = true }
 [tool.pyproject2conda.envs.dev]
 groups = "dev"
 
+[tool.pyproject2conda.envs.pre-commit-additional-dependencies]
+reqs = [
+    "pyrefly",
+    "rust-just",
+]
+groups = [
+    "cog",
+]
+skip-package = true
+style = "requirements"
+
 [tool.pyproject2conda.envs.test]
 groups = "test"
 python = "all"
@@ -320,8 +344,8 @@ reqs = [
     "cruft",
     "grayskull>=2.5.3",
     "nbqa>=1.8.4",
-    "pre-commit>=4.0.0",
     "pre-commit-uv",
+    "pre-commit>=4.0.0",
     "prek",
     "pyrefly>=0.37.0",
     "pyright>=1.1.396",
@@ -335,17 +359,6 @@ groups = [
     "mypy",
     "nox",
     "typecheck-runner",
-]
-skip-package = true
-style = "requirements"
-
-[tool.pyproject2conda.envs.pre-commit-additional-dependencies]
-reqs = [
-    "rust-just",
-    "pyrefly",
-]
-groups = [
-    "cog",
 ]
 skip-package = true
 style = "requirements"
