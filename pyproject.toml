@@ -127,7 +127,6 @@ ignore = [
     "PC140",  # do this externally
     "PC160",  # use typos
     "PC170",  # pygrep
-    "PC901",  # ci message
     "PY004",  # no docs for this
 ]
 
@@ -146,6 +145,9 @@ expand_tables = [
     "project.urls",
 ]
 collapse_tables = [  ]
+
+[tool.typos.default.extend-identifiers]
+CPY = "CPY"
 
 # * Testing --------------------------------------------------------------------
 
@@ -231,6 +233,7 @@ module = [ "lastversion.*" ]
 
 [tool.pyrefly]
 project-includes = [ "src", "tests" ]
+enabled-ignores = [ "pyrefly" ]
 
 [tool.pyright]
 include = [
@@ -351,7 +354,7 @@ reqs = [
     "pyright>=1.1.396",
     "scriv",
     "twine>=5.0.0",
-    "ty",
+    "ty>=0.0.14",
 ]
 groups = [
     "basedpyright",
