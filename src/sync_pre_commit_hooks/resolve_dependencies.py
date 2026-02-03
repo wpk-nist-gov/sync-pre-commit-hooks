@@ -102,6 +102,7 @@ class _Resolve(ABC):
 class ResolveOptionalDependencies(_Resolve):
     """Resolve ``optional-dependencies``."""
 
+    # pyrefly: ignore [bad-override]
     unresolved: Mapping[NormalizedName, Sequence[NormalizedRequirement]]  # type: ignore[assignment]  # pyright: ignore[reportIncompatibleVariableOverride]
 
     @override
