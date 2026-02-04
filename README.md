@@ -49,6 +49,29 @@ development. The goal of most of these hooks is to have a single source of
 truth, minimimizing the possibility that things like package dependencies get
 out of sync.
 
+<!--TOC-->
+
+---
+
+- [`sync-pre-commit-hooks`](#sync-pre-commit-hooks)
+  - [sync-pre-commit-deps](#sync-pre-commit-deps)
+  - [fill-pre-commit-deps](#fill-pre-commit-deps)
+  - [sync-pre-commit-language-version](#sync-pre-commit-language-version)
+  - [apply-command](#apply-command)
+  - [justfile-format](#justfile-format)
+  - [sync-uv-dependency-groups](#sync-uv-dependency-groups)
+  - [check-file-extension](#check-file-extension)
+- [Project info](#project-info)
+  - [Status](#status)
+  - [What's new?](#whats-new)
+  - [License](#license)
+  - [Contact](#contact)
+  - [Credits](#credits)
+
+---
+
+<!--TOC-->
+
 ## sync-pre-commit-deps
 
 Inspired by
@@ -488,6 +511,34 @@ options:
 
 <!-- [[[end]]] -->
 <!-- prettier-ignore-end -->
+
+## check-file-extension
+
+This is a simple hook to check that if you add a file with a given extension. If
+such a file is found, the hook fails.
+
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable MD013 -->
+<!-- [[[cog run_command("check-file-extension --help", include_cmd=False, wrapper="restructuredtext")]]] -->
+
+```restructuredtext
+usage: check-file-extension [-h] [-e EXTENSIONS] paths [paths ...]
+
+Exit with non zero status if file has specified extension
+
+positional arguments:
+  paths
+
+options:
+  -h, --help            show this help message and exit
+  -e, --ext EXTENSIONS  Extensions to exclude. Should include `"."`. For example `--ext
+                        .rej --ext .bak ...`
+```
+
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
+
+# Project info
 
 ## Status
 
