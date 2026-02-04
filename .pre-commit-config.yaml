@@ -11,6 +11,7 @@ ci:
     - pip-compile
     - typecheck
     # no way to use these on pre-commit-ci
+    - check-file-extension
     - sync-pre-commit-deps
     - justfile-format
     - sync-uv-dependency-groups
@@ -26,6 +27,20 @@ repos:
     hooks:
       - id: check-hooks-apply
       - id: check-useless-excludes
+
+  - repo: local
+    hooks:
+      - id: check-file-extension
+        name: check-file-extension
+        entry: check-file-extension
+        language: python
+        require_serial: true
+        args:
+          - "-e.rej"
+          - "-e.bak"
+          - "-e.log"
+        additional_dependencies:
+          - "--editable=."
 
   # * sync dependencies
   # - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
@@ -336,3 +351,13 @@ repos:
           - ty==0.0.14
           - typecheck-runner>=0.1.0; python_version > "3.9"
           - typing-extensions; python_version < "3.11"
+
+  - repo: https://github.com/jsh9/markdown-toc-creator
+    rev: 0.1.3
+    hooks:
+      - id: markdown-toc-creator
+        files: ^README\.md$
+        args:
+          - --proactive=False
+          - --add-toc-title=False
+          - --horizontal-rule-style=prettier
