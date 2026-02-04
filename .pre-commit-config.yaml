@@ -38,6 +38,8 @@ repos:
           - "-e.rej"
           - "-e.bak"
           - "-e.log"
+        additional_dependencies:
+          - "--editable=."
 
   # * sync dependencies
   # - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
