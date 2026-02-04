@@ -103,7 +103,7 @@ repos:
         additional_dependencies:
           - ruff==0.14.3 # will be update to ruff==0.14.5 from "ruff-format" id.
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.2.0
+    rev: v0.3.0
     hooks:
       - id: sync-pre-commit-deps
 ```
@@ -131,7 +131,7 @@ repos:
         additional_dependencies:
           - ruff==0.14.2 # will be updated to ruff==0.14.5 from requirements file
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.2.0
+    rev: v0.3.0
     hooks:
       - id: sync-pre-commit-deps
         args: ["--requirements=pre-commit-additional-dependencies.txt"]
@@ -158,7 +158,7 @@ repos:
         additional_dependencies:
           - ruff==0.14.2 # will be updated to latest version of ruff using lastversion
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.2.0
+    rev: v0.3.0
     hooks:
       - id: sync-pre-commit-deps
         args: ["--last=doccmd"] # which hook id's additional dependencies
@@ -263,7 +263,7 @@ typecheck = [
 ```yaml
 repos:
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.2.0
+    rev: v0.3.0
     hooks:
       - id: fill-pre-commit-deps
         args:
@@ -376,7 +376,7 @@ saved in a `.python-version` file, use:
 ```yaml
 repos:
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.2.0
+    rev: v0.3.0
     hooks:
       - id: sync-pre-commit-language-version
         args:
@@ -413,7 +413,7 @@ use:
 ```yaml
 repos:
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.2.0
+    rev: v0.3.0
       - id: apply-command
         name: justfile-format
         args: [just, --fmt, --unstable, --justfile]
@@ -457,7 +457,7 @@ install [just], so if you want the hook to install it, include it in
 ```yaml
 repos:
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.2.0
+    rev: v0.3.0
       - id: justfile-format
         additional_dependencies:  # optional include `just` as a dependency
           - rust-just
@@ -515,6 +515,21 @@ options:
 ## check-file-extension
 
 This is a simple hook that fails if a file with a specified extension is found.
+For example, to keep files with extension `.bak` and `.log` out of the repo,
+use:
+
+```yaml
+repos:
+  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
+    rev: v0.3.0
+      - id: check-file-extension
+        args:
+          - "--ext=.bak"
+          - "--ext=.log"
+```
+
+This is an extra check beyond `.gitignore` which can be helpful for with
+automated commits.
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable MD013 -->
