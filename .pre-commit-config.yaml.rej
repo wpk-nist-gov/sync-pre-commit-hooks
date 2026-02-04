@@ -1,6 +1,6 @@
 diff a/.pre-commit-config.yaml b/.pre-commit-config.yaml	(rejected hunks)
 @@ -23,7 +23,7 @@ repos:
- 
+
    # * sync dependencies
    - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
 -    rev: v0.2.0
@@ -16,7 +16,7 @@ diff a/.pre-commit-config.yaml b/.pre-commit-config.yaml	(rejected hunks)
 +        args:
 +          # exclude `.rej` files from cruft
 +          - "--ext=.rej"
- 
+
    # * Top level
    - repo: https://github.com/pre-commit/pre-commit-hooks
 @@ -225,7 +229,7 @@ repos:
