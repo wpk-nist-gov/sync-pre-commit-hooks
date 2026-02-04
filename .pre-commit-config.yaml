@@ -11,6 +11,7 @@ ci:
     - pip-compile
     - typecheck
     # no way to use these on pre-commit-ci
+    - check-file-extension
     - sync-pre-commit-deps
     - justfile-format
     - sync-uv-dependency-groups
