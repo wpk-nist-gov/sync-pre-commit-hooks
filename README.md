@@ -514,8 +514,7 @@ options:
 
 ## check-file-extension
 
-This is a simple hook to check that if you add a file with a given extension. If
-such a file is found, the hook fails.
+This is a simple hook that fails if a file with a specified extension is found.
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable MD013 -->
