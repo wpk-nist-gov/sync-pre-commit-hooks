@@ -61,9 +61,9 @@ Homepage = "https://github.com/wpk-nist-gov/sync-pre-commit-hooks"
 
 [dependency-groups]
 dev = [
+    { include-group = "cog" },
     { include-group = "mypy" },
     { include-group = "nox" },
-    { include-group = "pytest-accept" },
     { include-group = "test" },
     { include-group = "typecheck" },
 ]
@@ -83,7 +83,6 @@ mypy = [ "mypy[faster-cache]>=1.15.0" ]
 nox = [ "nox>=2025.5.1" ]
 pylint = [ "pylint" ]
 pytest = [ "pytest" ]
-pytest-accept = [ "pytest-accept" ]
 typecheck-runner = [ "typecheck-runner>=0.1.0; python_version>'3.9'" ]
 # other environments
 test-extras = [
