@@ -56,6 +56,15 @@ repos:
   #       additional_dependencies:
   #         - rust-just==1.45.0
 
+  # * Forbidden files
+  - repo: local
+    hooks:
+      - id: forbidden-files
+        name: forbidden files
+        entry: Found forbidden file.
+        language: fail
+        files: \.(rej|bak)$
+
   # * Top level
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -64,6 +73,7 @@ repos:
         exclude: ^uv[.]lock
       - id: check-case-conflict
       - id: check-merge-conflict
+        args: [--assume-in-merge]
       - id: check-yaml
       - id: check-json
       - id: check-toml
@@ -152,7 +162,7 @@ repos:
   # Revert to crate-ci/typos if https://github.com/crate-ci/typos/issues/390 is fixed.
   # - repo: https://github.com/crate-ci/typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.43.1
+    rev: v1.43.2
     hooks:
       - id: typos
         exclude_types: [jupyter]
@@ -165,9 +175,11 @@ repos:
     hooks:
       - id: pyproject2conda-project
         alias: requirements
+        args:
+          - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.9.29
+    rev: 0.10.0
     hooks:
       - id: uv-lock
         alias: requirements
@@ -194,7 +206,7 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.13.4
+    rev: v4.13.5
     hooks:
       - id: commitizen
         stages: [commit-msg]
@@ -211,14 +223,6 @@ repos:
         additional_dependencies:
           - "--editable=."
           - rust-just==1.43.0
-
-  # * Cruft
-  - repo: https://github.com/cruft/cruft.git
-    rev: 2.16.0
-    hooks:
-      - id: cruft
-        args: [--checkout, main]
-        stages: [manual]
 
   # * Cog
   - repo: local
@@ -304,53 +308,6 @@ repos:
         pass_filenames: false
         additional_dependencies:
           - "--editable=.[all]"
-
-  - repo: local
-    hooks:
-      - id: fill-pre-commit-hook-deps
-        name: fill-pre-commit-hook-deps
-        alias: typecheck
-        entry: fill-pre-commit-deps
-        language: python
-        files: ^pyproject.toml$|^\.pre-commit-config.yaml$|^requirements/lock/uvx-tools\.txt$
-        pass_filenames: false
-        args:
-          - "--hook=typecheck-runner"
-          - "--group=typecheck"
-          - "--exclude=pylint"
-          - "--requirements=requirements/lock/uvx-tools.txt"
-          - "--requirements-include=ty"
-          - "--requirements-include=pyrefly"
-        additional_dependencies:
-          - "--editable=.[all]"
-
-  # ** typecheck-runner
-  - repo: https://github.com/wpk-nist-gov/typecheck-runner
-    rev: v0.1.5
-    hooks:
-      - id: typecheck-runner
-        alias: typecheck
-        args:
-          - "--no-uv"
-          - "-v"
-          - "--check=ty"
-          - "--check=pyrefly"
-        files: ^(src/|tests/)
-        language_version: "3.14"
-        stages: [manual]
-        additional_dependencies:
-          - dependency-groups>=1.3.1
-          - lastversion>=3.5.8
-          - packaging>=25.0
-          - pyrefly==0.51.0
-          - pytest
-          - requirements-parser>=0.13.0
-          - ruamel-yaml>=0.18.16
-          - tomli; python_version < "3.11"
-          - tomlkit>=0.13.3
-          - ty==0.0.14
-          - typecheck-runner>=0.1.0; python_version > "3.9"
-          - typing-extensions; python_version < "3.11"
 
   - repo: https://github.com/jsh9/markdown-toc-creator
     rev: 0.1.3

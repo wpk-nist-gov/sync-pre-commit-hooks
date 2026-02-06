@@ -323,11 +323,7 @@ groups = "dev"
 
 [tool.pyproject2conda.envs.pre-commit-additional-dependencies]
 reqs = [
-    "pyrefly",
     "rust-just",
-]
-groups = [
-    "cog",
 ]
 skip-package = true
 style = "requirements"
@@ -345,11 +341,10 @@ skip-package = true
 reqs = [
     # these used solely for specking tools to be run via uvx ...
     "conda-lock>=2.5.5",
-    "cruft",
+    "copier",
+    "copier-template-extensions>=0.3.1",
     "grayskull>=2.5.3",
     "nbqa>=1.8.4",
-    "pre-commit-uv",
-    "pre-commit>=4.0.0",
     "prek",
     "pyrefly>=0.37.0",
     "pyright>=1.1.396",
@@ -359,7 +354,6 @@ reqs = [
 ]
 groups = [
     "basedpyright",
-    "cog",
     "mypy",
     "nox",
     "typecheck-runner",
@@ -376,5 +370,3 @@ new_fragment_template = "file: changelog.d/templates/new_fragment.md.j2"
 
 [tool.commitizen]
 use_shortcuts = true
-
-[tool.cruft]
