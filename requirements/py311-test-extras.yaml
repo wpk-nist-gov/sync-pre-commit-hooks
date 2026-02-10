@@ -22,4 +22,5 @@ dependencies:
   - requirements-parser>=0.13.0
   - ruamel-yaml>=0.18.16
   - tomlkit>=0.13.3
+  - typing-extensions
   - pip

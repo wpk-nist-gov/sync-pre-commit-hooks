@@ -43,7 +43,7 @@ all = [
     "ruamel-yaml>=0.18.16",
     "tomli; python_version<'3.11'",
     "tomlkit>=0.13.3",
-    "typing-extensions; python_version<'3.11'",
+    "typing-extensions; python_version<'3.12'",
 ]
 complete = [
     "sync-pre-commit-hooks[all,lastversion]",
