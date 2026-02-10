@@ -345,7 +345,7 @@ repos:
           - dependency-groups>=1.3.1
           - lastversion>=3.5.8
           - packaging>=25.0
-          - pyrefly==0.51.1
+          - pyrefly==0.52.0
           - pytest
           - requirements-parser>=0.13.0
           - ruamel-yaml>=0.18.16
@@ -354,8 +354,6 @@ repos:
           - ty==0.0.15
           - typecheck-runner>=0.1.0; python_version > "3.9"
           - typing-extensions; python_version < "3.11"
-
-  # * Add TOC to README.md
   - repo: https://github.com/jsh9/markdown-toc-creator
     rev: 0.1.3
     hooks:
