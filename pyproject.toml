@@ -31,7 +31,10 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering",
 ]
-dependencies = [  ]
+dependencies = [
+    # core dependencies
+]
+
 [project.optional-dependencies]
 all = [
     "dependency-groups>=1.3.1",
@@ -181,8 +184,8 @@ paths.source = [
 ]
 report.exclude_also = [
     "@overload",
-    "if TYPE_CHECKING:",
     'if __name__ == "__main__":',
+    "if TYPE_CHECKING:",
 ]
 report.include = [
     "src/*",
@@ -256,10 +259,10 @@ reportUnreachable = "warning"
 reportUnusedCallResult = true
 # type-checkers should type-check; linters should lint
 reportImplicitStringConcatenation = false
-reportPrivateUsage = false                # dupe of PLC2701
-reportPrivateImportUsage = false          # dupe of PLC2701
-reportUnusedImport = false                # dupe of F401
-reportUnusedVariable = false              # dupe of F841
+reportPrivateUsage = false
+reportPrivateImportUsage = false
+reportUnusedImport = false
+reportUnusedVariable = false
 
 [[tool.pyright.executionEnvironments]]
 root = "tests"
