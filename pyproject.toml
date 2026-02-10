@@ -31,7 +31,10 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering",
 ]
-dependencies = [  ]
+dependencies = [
+    # core dependencies
+]
+
 [project.optional-dependencies]
 all = [
     "dependency-groups>=1.3.1",
@@ -48,6 +51,7 @@ complete = [
 lastversion = [
     "lastversion>=3.5.8",
 ]
+
 [project.scripts]
 apply-command = "sync_pre_commit_hooks.apply_command:main"
 fill-pre-commit-deps = "sync_pre_commit_hooks.fill_pre_commit_deps:main"
@@ -55,6 +59,7 @@ sync-pre-commit-deps = "sync_pre_commit_hooks.sync_pre_commit_deps:main"
 sync-pre-commit-language-version = "sync_pre_commit_hooks.sync_pre_commit_language_version:main"
 sync-uv-dependency-groups = "sync_pre_commit_hooks.sync_uv_dependency_groups:main"
 check-file-extension = "sync_pre_commit_hooks.check_file_extension:main"
+
 [project.urls]
 Documentation = "https://pages.nist.gov/sync-pre-commit-hooks/"
 Homepage = "https://github.com/wpk-nist-gov/sync-pre-commit-hooks"
@@ -74,17 +79,15 @@ test = [
     { include-group = "optional-dependencies" },
     { include-group = "pytest" },
 ]
-# other packages/tools
-optional-dependencies = [ "sync-pre-commit-hooks[complete]" ]
+# other envs
 basedpyright = [ "basedpyright>=1.31.3" ]
 cog = [ "cogapp" ]
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=1.15.0" ]
 nox = [ "nox>=2025.5.1" ]
+optional-dependencies = [ "sync-pre-commit-hooks[complete]" ]
 pylint = [ "pylint" ]
 pytest = [ "pytest" ]
-typecheck-runner = [ "typecheck-runner>=0.1.0; python_version>'3.9'" ]
-# other environments
 test-extras = [
     { include-group = "test" },
 ]
@@ -94,29 +97,25 @@ typecheck = [
     { include-group = "pytest" },
     { include-group = "typecheck-runner" },
 ]
+typecheck-runner = [ "typecheck-runner>=0.1.0; python_version>'3.9'" ]
 
 # * uv -------------------------------------------------------------------------
 
 [tool.uv]
-managed = true
+required-version = ">=0.7.15"
 default-groups = [ "dev" ]
 fork-strategy = "requires-python"
-required-version = ">=0.7.15"
-
-[tool.uv.build-backend]
-source-include = [ "tests/**" ]
+managed = true
+build-backend.source-include = [ "tests/**" ]
+pip.annotation-style = "line"
+pip.generate-hashes = true
 
 [tool.uv.dependency-groups]
-dev.requires-python = ">=3.14"
-# other tools
 cog.requires-python = ">=3.14"
+dev.requires-python = ">=3.14"
 ipython.requires-python = ">=3.14"
 mypy.requires-python = ">=3.14"
 nox.requires-python = ">=3.14"
-
-[tool.uv.pip]
-annotation-style = "line"
-generate-hashes = true
 
 # * Checks ---------------------------------------------------------------------
 
@@ -143,8 +142,12 @@ expand_tables = [
     "project.optional-dependencies",
     "project.scripts",
     "project.urls",
+    "tool.pyproject2conda",
+    "tool.pyright.executionEnvironments",
+    "tool.pytest",
+    "tool.typos",
+    "tool.uv.dependency-groups",
 ]
-collapse_tables = [  ]
 
 [tool.typos.default.extend-identifiers]
 CPY = "CPY"
@@ -172,30 +175,26 @@ log_level = "INFO"
 strict_xfail = "true"
 filterwarnings = [ "error" ]
 
-[tool.coverage.paths]
-source = [
+[tool.coverage]
+run.branch = true
+paths.source = [
     "src/",
     # needed for non editable doctests
     ".nox/**/site-packages/",
 ]
-
-[tool.coverage.report]
-show_missing = true
-exclude_also = [
+report.exclude_also = [
     "@overload",
-    "if TYPE_CHECKING:",
     'if __name__ == "__main__":',
+    "if TYPE_CHECKING:",
 ]
-omit = [
+report.include = [
+    "src/*",
+]
+report.omit = [
     "*/_typing.py",
     "*/vendored/*",
 ]
-include = [
-    "src/*",
-]
-
-[tool.coverage.run]
-branch = true
+report.show_missing = true
 
 # * typecheck ---------------------------------------------------------------------
 
@@ -222,14 +221,7 @@ enable_error_code = [
     "redundant-expr",
     "truthy-bool",
 ]
-
-[[tool.mypy.overrides]]
-ignore_missing_imports = true
-module = [ "lastversion.*" ]
-
-# [[tool.mypy.overrides]]
-# ignore_errors = true
-# module = [  ]
+overrides = [ { ignore_missing_imports = true, module = [ "lastversion.*" ] } ]
 
 [tool.pyrefly]
 project-includes = [ "src", "tests" ]
@@ -249,52 +241,37 @@ exclude = [
     ".venv/**",
 ]
 typeCheckingMode = "strict"
-# typeCheckingMode = "basic"
-# typeCheckingMode = "standard"
-# strict = [
-#     "src/**/*.py",
-#     # "tests",
-#     "noxfile.py",
-#     "tools/*.py",
-# ]
 reportOverlappingOverload = true
 reportPropertyTypeMismatch = true
 reportUntypedClassDecorator = true
 reportUntypedFunctionDecorator = true
 # Extra flags
-enableTypeIgnoreComments = false
-reportUnnecessaryTypeIgnoreComment = true
-reportUnreachable = "warning"
-
 deprecateTypingAliases = true
 enableReachabilityAnalysis = false
+enableTypeIgnoreComments = false
 reportCallInDefaultInitializer = true
 reportImplicitOverride = true
 reportImportCycles = true
 # reportMissingSuperCall = true
 reportUninitializedInstanceVariable = true
+reportUnnecessaryTypeIgnoreComment = true
+reportUnreachable = "warning"
 reportUnusedCallResult = true
-
 # type-checkers should type-check; linters should lint
 reportImplicitStringConcatenation = false
-reportPrivateUsage = false                # dupe of PLC2701
-reportPrivateImportUsage = false          # dupe of PLC2701
-reportUnusedImport = false                # dupe of F401
-reportUnusedVariable = false              # dupe of F841
+reportPrivateUsage = false
+reportPrivateImportUsage = false
+reportUnusedImport = false
+reportUnusedVariable = false
 
 [[tool.pyright.executionEnvironments]]
 root = "tests"
-# reportCallIssue = false
-# reportArgumentType = false
-# reportMissingImports = false
 reportUnusedCallResult = false
 
-[tool.ty.analysis]
+[tool.ty]
 # Disable support for `type: ignore` comments
-respect-type-ignore-comments = false
-
-[tool.ty.src]
-include = [ "src", "tests" ]
+analysis.respect-type-ignore-comments = false
+src.include = [ "src", "tests" ]
 
 [tool.pytype]
 inputs = [
