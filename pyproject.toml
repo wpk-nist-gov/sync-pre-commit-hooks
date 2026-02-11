@@ -70,7 +70,7 @@ dev = [
     { include-group = "mypy" },
     { include-group = "nox" },
     { include-group = "test" },
-    { include-group = "typecheck" },
+    { include-group = "type" },
 ]
 test = [
     "pytest-cov",
@@ -78,6 +78,12 @@ test = [
     "pytest-xdist",
     { include-group = "optional-dependencies" },
     { include-group = "pytest" },
+]
+type = [
+    { include-group = "optional-dependencies" },
+    { include-group = "pylint" },
+    { include-group = "pytest" },
+    { include-group = "typecheck-runner" },
 ]
 # other envs
 basedpyright = [ "basedpyright>=1.31.3" ]
@@ -90,12 +96,6 @@ pylint = [ "pylint" ]
 pytest = [ "pytest" ]
 test-extras = [
     { include-group = "test" },
-]
-typecheck = [
-    { include-group = "optional-dependencies" },
-    { include-group = "pylint" },
-    { include-group = "pytest" },
-    { include-group = "typecheck-runner" },
 ]
 typecheck-runner = [ "typecheck-runner>=0.1.0; python_version>'3.9'" ]
 
@@ -130,24 +130,25 @@ ignore = [
 ]
 
 [tool.check-wheel-contents]
-toplevel = [ "sync_pre_commit_hooks" ]
 src_dir = [ "src" ]
+toplevel = [ "sync_pre_commit_hooks" ]
 
 [tool.pyproject-fmt]
-indent = 4
-# max_supported_python = "3.13"
-keep_full_version = true
 expand_tables = [
     "project.entry-points",
     "project.optional-dependencies",
     "project.scripts",
     "project.urls",
+    "tool.mypy.overrides",
     "tool.pyproject2conda",
     "tool.pyright.executionEnvironments",
     "tool.pytest",
     "tool.typos",
     "tool.uv.dependency-groups",
 ]
+# max_supported_python = "3.13"
+indent = 4
+keep_full_version = true
 
 [tool.typos.default.extend-identifiers]
 CPY = "CPY"
@@ -169,11 +170,12 @@ testpaths = [
     "sync_pre_commit_hooks",
     "tests",
 ]
-minversion = "8"
+# other options
+filterwarnings = [ "error" ]
 log_cli_level = "INFO"
 log_level = "INFO"
+minversion = "8"
 strict_xfail = "true"
-filterwarnings = [ "error" ]
 
 [tool.coverage]
 run.branch = true
@@ -199,14 +201,6 @@ report.show_missing = true
 # * typecheck ---------------------------------------------------------------------
 
 [tool.mypy]
-files = [
-    "src",
-    "tests",
-]
-warn_unused_ignores = true
-warn_return_any = true
-warn_unused_configs = true
-warn_unreachable = true
 exclude = [
     ".eggs",
     ".nox",
@@ -214,24 +208,32 @@ exclude = [
     ".tox",
     ".venv",
 ]
-check_untyped_defs = true
+files = [
+    "src",
+    "tests",
+]
 strict = true
+# options
+check_untyped_defs = true
 enable_error_code = [
     "ignore-without-code",
     "redundant-expr",
     "truthy-bool",
 ]
-overrides = [ { ignore_missing_imports = true, module = [ "lastversion.*" ] } ]
+warn_return_any = true
+warn_unreachable = true
+warn_unused_configs = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = [ "lastversion.*" ]
+ignore_missing_imports = true
 
 [tool.pyrefly]
-project-includes = [ "src", "tests" ]
 enabled-ignores = [ "pyrefly" ]
+project-includes = [ "src", "tests" ]
 
 [tool.pyright]
-include = [
-    "src",
-    "tests",
-]
 exclude = [
     "**/.mypy_cache",
     "**/.numba_cache",
@@ -240,11 +242,15 @@ exclude = [
     ".tox/**",
     ".venv/**",
 ]
-typeCheckingMode = "strict"
+include = [
+    "src",
+    "tests",
+]
 reportOverlappingOverload = true
 reportPropertyTypeMismatch = true
 reportUntypedClassDecorator = true
 reportUntypedFunctionDecorator = true
+typeCheckingMode = "strict"
 # Extra flags
 deprecateTypingAliases = true
 enableReachabilityAnalysis = false
@@ -259,14 +265,14 @@ reportUnreachable = "warning"
 reportUnusedCallResult = true
 # type-checkers should type-check; linters should lint
 reportImplicitStringConcatenation = false
-reportPrivateUsage = false
 reportPrivateImportUsage = false
+reportPrivateUsage = false
 reportUnusedImport = false
 reportUnusedVariable = false
 
 [[tool.pyright.executionEnvironments]]
-root = "tests"
 reportUnusedCallResult = false
+root = "tests"
 
 [tool.ty]
 # Disable support for `type: ignore` comments
