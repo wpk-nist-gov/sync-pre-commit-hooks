@@ -1279,7 +1279,7 @@ test-extras = [
     { name = "pytest-xdist" },
     { name = "sync-pre-commit-hooks", extra = ["complete"] },
 ]
-typecheck = [
+type = [
     { name = "pylint" },
     { name = "pytest" },
     { name = "sync-pre-commit-hooks", extra = ["complete"] },
@@ -1338,7 +1338,7 @@ test-extras = [
     { name = "pytest-xdist" },
     { name = "sync-pre-commit-hooks", extras = ["complete"] },
 ]
-typecheck = [
+type = [
     { name = "pylint" },
     { name = "pytest" },
     { name = "sync-pre-commit-hooks", extras = ["complete"] },

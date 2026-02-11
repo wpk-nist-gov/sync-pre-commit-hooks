@@ -319,7 +319,7 @@ repos:
         pass_filenames: false
         args:
           - "--hook=typecheck-runner"
-          - "--group=typecheck"
+          - "--group=type"
           - "--exclude=pylint"
           - "--requirements=requirements/lock/uvx-tools.txt"
           - "--requirements-include=ty"
