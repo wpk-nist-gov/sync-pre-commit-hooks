@@ -346,7 +346,7 @@ repos:
           - ruamel-yaml>=0.18.16
           - tomli; python_version < "3.11"
           - tomlkit>=0.13.3
-          - ty==0.0.17
+          - ty==0.0.18
           - typecheck-runner>=0.1.0; python_version > "3.9"
           - typing-extensions; python_version < "3.12"
   - repo: https://github.com/jsh9/markdown-toc-creator
