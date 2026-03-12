@@ -52,7 +52,7 @@ jobs:
 
           default_python_version = Path(".python-version").read_text().strip()
           python_versions = json.loads(os.getenv("python_classifiers"))
-          extra_python_versions = [_.strip() for _ in os.getenv("EXTRA_PYTHON_VERSIONS", "").split(",")]
+          extra_python_versions = [_.strip() for _ in os.getenv("EXTRA_PYTHON_VERSIONS", "").split(",") if _]
 
           min_python_version = python_versions[0]
           max_python_version = python_versions[-1]
@@ -67,11 +67,6 @@ jobs:
           print("{minmax_default_python_versions=}")
           print("{all_python_version=}")
 
-<<<<<<< before updating
-          # min max and default pythons
-          matrix_test_python = list({ python_versions[0], python_versions[-1], default_python_version })
-=======
->>>>>>> after updating
 
           with open(os.getenv("GITHUB_OUTPUT"), "a") as f:
             f.write(f"{default_python_version=:s}\n")
@@ -156,10 +151,7 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-<<<<<<< before updating
-=======
           # - windows-latest
->>>>>>> after updating
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -268,32 +260,6 @@ jobs:
           path: htmlcov
         if: ${{ failure() }}
 
-<<<<<<< before updating
-  pinact:
-    name: Pin actions
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Pin actions
-        uses: suzuki-shunsuke/pinact-action@1081f5ad49ac904b7d977784f338145150a32112 # v1.4.0
-        with:
-          skip_push: "true"
-=======
-  docs:
-    needs: pre_job
-    if: needs.pre_job.outputs.should_skip != 'true'
-    permissions:
-      contents: write
-    uses: ./.github/workflows/docs.yml
-    with:
-      deploy: false
->>>>>>> after updating
-
   # Ensure everything required is passing for branch protection.
   required-checks-pass:
     if: always()
@@ -304,11 +270,6 @@ jobs:
       - typecheck
       - test
       - coverage
-<<<<<<< before updating
-      - pinact
-=======
-      - docs
->>>>>>> after updating
     runs-on: ubuntu-latest
     steps:
       - name: Decide whether the needed jobs succeeded or failed
