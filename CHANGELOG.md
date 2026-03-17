@@ -1,3 +1,4 @@
+<<<<<<< before updating
 <!-- markdownlint-disable MD024 -->
 
 <!-- markdownlint-disable MD013 -->
@@ -29,12 +30,13 @@ Released on 2026-02-04.
 - [@wpk-nist-gov](https://github.com/wpk-nist-gov)
 
 ## Unreleased
+=======
+# Changelog
 
-[changelog.d]: https://github.com/wpk-nist-gov/sync-pre-commit-hooks/tree/main/changelog.d
+<!-- markdownlint-disable-file -->
+>>>>>>> after updating
 
-See the fragment files in [changelog.d]
-<!-- prettier-ignore-end -->
 
-<!-- markdownlint-enable MD013 -->
+Changelog for `sync-pre-commit-hooks`
 
-<!-- scriv-insert-here -->
+## Initial release
