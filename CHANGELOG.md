@@ -1,10 +1,6 @@
-<!-- markdownlint-disable MD024 -->
-
-<!-- markdownlint-disable MD013 -->
-
-<!-- prettier-ignore-start -->
-
 # Changelog
+
+<!-- markdownlint-disable-file -->
 
 Changelog for `sync-pre-commit-hooks`
 
@@ -27,14 +23,3 @@ Released on 2026-02-04.
 
 - [@github-actions](https://github.com/github-actions)
 - [@wpk-nist-gov](https://github.com/wpk-nist-gov)
-
-## Unreleased
-
-[changelog.d]: https://github.com/wpk-nist-gov/sync-pre-commit-hooks/tree/main/changelog.d
-
-See the fragment files in [changelog.d]
-<!-- prettier-ignore-end -->
-
-<!-- markdownlint-enable MD013 -->
-
-<!-- scriv-insert-here -->
