@@ -1,11 +1,6 @@
-<<<<<<< before updating
-<!-- markdownlint-disable MD024 -->
-
-<!-- markdownlint-disable MD013 -->
-
-<!-- prettier-ignore-start -->
-
 # Changelog
+
+<!-- markdownlint-disable-file -->
 
 Changelog for `sync-pre-commit-hooks`
 
@@ -28,15 +23,3 @@ Released on 2026-02-04.
 
 - [@github-actions](https://github.com/github-actions)
 - [@wpk-nist-gov](https://github.com/wpk-nist-gov)
-
-## Unreleased
-=======
-# Changelog
-
-<!-- markdownlint-disable-file -->
->>>>>>> after updating
-
-
-Changelog for `sync-pre-commit-hooks`
-
-## Initial release

@@ -40,7 +40,6 @@ repos:
           - "-e.bak"
           - "-e.log"
         additional_dependencies:
-<<<<<<< before updating
           - "--editable=."
 
   # * sync dependencies
@@ -56,9 +55,6 @@ repos:
   #     - id: justfile-format
   #       additional_dependencies:
   #         - rust-just==1.45.0
-=======
-          - rust-just==1.47.1
->>>>>>> after updating
 
   # * Forbidden files
   - repo: local
@@ -218,7 +214,7 @@ repos:
         pass_filenames: true
         additional_dependencies:
           - "--editable=."
-          - rust-just==1.43.0
+          - rust-just==1.46.0
 
   # * Cog
   - repo: local
