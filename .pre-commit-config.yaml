@@ -40,6 +40,7 @@ repos:
           - "-e.bak"
           - "-e.log"
         additional_dependencies:
+<<<<<<< before updating
           - "--editable=."
 
   # * sync dependencies
@@ -55,6 +56,9 @@ repos:
   #     - id: justfile-format
   #       additional_dependencies:
   #         - rust-just==1.45.0
+=======
+          - rust-just==1.47.0
+>>>>>>> after updating
 
   # * Forbidden files
   - repo: local
@@ -120,7 +124,7 @@ repos:
 
   # * Markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.21.0
+    rev: v0.22.0
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
