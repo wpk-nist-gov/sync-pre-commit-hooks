@@ -28,38 +28,12 @@ repos:
       - id: check-hooks-apply
       - id: check-useless-excludes
 
-  - repo: local
-    hooks:
-<<<<<<< before updating
-      - id: check-file-extension
-        name: check-file-extension
-        entry: check-file-extension
-        language: python
-        require_serial: true
-        args:
-          - "-e.rej"
-          - "-e.bak"
-          - "-e.log"
-        additional_dependencies:
-          - "--editable=."
-
   # * sync dependencies
   # - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
   #   rev: v0.2.0
   #   hooks:
   #     - id: sync-pre-commit-deps
-  #       args:
-  #         - "--requirements=requirements/lock/pre-commit-additional-dependencies.txt"
-  #       files: >-
-  #         ^\.pre-commit-config\.yaml$|^requirements/lock/pre-commit-additional-dependencies\.txt$
   #     - id: sync-uv-dependency-groups
-  #     - id: justfile-format
-  #       additional_dependencies:
-  #         - rust-just==1.45.0
-=======
-      - id: sync-pre-commit-deps
-      - id: sync-uv-dependency-groups
->>>>>>> after updating
 
   # * Forbidden files
   - repo: local
@@ -68,7 +42,7 @@ repos:
         name: forbidden files
         entry: Found forbidden file.
         language: fail
-        files: \.(rej|bak)$
+        files: \.(rej|bak|log)$
 
   # * Top level
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -130,6 +104,7 @@ repos:
       - id: markdownlint-cli2
         alias: markdownlint
         args: [--style, prettier]
+        # language_version: 10.9.0
 
   # Just
   - repo: https://github.com/wpk-nist-gov/just-pre-commit
@@ -187,12 +162,10 @@ repos:
         entry: sync-pre-commit-deps
         language: python
         files: >-
-          ^\.pre-commit-config\.yaml$|^requirements/lock/pre-commit-additional-dependencies\.txt$
+          ^\.pre-commit-config\.yaml$
         pass_filenames: false
         additional_dependencies:
           - "--editable=.[all]"
-        args:
-          - "--requirements=requirements/lock/pre-commit-additional-dependencies.txt"
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
@@ -200,19 +173,6 @@ repos:
     hooks:
       - id: commitizen
         stages: [commit-msg]
-
-  # * Justfile
-  - repo: local
-    hooks:
-      - id: justfile-format
-        name: justfile format
-        entry: apply-command just --fmt --unstable --justfile
-        language: python
-        files: \.?[jJ]ustfile$|.*\.just$
-        pass_filenames: true
-        additional_dependencies:
-          - "--editable=."
-          - rust-just==1.46.0
 
   # * Cog
   - repo: local
@@ -262,7 +222,6 @@ repos:
       - id: zizmor
         alias: actions
 
-<<<<<<< before updating
   # * Update "rev" in README.md
   - repo: local
     hooks:
@@ -337,13 +296,13 @@ repos:
           - dependency-groups>=1.3.1
           - lastversion>=3.5.8
           - packaging>=25.0
-          - pyrefly==0.57.0
+          - pyrefly==0.57.1
           - pytest
           - requirements-parser>=0.13.0
           - ruamel-yaml>=0.18.16
           - tomli; python_version < "3.11"
           - tomlkit>=0.13.3
-          - ty==0.0.23
+          - ty==0.0.24
           - typecheck-runner>=0.1.0; python_version > "3.9"
           - typing-extensions; python_version < "3.12"
   - repo: https://github.com/jsh9/markdown-toc-creator
@@ -355,7 +314,3 @@ repos:
           - --proactive=False
           - --add-toc-title=False
           - --horizontal-rule-style=prettier
-
-=======
->>>>>>> after updating
-  # * Other tools --------------------------------------------------------------
