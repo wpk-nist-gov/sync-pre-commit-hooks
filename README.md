@@ -2,10 +2,6 @@
 
 <!-- prettier-ignore-start -->
 [![Repo][repo-badge]][repo-link]
-[![Docs][docs-badge]][docs-link]
-[![PyPI license][license-badge]][license-link]
-[![PyPI version][pypi-badge]][pypi-link]
-[![Conda (channel only)][conda-badge]][conda-link]
 [![Code style: ruff][ruff-badge]][ruff-link]
 [![uv][uv-badge]][uv-link]
 
@@ -20,16 +16,8 @@
 [ruff-link]: https://github.com/astral-sh/ruff
 [uv-badge]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json
 [uv-link]: https://github.com/astral-sh/uv
-[pypi-badge]: https://img.shields.io/pypi/v/sync-pre-commit-hooks
-[pypi-link]: https://pypi.org/project/sync-pre-commit-hooks
-[docs-badge]: https://img.shields.io/badge/docs-sphinx-informational
-[docs-link]: https://pages.nist.gov/sync-pre-commit-hooks/
 [repo-badge]: https://img.shields.io/badge/--181717?logo=github&logoColor=ffffff
-
 [repo-link]: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-[conda-badge]: https://img.shields.io/conda/v/wpk-nist/sync-pre-commit-hooks
-[conda-link]: https://anaconda.org/wpk-nist/sync-pre-commit-hooks
-[license-badge]: https://img.shields.io/pypi/l/sync-pre-commit-hooks?color=informational
 [license-link]: https://github.com/wpk-nist-gov/sync-pre-commit-hooks/blob/main/LICENSE
 [changelog-link]: https://github.com/wpk-nist-gov/sync-pre-commit-hooks/blob/main/CHANGELOG.md
 
