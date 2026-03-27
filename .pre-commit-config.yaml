@@ -30,6 +30,7 @@ repos:
 
   - repo: local
     hooks:
+<<<<<<< before updating
       - id: check-file-extension
         name: check-file-extension
         entry: check-file-extension
@@ -55,6 +56,10 @@ repos:
   #     - id: justfile-format
   #       additional_dependencies:
   #         - rust-just==1.45.0
+=======
+      - id: sync-pre-commit-deps
+      - id: sync-uv-dependency-groups
+>>>>>>> after updating
 
   # * Forbidden files
   - repo: local
@@ -95,7 +100,7 @@ repos:
       - id: pyproject-fmt
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2026.03.15
+    rev: 2026.03.27
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -125,31 +130,24 @@ repos:
       - id: markdownlint-cli2
         alias: markdownlint
         args: [--style, prettier]
-        # language_version: 10.9.0
+
+  # Just
+  - repo: https://github.com/wpk-nist-gov/just-pre-commit
+    rev: v1.48.0
+    hooks:
+      - id: justfile-format
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.7
+    rev: v0.15.8
     hooks:
       - id: ruff-check
         alias: ruff
         args: [--fix, --show-fixes]
+        types_or: &ruff_types [python, pyi, jupyter, markdown]
       - id: ruff-format
         alias: ruff
-  - repo: https://github.com/adamtheturtle/doccmd-pre-commit
-    rev: v2026.3.2
-    hooks:
-      - id: doccmd
-        name: "ruff format markdown"
-        alias: ruff
-        args:
-          - "--language"
-          - "python"
-          - "--no-pad-file"
-          - "--command"
-          - "ruff format"
-        additional_dependencies:
-          - ruff==0.15.7
+        types_or: *ruff_types
 
   # * Spelling
   # ** typos
@@ -171,7 +169,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.1
+    rev: 0.11.2
     hooks:
       - id: uv-lock
         alias: requirements
@@ -231,7 +229,7 @@ repos:
 
   # * Actions
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.37.0
+    rev: 0.37.1
     hooks:
       - id: check-github-workflows
         alias: actions
@@ -264,6 +262,7 @@ repos:
       - id: zizmor
         alias: actions
 
+<<<<<<< before updating
   # * Update "rev" in README.md
   - repo: local
     hooks:
@@ -357,4 +356,6 @@ repos:
           - --add-toc-title=False
           - --horizontal-rule-style=prettier
 
+=======
+>>>>>>> after updating
   # * Other tools --------------------------------------------------------------
