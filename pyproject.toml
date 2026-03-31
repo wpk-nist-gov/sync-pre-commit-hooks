@@ -80,11 +80,8 @@ test = [
     { include-group = "pytest" },
 ]
 type = [
-<<<<<<< before updating
-    { include-group = "optional-dependencies" },
-=======
     { include-group = "nox" },
->>>>>>> after updating
+    { include-group = "optional-dependencies" },
     { include-group = "pylint" },
     { include-group = "pytest" },
     { include-group = "typecheck-runner" },
@@ -158,16 +155,6 @@ CPY = "CPY"
 
 # * typecheck ---------------------------------------------------------------------
 [tool.mypy]
-<<<<<<< before updating
-exclude = [
-    ".eggs",
-    ".nox",
-    ".numba_cache",
-    ".tox",
-    ".venv",
-]
-=======
->>>>>>> after updating
 files = [
     "src",
     "tests",
