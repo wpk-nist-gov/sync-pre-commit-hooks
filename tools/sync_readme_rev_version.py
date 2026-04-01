@@ -59,17 +59,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     """CLI."""
     parser = ArgumentParser(description=__doc__)
 
-    parser.add_argument(
+    _ = parser.add_argument(
         "paths", nargs="*", type=Path, help="files to update.  Defaults to 'README.md'"
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "-c",
         "--config",
         type=Path,
         default="pyproject.toml",
         help="config file.  Defaults to 'pyproject.toml'",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--repo",
         default=DEFAULT_REPO_URL,
         help=f"repo url.  Defaults to {DEFAULT_REPO_URL}",
@@ -87,7 +87,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         if update:
             logger.info("Updating file %s", readme)
-            readme.write_text("".join(lines), encoding="utf-8")
+            _ = readme.write_text("".join(lines), encoding="utf-8")
     return 0
 
 

@@ -9,7 +9,7 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "2026-03-23T15:09:12.212408Z"
+exclude-newer = "2026-03-24T21:26:57.333036Z"
 exclude-newer-span = "P7D"
 
 [[package]]
@@ -548,7 +548,7 @@ wheels = [
 
 [[package]]
 name = "lastversion"
-version = "3.6.9"
+version = "3.6.10"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "appdirs" },
@@ -562,9 +562,9 @@ dependencies = [
     { name = "requests" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fb/03/c248301d0de4aaa046814122b36872a58a753d8b462f52d8f09305928135/lastversion-3.6.9.tar.gz", hash = "sha256:1d56783b17cb43b15e3f13ccc150b8623e7866de0c70c0dce93b4ddc335996d8", size = 118340, upload-time = "2026-03-16T03:52:07.434Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/47/e9/b59244d68ef86ae2613ca79a70c0e87980861336a855ed60b0a9e5ef083b/lastversion-3.6.10.tar.gz", hash = "sha256:521de26b474d3da2a75414a2227c71fa691f893b5aff7f7e3f24ab057734eb9b", size = 118668, upload-time = "2026-03-24T17:48:27.942Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b2/09/46cc22a2fc7b7362cd24d9a197eeab1295631e4ce938c742e02ce0d10192/lastversion-3.6.9-py3-none-any.whl", hash = "sha256:30d74ad102d8db389af1d816de5611964a5070aed25de7aa9eadab7c917213eb", size = 96536, upload-time = "2026-03-16T03:52:06.001Z" },
+    { url = "https://files.pythonhosted.org/packages/bf/53/4ac61cc812305fc6f9b2bd4c77dea2a6832cb938947dfefc20647c624596/lastversion-3.6.10-py3-none-any.whl", hash = "sha256:4501e6a21ec20394a16e97708dc1a64d6f0fbda415d11302b45c6094a968f443", size = 96791, upload-time = "2026-03-24T17:48:26.601Z" },
 ]
 
 [[package]]
@@ -1325,6 +1325,7 @@ test-extras = [
     { name = "sync-pre-commit-hooks", extra = ["complete"] },
 ]
 type = [
+    { name = "nox", marker = "python_full_version >= '3.14'" },
     { name = "pylint" },
     { name = "pytest" },
     { name = "sync-pre-commit-hooks", extra = ["complete"] },
@@ -1384,6 +1385,7 @@ test-extras = [
     { name = "sync-pre-commit-hooks", extras = ["complete"] },
 ]
 type = [
+    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2025.5.1" },
     { name = "pylint" },
     { name = "pytest" },
     { name = "sync-pre-commit-hooks", extras = ["complete"] },
