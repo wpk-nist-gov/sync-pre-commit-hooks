@@ -279,7 +279,7 @@ repos:
 
   # ** typecheck-runner
   - repo: https://github.com/wpk-nist-gov/typecheck-runner
-    rev: v0.1.6
+    rev: v0.2.0
     hooks:
       - id: typecheck-runner
         alias: typecheck
