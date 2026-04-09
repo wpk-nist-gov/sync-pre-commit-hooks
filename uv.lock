@@ -9,7 +9,7 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "2026-04-01T16:44:11.070049Z"
+exclude-newer = "2026-04-02T18:35:16.903194Z"
 exclude-newer-span = "P7D"
 
 [[package]]
@@ -1374,7 +1374,7 @@ dev = [
     { name = "pytest-sugar", marker = "python_full_version >= '3.14'" },
     { name = "pytest-xdist", marker = "python_full_version >= '3.14'" },
     { name = "sync-pre-commit-hooks", extras = ["complete"], marker = "python_full_version >= '3.14'" },
-    { name = "typecheck-runner", marker = "python_full_version >= '3.14'", specifier = ">=0.1.0" },
+    { name = "typecheck-runner", marker = "python_full_version >= '3.14'", specifier = ">=0.1.6" },
 ]
 ipython = [{ name = "ipython", marker = "python_full_version >= '3.14'" }]
 mypy = [{ name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.15.0" }]
@@ -1401,9 +1401,9 @@ type = [
     { name = "pylint" },
     { name = "pytest" },
     { name = "sync-pre-commit-hooks", extras = ["complete"] },
-    { name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.1.0" },
+    { name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.1.6" },
 ]
-typecheck-runner = [{ name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.1.0" }]
+typecheck-runner = [{ name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.1.6" }]
 
 [[package]]
 name = "termcolor"
