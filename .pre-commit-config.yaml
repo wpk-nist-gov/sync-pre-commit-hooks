@@ -303,7 +303,7 @@ repos:
           - tomli; python_version < "3.11"
           - tomlkit>=0.13.3
           - ty==0.0.27
-          - typecheck-runner>=0.1.0; python_version > "3.9"
+          - typecheck-runner>=0.1.6; python_version > "3.9"
           - typing-extensions; python_version < "3.12"
   - repo: https://github.com/jsh9/markdown-toc-creator
     rev: 0.1.3
