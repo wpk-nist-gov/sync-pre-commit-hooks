@@ -5,7 +5,7 @@
 ci:
   autoupdate_commit_msg: "chore(deps): update pre-commit hooks"
   autofix_commit_msg: "style: pre-commit fixes"
-  autoupdate_schedule: "weekly"
+  autoupdate_schedule: "quarterly"
   skip:
     - uv-lock
     - pip-compile
@@ -107,13 +107,13 @@ repos:
 
   # Just
   - repo: https://github.com/wpk-nist-gov/just-pre-commit
-    rev: v1.48.1
+    rev: v1.49.0
     hooks:
       - id: justfile-format
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.9
+    rev: v0.15.10
     hooks:
       - id: ruff-check
         alias: ruff
@@ -143,7 +143,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.4
+    rev: 0.11.6
     hooks:
       - id: uv-lock
         alias: requirements
@@ -303,7 +303,7 @@ repos:
           - tomli; python_version < "3.11"
           - tomlkit>=0.13.3
           - ty==0.0.27
-          - typecheck-runner>=0.1.0; python_version > "3.9"
+          - typecheck-runner>=0.1.6; python_version > "3.9"
           - typing-extensions; python_version < "3.12"
   - repo: https://github.com/jsh9/markdown-toc-creator
     rev: 0.1.3
