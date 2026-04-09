@@ -92,7 +92,8 @@ lint-upgrade: (pre-commit "autoupdate") lint-sync-deps
 [group("lint")]
 lint-sync-deps:
     [[ -f requirements/pre-commit-additional-dependencies.txt ]] && uv run --no-project --script tools/requirements_lock.py --upgrade requirements/pre-commit-additional-dependencies.txt || true
-    just pre-commit run -v sync-pre-commit-deps -a || true
+    just pre-commit run -v -a sync-pre-commit-deps fill-pre-commit-hook-deps || true
+    just pre-commit run -v -a trailing-whitespace prettier || true
 
 # * User setup -----------------------------------------------------------------
 
