@@ -279,7 +279,7 @@ repos:
 
   # ** typecheck-runner
   - repo: https://github.com/wpk-nist-gov/typecheck-runner
-    rev: v0.1.6
+    rev: v0.2.0
     hooks:
       - id: typecheck-runner
         alias: typecheck
@@ -296,7 +296,7 @@ repos:
           - lastversion>=3.5.8
           - nox>=2025.5.1
           - packaging>=25.0
-          - pyrefly==0.59.0
+          - pyrefly==0.59.1
           - pytest
           - requirements-parser>=0.13.0
           - ruamel-yaml>=0.18.16
