@@ -48,7 +48,7 @@ out of sync.
   - [apply-command](#apply-command)
   - [justfile-format](#justfile-format)
   - [sync-uv-dependency-groups](#sync-uv-dependency-groups)
-  - [check-file-extension](#check-file-extension)
+  - [Forbidden file](#forbidden-file)
 - [Project info](#project-info)
   - [Status](#status)
   - [What's new?](#whats-new)
@@ -500,9 +500,9 @@ options:
 <!-- [[[end]]] -->
 <!-- prettier-ignore-end -->
 
-## check-file-extension
+## Forbidden file
 
-This is a simple hook that fails if a file with a specified extension is found.
+This is a simple hook that fails if a file with a specified pattern is found.
 For example, to keep files with extension `.bak` and `.log` out of the repo,
 use:
 
@@ -510,35 +510,12 @@ use:
 repos:
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
     rev: v0.3.0
-      - id: check-file-extension
-        args:
-          - "--ext=.bak"
-          - "--ext=.log"
+      - id: forbidden-files
+        files: \.(bak|log)$
 ```
 
 This is an extra check beyond `.gitignore` which can be helpful for with
 automated commits.
-
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable MD013 -->
-<!-- [[[cog run_command("check-file-extension --help", include_cmd=False, wrapper="restructuredtext")]]] -->
-
-```restructuredtext
-usage: check-file-extension [-h] [-e EXTENSIONS] paths [paths ...]
-
-Exit with non zero status if file has specified extension
-
-positional arguments:
-  paths
-
-options:
-  -h, --help            show this help message and exit
-  -e, --ext EXTENSIONS  Extensions to exclude. Should include `"."`. For example `--ext
-                        .rej --ext .bak ...`
-```
-
-<!-- [[[end]]] -->
-<!-- prettier-ignore-end -->
 
 # Project info
 
