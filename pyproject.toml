@@ -1,7 +1,7 @@
 [build-system]
 build-backend = "uv_build"
 requires = [
-    "uv-build>=0.11.0,<0.12.0",
+    "uv-build>=0.11.3,<0.12.0",
 ]
 
 [project]
@@ -90,7 +90,7 @@ type = [
 basedpyright = [ "basedpyright>=1.31.3" ]
 cog = [ "cogapp" ]
 ipython = [ "ipython" ]
-mypy = [ "mypy[faster-cache]>=1.15.0" ]
+mypy = [ "mypy[faster-cache]>=1.20.0" ]
 nox = [ "nox>=2025.5.1" ]
 optional-dependencies = [ "sync-pre-commit-hooks[complete]" ]
 pylint = [ "pylint" ]
