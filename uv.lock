@@ -9,7 +9,7 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "2026-04-02T19:44:35.54538046Z"
+exclude-newer = "2026-04-06T13:34:20.519544Z"
 exclude-newer-span = "P7D"
 
 [[package]]
@@ -1366,7 +1366,7 @@ basedpyright = [{ name = "basedpyright", specifier = ">=1.31.3" }]
 cog = [{ name = "cogapp", marker = "python_full_version >= '3.14'" }]
 dev = [
     { name = "cogapp", marker = "python_full_version >= '3.14'" },
-    { name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.15.0" },
+    { name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.20.0" },
     { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2025.5.1" },
     { name = "pylint", marker = "python_full_version >= '3.14'" },
     { name = "pytest", marker = "python_full_version >= '3.14'" },
@@ -1377,7 +1377,7 @@ dev = [
     { name = "typecheck-runner", marker = "python_full_version >= '3.14'", specifier = ">=0.1.6" },
 ]
 ipython = [{ name = "ipython", marker = "python_full_version >= '3.14'" }]
-mypy = [{ name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.15.0" }]
+mypy = [{ name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.20.0" }]
 nox = [{ name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2025.5.1" }]
 optional-dependencies = [{ name = "sync-pre-commit-hooks", extras = ["complete"] }]
 pylint = [{ name = "pylint" }]
