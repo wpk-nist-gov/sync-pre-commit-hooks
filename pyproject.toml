@@ -90,7 +90,7 @@ type = [
 basedpyright = [ "basedpyright>=1.31.3" ]
 cog = [ "cogapp" ]
 ipython = [ "ipython" ]
-mypy = [ "mypy[faster-cache]>=1.15.0" ]
+mypy = [ "mypy[faster-cache]>=1.20.0" ]
 nox = [ "nox>=2025.5.1" ]
 optional-dependencies = [ "sync-pre-commit-hooks[complete]" ]
 pylint = [ "pylint" ]
