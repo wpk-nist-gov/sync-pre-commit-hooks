@@ -61,11 +61,9 @@
   files: ^pyproject\.toml$|^\.python-version$
   pass_filenames: false
   minimum_pre_commit_version: *min_pre_commit
-- id: check-file-extension
-  name: check-file-extension
-  description: Raise error if file has specified extension
-  entry: check-file-extension
-  language: python
-  # just checks file names, so no need to break up.
-  require_serial: true
-  minimum_pre_commit_version: *min_pre_commit
+- id: forbidden-files
+  name: forbidden-files
+  description: Fail if files found
+  entry: Found forbidden file
+  language: fail
+  files: \.(rej|bak|log)$

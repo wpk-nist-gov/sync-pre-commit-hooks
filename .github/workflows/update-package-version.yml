@@ -84,7 +84,10 @@ jobs:
 
           if ! git diff --quiet -- pyproject.toml; then
             changed='true'
+            # update lock file
             uv lock
+            # update readme rev versions
+            uv run tools/sync_readme_rev_version.py
           else
             changed='false'
           fi
