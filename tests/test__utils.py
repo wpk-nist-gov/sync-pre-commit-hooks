@@ -3,10 +3,14 @@ from __future__ import annotations
 from contextlib import nullcontext
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
 import pytest
 
-from sync_pre_commit_hooks._utils import get_language_version  # noqa: PLC2701
+from sync_pre_commit_hooks._utils import (  # noqa: PLC2701
+    get_language_version,
+    get_version_from_lastversion,
+)
 
 
 @pytest.mark.parametrize(
@@ -37,3 +41,8 @@ def test_get_language_version(
     with expected as e:
         out = get_language_version(python_version, python_version_file)
         assert out == e
+
+
+def test_get_version_from_lastversion() -> None:
+    with patch("lastversion.latest", autospec=True, return_value="abc"):
+        assert get_version_from_lastversion("ruff") == "abc"

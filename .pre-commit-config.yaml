@@ -293,23 +293,24 @@ repos:
         stages: [manual]
         additional_dependencies:
           - dependency-groups>=1.3.1
-          - lastversion>=3.5.8
-          - nox>=2025.5.1
-          - packaging>=25.0
+          - lastversion>=3.6.10
+          - nox>=2026.2.9
+          - packaging>=26.0
           - pyrefly==0.59.1
-          - pytest
+          - pytest>=9.0.2
           - requirements-parser>=0.13.0
-          - ruamel-yaml>=0.18.16
-          - tomli; python_version < "3.11"
-          - tomlkit>=0.13.3
+          - ruamel-yaml>=0.19.1
+          - tomli>=2.4.1; python_version < "3.11"
+          - tomlkit>=0.14.0
           - ty==0.0.29
           - typecheck-runner>=0.1.6; python_version > "3.9"
-          - typing-extensions; python_version < "3.12"
+          - typing-extensions>=4.15.0; python_version < "3.12"
   - repo: https://github.com/jsh9/markdown-toc-creator
     rev: 0.1.3
     hooks:
       - id: markdown-toc-creator
         files: ^README\.md$
+        alias: markdownlint
         args:
           - --proactive=False
           - --add-toc-title=False

@@ -19,6 +19,7 @@ from packaging.utils import canonicalize_name
 from ._logging import get_logger
 from ._utils import (
     add_pre_commit_config_argument,
+    add_pyproject_argument,
     add_yaml_arguments,
     get_in,
     pre_commit_config_load,
@@ -309,13 +310,8 @@ def _get_options(argv: Sequence[str] | None = None) -> Namespace:
         """,
     )
 
-    _ = parser.add_argument(
-        "--pyproject",
-        type=Path,
-        default="pyproject.toml",
-        help="pyproject.toml file (Default: 'pyproject.toml')",
-    )
     parser = add_pre_commit_config_argument(parser)
+    parser = add_pyproject_argument(parser)
     parser = add_yaml_arguments(parser)
 
     return parser.parse_args(argv)
@@ -347,7 +343,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     deps_clean = [*options.extra_deps, *sorted(set(map(str, deps)))]
 
     return _update_yaml_file(
-        path=options.config,
+        path=options.pre_commit_config,
         hook_id=options.hook_id,
         deps=deps_clean,
         yaml_mapping=options.yaml_mapping,

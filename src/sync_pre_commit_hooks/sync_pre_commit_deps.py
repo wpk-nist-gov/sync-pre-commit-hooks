@@ -1,4 +1,4 @@
-"""Update ``additional_dependencies`` in ``.pre-commit-config.yaml``"""
+"""Update ``additional_dependencies`` in ``.pre-commit-pre_commit_config.yaml``"""
 
 # NOTE: adapted from https://github.com/pre-commit/sync-pre-commit-deps
 # ruff: noqa: D103
@@ -13,6 +13,7 @@ from ._logging import get_logger
 from ._utils import (
     add_pre_commit_config_argument,
     add_yaml_arguments,
+    get_version_from_lastversion,
     pre_commit_config_load,
     pre_commit_config_repo_hook_iter,
 )
@@ -63,15 +64,8 @@ def _get_versions_from_requirements(
     return versions
 
 
-@lru_cache
-def _get_version_from_lastversion(dep: str) -> str:
-    from lastversion import latest  # pyright: ignore[reportMissingTypeStubs, reportUnknownVariableType]  # noqa: I001
-
-    return cast("str", latest(dep, output_format="tag"))
-
-
 def _get_versions_from_lastversion(dependencies: Sequence[str]) -> dict[str, Any]:
-    return {dep: _get_version_from_lastversion(dep) for dep in dependencies}
+    return {dep: get_version_from_lastversion(dep) for dep in dependencies}
 
 
 def _get_hook_ids(loaded: PreCommitConfigType) -> list[str]:
@@ -104,7 +98,7 @@ def _parse_id_to_dep(id_to_package: Sequence[str]) -> dict[str, str]:
 
 
 def _update_yaml_file(
-    config: Path,
+    pre_commit_config: Path,
     yaml_mapping: int,
     yaml_sequence: int,
     yaml_offset: int,
@@ -117,7 +111,10 @@ def _update_yaml_file(
     id_to_package_mapping: dict[str, str],
 ) -> int:
     loaded, yaml = pre_commit_config_load(
-        config, mapping=yaml_mapping, sequence=yaml_sequence, offset=yaml_offset
+        pre_commit_config,
+        mapping=yaml_mapping,
+        sequence=yaml_sequence,
+        offset=yaml_offset,
     )
 
     hook_ids = _get_hook_ids(loaded)
@@ -152,7 +149,7 @@ def _update_yaml_file(
                 updated = True
 
     if updated:
-        yaml.dump(loaded, config)  # pyright: ignore[reportUnknownMemberType]
+        yaml.dump(loaded, pre_commit_config)  # pyright: ignore[reportUnknownMemberType]
         return 1
 
     return 0
