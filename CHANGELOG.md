@@ -5,6 +5,18 @@
 
 Changelog for `sync-pre-commit-hooks`
 
+## 0.5.0
+
+Released on 2026-04-14.
+
+### Enhancements
+
+- feat: add sync-uv-build-deps hook ([#92](https://github.com/wpk-nist-gov/sync-pre-commit-hooks/pull/92))
+
+### Contributors
+
+- [@wpk-nist-gov](https://github.com/wpk-nist-gov)
+
 ## 0.4.0
 
 Released on 2026-04-13.
