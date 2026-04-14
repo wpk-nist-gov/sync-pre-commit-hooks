@@ -349,3 +349,6 @@ copier-update *options="":
     copier update --trust -A \
     -r main \
     {{ options }}
+
+pyproject-upgrade-deps:
+    uvx --from "uv-upx>=0.4.3" uv-upx upgrade run --no-sync

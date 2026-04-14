@@ -12,19 +12,19 @@ channels:
   - conda-forge
 dependencies:
   - python=3.14
-  - cogapp
+  - cogapp>=3.6.0
   - dependency-groups>=1.3.1
-  - lastversion>=3.5.8
+  - lastversion>=3.6.10
   - mypy>=1.20.0
-  - nox>=2025.5.1
-  - packaging>=25.0
-  - pylint
-  - pytest
-  - pytest-cov
-  - pytest-sugar
-  - pytest-xdist
+  - nox>=2026.2.9
+  - packaging>=26.0
+  - pylint>=4.0.5
+  - pytest-cov>=7.1.0
+  - pytest-sugar>=1.1.1
+  - pytest-xdist>=3.8.0
+  - pytest>=9.0.2
   - requirements-parser>=0.13.0
-  - ruamel-yaml>=0.18.16
-  - tomlkit>=0.13.3
+  - ruamel-yaml>=0.19.1
+  - tomlkit>=0.14.0
   - typecheck-runner>=0.1.6
   - pip

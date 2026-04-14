@@ -38,18 +38,18 @@ dependencies = [
 [project.optional-dependencies]
 all = [
     "dependency-groups>=1.3.1",
-    "packaging>=25.0",
+    "packaging>=26.0",
     "requirements-parser>=0.13.0",
-    "ruamel-yaml>=0.18.16",
-    "tomli; python_version<'3.11'",
-    "tomlkit>=0.13.3",
-    "typing-extensions; python_version<'3.12'",
+    "ruamel-yaml>=0.19.1",
+    "tomli>=2.4.1; python_version<'3.11'",
+    "tomlkit>=0.14.0",
+    "typing-extensions>=4.15.0; python_version<'3.12'",
 ]
 complete = [
-    "sync-pre-commit-hooks[all,lastversion]",
+    "sync-pre-commit-hooks[all,lastversion]>=0.4.0",
 ]
 lastversion = [
-    "lastversion>=3.5.8",
+    "lastversion>=3.6.10",
 ]
 
 [project.scripts]
@@ -73,9 +73,9 @@ dev = [
     { include-group = "type" },
 ]
 test = [
-    "pytest-cov",
-    "pytest-sugar",
-    "pytest-xdist",
+    "pytest-cov>=7.1.0",
+    "pytest-sugar>=1.1.1",
+    "pytest-xdist>=3.8.0",
     { include-group = "optional-dependencies" },
     { include-group = "pytest" },
 ]
@@ -87,14 +87,14 @@ type = [
     { include-group = "typecheck-runner" },
 ]
 # other groups
-basedpyright = [ "basedpyright>=1.31.3" ]
-cog = [ "cogapp" ]
-ipython = [ "ipython" ]
+basedpyright = [ "basedpyright>=1.39.0" ]
+cog = [ "cogapp>=3.6.0" ]
+ipython = [ "ipython>=9.12.0" ]
 mypy = [ "mypy[faster-cache]>=1.20.0" ]
-nox = [ "nox>=2025.5.1" ]
-optional-dependencies = [ "sync-pre-commit-hooks[complete]" ]
-pylint = [ "pylint" ]
-pytest = [ "pytest" ]
+nox = [ "nox>=2026.2.9" ]
+optional-dependencies = [ "sync-pre-commit-hooks[complete]>=0.4.0" ]
+pylint = [ "pylint>=4.0.5" ]
+pytest = [ "pytest>=9.0.2" ]
 test-extras = [
     { include-group = "test" },
 ]
