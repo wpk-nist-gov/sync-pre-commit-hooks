@@ -46,7 +46,7 @@ out of sync.
   - [fill-pre-commit-deps](#fill-pre-commit-deps)
   - [sync-pre-commit-language-version](#sync-pre-commit-language-version)
   - [apply-command](#apply-command)
-  - [justfile-format](#justfile-format)
+  - [sync-uv-build-deps](#sync-uv-build-deps)
   - [sync-uv-dependency-groups](#sync-uv-dependency-groups)
   - [Forbidden file](#forbidden-file)
 - [Project info](#project-info)
@@ -173,10 +173,10 @@ sys.path.pop(0)
 usage: sync-pre-commit-deps [-h] [--from FROM_INCLUDE] [--from-exclude FROM_EXCLUDE]
                             [--hook HOOK_INCLUDE] [--hook-exclude HOOK_EXCLUDE]
                             [-r REQUIREMENTS] [-l LASTVERSION_DEPENDENCIES] [-m ID_DEP]
-                            [--config CONFIG] [--yaml-mapping YAML_MAPPING]
+                            [--config PRE_COMMIT_CONFIG] [--yaml-mapping YAML_MAPPING]
                             [--yaml-sequence YAML_SEQUENCE] [--yaml-offset YAML_OFFSET]
 
-Update ``additional_dependencies`` in ``.pre-commit-config.yaml``
+Update ``additional_dependencies`` in ``.pre-commit-pre_commit_config.yaml``
 
 options:
   -h, --help            show this help message and exit
@@ -200,7 +200,8 @@ options:
                         (``{hook_id}:{dependency}``). For example, to map the ``ruff-
                         check`` hook to ``ruff``, pass ``-m 'ruff-check:ruff'. (Default:
                         ['ruff-format:ruff', 'ruff-check:ruff'])
-  --config CONFIG       pre-commit config file (Default '.pre-commit-config.yaml')
+  --config, --pre-commit-config PRE_COMMIT_CONFIG
+                        pre-commit config file (Default '.pre-commit-config.yaml')
   --yaml-mapping YAML_MAPPING
                         The `mapping` argument to the YAML dumper. See
                         https://yaml.readthedocs.io/en/latest/detail/#indentation-of-
@@ -294,7 +295,7 @@ usage: fill-pre-commit-deps [-h] --hook HOOK_ID [-g GROUPS] [-e EXTRAS]
                             [--include INCLUDE] [-r REQUIREMENTS]
                             [--requirements-exclude REQUIREMENTS_EXCLUDE]
                             [--requirements-include REQUIREMENTS_INCLUDE]
-                            [--pyproject PYPROJECT] [--config CONFIG]
+                            [--config PRE_COMMIT_CONFIG] [--pyproject PYPROJECT]
                             [--yaml-mapping YAML_MAPPING]
                             [--yaml-sequence YAML_SEQUENCE] [--yaml-offset YAML_OFFSET]
                             [extra_deps ...]
@@ -329,9 +330,10 @@ options:
                         Include package from read `requirements.txt`. Default is to
                         include all packages from requirements.txt. If you specify,
                         `--include``, only those packages are included.
+  --config, --pre-commit-config PRE_COMMIT_CONFIG
+                        pre-commit config file (Default '.pre-commit-config.yaml')
   --pyproject PYPROJECT
                         pyproject.toml file (Default: 'pyproject.toml')
-  --config CONFIG       pre-commit config file (Default '.pre-commit-config.yaml')
   --yaml-mapping YAML_MAPPING
                         The `mapping` argument to the YAML dumper. See
                         https://yaml.readthedocs.io/en/latest/detail/#indentation-of-
@@ -435,21 +437,44 @@ options:
 <!-- [[[end]]] -->
 <!-- prettier-ignore-end -->
 
-## justfile-format
+## sync-uv-build-deps
 
-This is just an explicit implementation of the [just] format example in
-[apply-command](#apply-command). Note that `justfile-format` does not by default
-install [just], so if you want the hook to install it, include it in
-`additional_dependencies`.
+This hook synchronizes `uv-build` in the `build-system.requires` array of
+`pyproject.toml` with the version of `uv` used in `.pre-commit-config.yaml`.
+This stes the minimum version of `uv-build` to the current version, and maximum
+`uv-build` to the next minor version. Alternatively, passing `--lastversion`
+will set the minimum version to the latest version of uv-build found on github.
 
 ```yaml
 repos:
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
     rev: v0.4.0
-      - id: justfile-format
-        additional_dependencies:  # optional include `just` as a dependency
-          - rust-just
+      - id: sync-uv-build-deps
 ```
+
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable MD013 -->
+<!-- [[[cog run_command("sync-uv-build-deps --help", include_cmd=False, wrapper="restructuredtext")]]] -->
+
+```restructuredtext
+usage: sync-uv-build-deps [-h] [--config PRE_COMMIT_CONFIG] [--pyproject PYPROJECT]
+                          [--lastversion]
+
+Sync `uv-build` in `pyproject.toml:build-system.requires` with uv hook in .pre-commit-
+config.yaml
+
+options:
+  -h, --help            show this help message and exit
+  --config, --pre-commit-config PRE_COMMIT_CONFIG
+                        pre-commit config file (Default '.pre-commit-config.yaml')
+  --pyproject PYPROJECT
+                        pyproject.toml file (Default: 'pyproject.toml')
+  --lastversion         Use `lastversion` to get latest version of uv instead of syncing
+                        with uv-pre-commit version from .pre-commit-config.yaml.
+```
+
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
 
 ## sync-uv-dependency-groups
 
@@ -479,22 +504,27 @@ This prevents [uv] `dependency-groups` from getting out of sync with the
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable MD013 -->
-<!-- [[[cog run_command("apply-command --help", include_cmd=False, wrapper="restructuredtext")]]] -->
+<!-- [[[cog run_command("sync-uv-dependency-groups --help", include_cmd=False, wrapper="restructuredtext")]]] -->
 
 ```restructuredtext
-usage: apply-command [-h] command paths [paths ...]
+usage: sync-uv-dependency-groups [-h] [--python-version PYTHON_VERSION]
+                                 [--python-version-file PYTHON_VERSION_FILE]
+                                 [config_file]
+
+Update minimum value for python-version in `tool.uv.dependency-groups` table. By
+default, set value to `>=python_version` with `python_version` taken from `.python-
+version` file.
 
 positional arguments:
-  command     Command to run. Extra arguments to ``command`` will be parsed as well.
-              Note that ``command`` will be parsed with ``shlex.split``. So, if you need
-              to pass complex arguments, you should wrap ``command`` and these arguments
-              in a single string. For example, to run ``command --option a`` over
-              ``file1`` and ``file2``, you should use ``apply-command "command --option
-              a" file1 file2``
-  paths       Files to apply ``command`` to.
+  config_file           File containing dependency-groups table. Default is to look for
+                        `uv.toml` then `pyproject.toml`
 
 options:
-  -h, --help  show this help message and exit
+  -h, --help            show this help message and exit
+  --python-version, -p PYTHON_VERSION
+                        Minimum python version. Overrides ``--python-version-file``.
+  --python-version-file, -f PYTHON_VERSION_FILE
+                        Text file with python version
 ```
 
 <!-- [[[end]]] -->

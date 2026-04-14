@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
@@ -82,11 +83,23 @@ def add_yaml_arguments(parser: ArgumentParser) -> ArgumentParser:
 def add_pre_commit_config_argument(parser: ArgumentParser) -> ArgumentParser:
     _ = parser.add_argument(
         "--config",
+        "--pre-commit-config",
+        dest="pre_commit_config",
         type=Path,
         default=".pre-commit-config.yaml",
         help="pre-commit config file (Default '.pre-commit-config.yaml')",
     )
 
+    return parser
+
+
+def add_pyproject_argument(parser: ArgumentParser) -> ArgumentParser:
+    _ = parser.add_argument(
+        "--pyproject",
+        type=Path,
+        default="pyproject.toml",
+        help="pyproject.toml file (Default: 'pyproject.toml')",
+    )
     return parser
 
 
@@ -152,3 +165,10 @@ def pre_commit_config_repo_hook_iter(
             if hook["id"] in _str_to_set(include_hook_ids)
         )
     return repo_hook_iter
+
+
+@lru_cache
+def get_version_from_lastversion(dep: str) -> str:
+    from lastversion import latest  # pyright: ignore[reportMissingTypeStubs, reportUnknownVariableType]  # noqa: I001
+
+    return cast("str", latest(dep, output_format="tag"))

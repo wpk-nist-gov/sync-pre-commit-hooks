@@ -310,6 +310,7 @@ repos:
     hooks:
       - id: markdown-toc-creator
         files: ^README\.md$
+        alias: markdownlint
         args:
           - --proactive=False
           - --add-toc-title=False

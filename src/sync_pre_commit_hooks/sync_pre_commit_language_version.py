@@ -71,7 +71,7 @@ def _get_options(argv: Sequence[str] | None = None) -> dict[str, Any]:
 
 
 def _update_yaml_file(
-    config: Path,
+    pre_commit_config: Path,
     hook_ids: Container[str],
     language_version: str,
     yaml_mapping: int = 2,
@@ -79,7 +79,10 @@ def _update_yaml_file(
     yaml_offset: int = 2,
 ) -> int:
     loaded, yaml = pre_commit_config_load(
-        config, mapping=yaml_mapping, sequence=yaml_sequence, offset=yaml_offset
+        pre_commit_config,
+        mapping=yaml_mapping,
+        sequence=yaml_sequence,
+        offset=yaml_offset,
     )
 
     updated = False
@@ -97,8 +100,8 @@ def _update_yaml_file(
             updated = True
 
     if updated:
-        logger.info("Updating %s", config)
-        yaml.dump(loaded, config)  # pyright: ignore[reportUnknownMemberType]
+        logger.info("Updating %s", pre_commit_config)
+        yaml.dump(loaded, pre_commit_config)  # pyright: ignore[reportUnknownMemberType]
         return 1
 
     return 0

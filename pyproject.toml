@@ -58,6 +58,7 @@ fill-pre-commit-deps = "sync_pre_commit_hooks.fill_pre_commit_deps:main"
 sync-pre-commit-deps = "sync_pre_commit_hooks.sync_pre_commit_deps:main"
 sync-pre-commit-language-version = "sync_pre_commit_hooks.sync_pre_commit_language_version:main"
 sync-uv-dependency-groups = "sync_pre_commit_hooks.sync_uv_dependency_groups:main"
+sync-uv-build-deps = "sync_pre_commit_hooks.sync_uv_build_deps:main"
 
 [project.urls]
 Documentation = "https://pages.nist.gov/sync-pre-commit-hooks/"
