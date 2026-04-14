@@ -231,10 +231,14 @@ repos:
         language: python
         pass_filenames: false
         files: ^pyproject\.toml|^README\.md
-
-  # * Update pyproject.tool.uv.dependency-groups python-version minimum
-  - repo: local
-    hooks:
+      - id: sync-uv-build-deps
+        name: sync-uv-build-deps
+        entry: sync-uv-build-deps
+        language: python
+        files: ^pyproject\.toml$|^\.pre-commit-config\.yaml$
+        pass_filenames: false
+        additional_dependencies:
+          - "--editable=.[all]"
       - id: sync-uv-dependency-groups
         name: sync-uv-dependency-groups
         entry: sync-uv-dependency-groups
@@ -243,9 +247,6 @@ repos:
         pass_filenames: false
         additional_dependencies:
           - "--editable=.[all]"
-
-  - repo: local
-    hooks:
       - id: sync-pre-commit-language-version
         name: sync-pre-commit-language-version
         entry: sync-pre-commit-language-version
@@ -257,9 +258,6 @@ repos:
         pass_filenames: false
         additional_dependencies:
           - "--editable=.[all]"
-
-  - repo: local
-    hooks:
       - id: fill-pre-commit-hook-deps
         name: fill-pre-commit-hook-deps
         alias: typecheck
