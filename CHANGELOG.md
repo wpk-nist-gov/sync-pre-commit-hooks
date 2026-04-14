@@ -5,6 +5,18 @@
 
 Changelog for `sync-pre-commit-hooks`
 
+## 0.5.1
+
+Released on 2026-04-14.
+
+### Bug fixes
+
+- fix: fix pre-commit hooks ([#94](https://github.com/wpk-nist-gov/sync-pre-commit-hooks/pull/94))
+
+### Contributors
+
+- [@wpk-nist-gov](https://github.com/wpk-nist-gov)
+
 ## 0.5.0
 
 Released on 2026-04-14.
