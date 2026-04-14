@@ -13,6 +13,7 @@ ci:
     # no way to use these on pre-commit-ci
     - sync-pre-commit-deps
     - justfile-format
+    - sync-uv-build-deps
     - sync-uv-dependency-groups
     - sync-pre-commit-language-version
     - fill-pre-commit-hook-deps
@@ -33,15 +34,6 @@ repos:
   #   hooks:
   #     - id: sync-pre-commit-deps
   #     - id: sync-uv-dependency-groups
-
-  # * Forbidden files
-  - repo: local
-    hooks:
-      - id: forbidden-files
-        name: forbidden files
-        entry: Found forbidden file.
-        language: fail
-        files: \.(rej|bak|log)$
 
   # * Top level
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -153,18 +145,6 @@ repos:
         entry: python tools/requirements_lock.py
         pass_filenames: true
         files: ^requirements/[^/]*\.txt$
-  # ** update additional dependencies in .pre-commit-config.yaml
-  - repo: local
-    hooks:
-      - id: sync-pre-commit-deps
-        name: sync-pre-commit-deps
-        entry: sync-pre-commit-deps
-        language: python
-        files: >-
-          ^\.pre-commit-config\.yaml$
-        pass_filenames: false
-        additional_dependencies:
-          - "--editable=.[all]"
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
@@ -221,9 +201,23 @@ repos:
       - id: zizmor
         alias: actions
 
-  # * Update "rev" in README.md
+  # * Other tools --------------------------------------------------------------
+
+  - repo: https://github.com/jsh9/markdown-toc-creator
+    rev: 0.1.3
+    hooks:
+      - id: markdown-toc-creator
+        files: ^README\.md$
+        alias: markdownlint
+        args:
+          - --proactive=False
+          - --add-toc-title=False
+          - --horizontal-rule-style=prettier
+
+  # local hooks
   - repo: local
     hooks:
+      # ** Update "rev" in README.md
       - id: sync-readme-rev-version
         name: sync-readme-rev-version
         description: update rev version in README.md
@@ -231,10 +225,29 @@ repos:
         language: python
         pass_filenames: false
         files: ^pyproject\.toml|^README\.md
-
-  # * Update pyproject.tool.uv.dependency-groups python-version minimum
-  - repo: local
-    hooks:
+      # ** local version of sync-pre-commit-hooks
+      - id: forbidden-files
+        name: forbidden files
+        entry: Found forbidden file.
+        language: fail
+        files: \.(rej|bak|log)$
+      - id: sync-pre-commit-deps
+        name: sync-pre-commit-deps
+        entry: sync-pre-commit-deps
+        language: python
+        files: >-
+          ^\.pre-commit-config\.yaml$
+        pass_filenames: false
+        additional_dependencies:
+          - "--editable=.[all]"
+      - id: sync-uv-build-deps
+        name: sync-uv-build-deps
+        entry: sync-uv-build-deps
+        language: python
+        files: ^pyproject\.toml$|^\.pre-commit-config\.yaml$
+        pass_filenames: false
+        additional_dependencies:
+          - "--editable=.[all]"
       - id: sync-uv-dependency-groups
         name: sync-uv-dependency-groups
         entry: sync-uv-dependency-groups
@@ -243,9 +256,6 @@ repos:
         pass_filenames: false
         additional_dependencies:
           - "--editable=.[all]"
-
-  - repo: local
-    hooks:
       - id: sync-pre-commit-language-version
         name: sync-pre-commit-language-version
         entry: sync-pre-commit-language-version
@@ -257,9 +267,6 @@ repos:
         pass_filenames: false
         additional_dependencies:
           - "--editable=.[all]"
-
-  - repo: local
-    hooks:
       - id: fill-pre-commit-hook-deps
         name: fill-pre-commit-hook-deps
         alias: typecheck
@@ -305,13 +312,3 @@ repos:
           - ty==0.0.29
           - typecheck-runner>=0.1.6; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
-  - repo: https://github.com/jsh9/markdown-toc-creator
-    rev: 0.1.3
-    hooks:
-      - id: markdown-toc-creator
-        files: ^README\.md$
-        alias: markdownlint
-        args:
-          - --proactive=False
-          - --add-toc-title=False
-          - --horizontal-rule-style=prettier

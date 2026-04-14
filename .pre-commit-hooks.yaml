@@ -58,7 +58,7 @@
   language: python
   additional_dependencies:
     - ".[all]"
-  files: ^pyproject\.toml$|^\.pre-commit-config.yaml$
+  files: ^pyproject\.toml$|^\.pre-commit-config\.yaml$
   pass_filenames: false
   minimum_pre_commit_version: *min_pre_commit
 - id: forbidden-files
