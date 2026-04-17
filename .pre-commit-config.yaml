@@ -67,7 +67,7 @@ repos:
       - id: pyproject-fmt
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2026.04.11
+    rev: 2026.04.16
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -81,7 +81,7 @@ repos:
 
   # * Prettier
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.8.2
+    rev: v3.8.3
     hooks:
       - id: prettier
         alias: markdownlint
@@ -107,7 +107,7 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.10
+    rev: v0.15.11
     hooks:
       - id: ruff-check
         alias: ruff
@@ -137,7 +137,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.6
+    rev: 0.11.7
     hooks:
       - id: uv-lock
         alias: requirements
@@ -305,7 +305,7 @@ repos:
           - lastversion>=3.6.10
           - nox>=2026.2.9
           - packaging>=26.0
-          - pyrefly==0.60.0
+          - pyrefly==0.60.1
           - pytest>=9.0.2
           - requirements-parser>=0.13.0
           - ruamel-yaml>=0.19.1
