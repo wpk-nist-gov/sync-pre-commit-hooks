@@ -305,7 +305,7 @@ repos:
           - lastversion>=3.6.10
           - nox>=2026.2.9
           - packaging>=26.0
-          - pyrefly==0.60.0
+          - pyrefly==0.60.2
           - pytest>=9.0.2
           - requirements-parser>=0.13.0
           - ruamel-yaml>=0.19.1
