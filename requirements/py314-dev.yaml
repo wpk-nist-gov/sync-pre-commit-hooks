@@ -18,11 +18,11 @@ dependencies:
   - mypy>=1.20.1
   - nox>=2026.4.10
   - packaging>=26.0
-  - pylint
-  - pytest
+  - pylint>=4.0.5
   - pytest-cov>=7.1.0
   - pytest-sugar>=1.1.1
   - pytest-xdist>=3.8.0
+  - pytest>=9.0.2
   - requirements-parser>=0.13.0
   - ruamel-yaml>=0.19.1
   - tomlkit>=0.14.0
