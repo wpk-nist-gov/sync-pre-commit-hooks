@@ -1,7 +1,7 @@
 [build-system]
 build-backend = "uv_build"
 requires = [
-    "uv-build>=0.11.6,<0.12.0",
+    "uv-build>=0.11.7,<0.12.0",
 ]
 
 [project]
@@ -87,6 +87,7 @@ type = [
     { include-group = "typecheck-runner" },
 ]
 # other groups
+<<<<<<< before updating
 basedpyright = [ "basedpyright>=1.39.0" ]
 cog = [ "cogapp>=3.6.0" ]
 ipython = [ "ipython>=9.12.0" ]
@@ -95,6 +96,25 @@ nox = [ "nox>=2026.2.9" ]
 optional-dependencies = [ "sync-pre-commit-hooks[complete]>=0.4.0" ]
 pylint = [ "pylint>=4.0.5" ]
 pytest = [ "pytest>=9.0.2" ]
+=======
+basedpyright = [ "basedpyright>=1.31.3" ]
+cog = [ "cogapp" ]
+docs-live = [
+    "sphinx-autobuild",
+    { include-group = "docs" },
+]
+docs-spelling = [
+    "pyenchant",
+    "sphinxcontrib-spelling",
+    { include-group = "docs" },
+]
+ipython = [ "ipython" ]
+mypy = [ "mypy[faster-cache]>=1.20.1" ]
+nox = [ "nox>=2025.5.1" ]
+pylint = [ "pylint" ]
+pytest = [ "pytest" ]
+pytest-accept = [ "pytest-accept" ]
+>>>>>>> after updating
 test-extras = [
     { include-group = "test" },
 ]
