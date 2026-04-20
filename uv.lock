@@ -9,7 +9,7 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "2026-04-13T16:15:58.249742293Z"
+exclude-newer = "2026-04-13T16:46:36.86702Z"
 exclude-newer-span = "P7D"
 
 [[package]]
@@ -1367,19 +1367,19 @@ cog = [{ name = "cogapp", marker = "python_full_version >= '3.14'", specifier = 
 dev = [
     { name = "cogapp", marker = "python_full_version >= '3.14'", specifier = ">=3.6.0" },
     { name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.20.1" },
-    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.2.9" },
+    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.4.10" },
     { name = "pylint", marker = "python_full_version >= '3.14'", specifier = ">=4.0.5" },
     { name = "pytest", marker = "python_full_version >= '3.14'", specifier = ">=9.0.2" },
     { name = "pytest-cov", marker = "python_full_version >= '3.14'", specifier = ">=7.1.0" },
     { name = "pytest-sugar", marker = "python_full_version >= '3.14'", specifier = ">=1.1.1" },
     { name = "pytest-xdist", marker = "python_full_version >= '3.14'", specifier = ">=3.8.0" },
-    { name = "sync-pre-commit-hooks", extras = ["complete"], marker = "python_full_version >= '3.14'", specifier = ">=0.4.0" },
-    { name = "typecheck-runner", marker = "python_full_version >= '3.14'", specifier = ">=0.1.6" },
+    { name = "sync-pre-commit-hooks", extras = ["complete"], marker = "python_full_version >= '3.14'" },
+    { name = "typecheck-runner", marker = "python_full_version >= '3.14'", specifier = ">=0.2.0" },
 ]
 ipython = [{ name = "ipython", marker = "python_full_version >= '3.14'", specifier = ">=9.12.0" }]
 mypy = [{ name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.20.1" }]
-nox = [{ name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.2.9" }]
-optional-dependencies = [{ name = "sync-pre-commit-hooks", extras = ["complete"], specifier = ">=0.4.0" }]
+nox = [{ name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.4.10" }]
+optional-dependencies = [{ name = "sync-pre-commit-hooks", extras = ["complete"] }]
 pylint = [{ name = "pylint", specifier = ">=4.0.5" }]
 pytest = [{ name = "pytest", specifier = ">=9.0.2" }]
 test = [
@@ -1387,23 +1387,23 @@ test = [
     { name = "pytest-cov", specifier = ">=7.1.0" },
     { name = "pytest-sugar", specifier = ">=1.1.1" },
     { name = "pytest-xdist", specifier = ">=3.8.0" },
-    { name = "sync-pre-commit-hooks", extras = ["complete"], specifier = ">=0.4.0" },
+    { name = "sync-pre-commit-hooks", extras = ["complete"] },
 ]
 test-extras = [
     { name = "pytest", specifier = ">=9.0.2" },
     { name = "pytest-cov", specifier = ">=7.1.0" },
     { name = "pytest-sugar", specifier = ">=1.1.1" },
     { name = "pytest-xdist", specifier = ">=3.8.0" },
-    { name = "sync-pre-commit-hooks", extras = ["complete"], specifier = ">=0.4.0" },
+    { name = "sync-pre-commit-hooks", extras = ["complete"] },
 ]
 type = [
-    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.2.9" },
+    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.4.10" },
     { name = "pylint", specifier = ">=4.0.5" },
     { name = "pytest", specifier = ">=9.0.2" },
-    { name = "sync-pre-commit-hooks", extras = ["complete"], specifier = ">=0.4.0" },
-    { name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.1.6" },
+    { name = "sync-pre-commit-hooks", extras = ["complete"] },
+    { name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.2.0" },
 ]
-typecheck-runner = [{ name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.1.6" }]
+typecheck-runner = [{ name = "typecheck-runner", marker = "python_full_version >= '3.10'", specifier = ">=0.2.0" }]
 
 [[package]]
 name = "termcolor"
