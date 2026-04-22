@@ -67,7 +67,7 @@ repos:
       - id: pyproject-fmt
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2026.04.17
+    rev: 2026.04.21
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -305,12 +305,12 @@ repos:
           - lastversion>=3.6.10
           - nox>=2026.4.10
           - packaging>=26.0
-          - pyrefly==0.60.2
+          - pyrefly==0.61.0
           - pytest>=9.0.2
           - requirements-parser>=0.13.0
           - ruamel-yaml>=0.19.1
           - tomli>=2.4.1; python_version < "3.11"
           - tomlkit>=0.14.0
-          - ty==0.0.29
+          - ty==0.0.30
           - typecheck-runner>=0.2.0; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
