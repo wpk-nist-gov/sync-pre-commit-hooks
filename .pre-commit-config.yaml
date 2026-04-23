@@ -92,7 +92,7 @@ repos:
 
   # * Markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.22.0
+    rev: v0.22.1
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
@@ -311,6 +311,6 @@ repos:
           - ruamel-yaml>=0.19.1
           - tomli>=2.4.1; python_version < "3.11"
           - tomlkit>=0.14.0
-          - ty==0.0.30
+          - ty==0.0.31
           - typecheck-runner>=0.2.0; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
