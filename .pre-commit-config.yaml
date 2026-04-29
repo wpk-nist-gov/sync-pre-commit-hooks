@@ -120,7 +120,7 @@ repos:
   # * Spelling
   # ** typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.45.1
+    rev: v1.45.2
     hooks:
       - id: typos
         exclude_types: [jupyter]
@@ -137,7 +137,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.7
+    rev: 0.11.8
     hooks:
       - id: uv-lock
         alias: requirements
@@ -305,12 +305,12 @@ repos:
           - lastversion>=3.6.10
           - nox>=2026.4.10
           - packaging>=26.0
-          - pyrefly==0.61.1
+          - pyrefly==0.62.0
           - pytest>=9.0.2
           - requirements-parser>=0.13.0
           - ruamel-yaml>=0.19.1
           - tomli>=2.4.1; python_version < "3.11"
           - tomlkit>=0.14.0
-          - ty==0.0.31
+          - ty==0.0.32
           - typecheck-runner>=0.2.0; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
