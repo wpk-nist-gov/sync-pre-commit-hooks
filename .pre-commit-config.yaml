@@ -305,12 +305,12 @@ repos:
           - lastversion>=3.6.10
           - nox>=2026.4.10
           - packaging>=26.0
-          - pyrefly==0.62.0
+          - pyrefly==0.63.0
           - pytest>=9.0.2
           - requirements-parser>=0.13.0
           - ruamel-yaml>=0.19.1
           - tomli>=2.4.1; python_version < "3.11"
           - tomlkit>=0.14.0
-          - ty==0.0.32
+          - ty==0.0.33
           - typecheck-runner>=0.2.0; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
