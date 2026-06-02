@@ -55,8 +55,8 @@ def _process_file(
     data: Any = toml.read()
 
     dependency_groups: dict[str, dict[str, Any]] | None = (
-        data["tool"]["uv"] if config_file.name == "pyproject.toml" else data  # ty: ignore[not-subscriptable]
-    ).get("dependency-groups")  # ty: ignore[unresolved-attribute]
+        data["tool"]["uv"] if config_file.name == "pyproject.toml" else data
+    ).get("dependency-groups")
 
     if dependency_groups is None:
         logger.info("No dependency-group table found")

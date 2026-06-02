@@ -3,7 +3,7 @@ from __future__ import annotations
 from contextlib import nullcontext
 from pathlib import Path
 from textwrap import dedent
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 from unittest.mock import patch
 
 import pytest
@@ -17,7 +17,6 @@ from ._utils import create_config_file
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
 
     from sync_pre_commit_hooks._typing import PreCommitConfigType
 
@@ -117,7 +116,7 @@ def test__limit_hooks(
     [
         (
             [],
-            nullcontext({}),
+            nullcontext(dict[Any, Any]()),
         ),
         (
             ["a"],

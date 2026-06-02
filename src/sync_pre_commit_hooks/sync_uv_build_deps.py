@@ -74,7 +74,7 @@ def _update_pyproject(pyproject: Path, uv_build_dep: str) -> int:
     data: Any = toml.read()
 
     # NOTE: modify in place to preserve formatting.
-    requires: list[str] = data["build-system"]["requires"]  # ty: ignore[invalid-assignment, not-subscriptable]
+    requires: list[str] = data["build-system"]["requires"]
     for i, dep in enumerate(requires):
         name = canonicalize_name(Requirement(dep).name)
         if name == "uv-build" and dep != uv_build_dep:
