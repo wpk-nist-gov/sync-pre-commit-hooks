@@ -130,9 +130,11 @@ versions_markers = pytest.mark.parametrize(
     [{}, {"mypy": "1.2.3", "pyright": "2.3.4", "an-example": "3.4.5"}],
 )
 toml_markers = pytest.mark.parametrize(
-    ("toml", "expected"),
+    ("include", "exclude", "toml", "expected"),
     [
         pytest.param(
+            [],
+            [],
             dedent(r"""
             dependencies = [
                 "mypy>=0.0.0",
@@ -169,15 +171,61 @@ toml_markers = pytest.mark.parametrize(
             """),
             id="replace mixecd",
         ),
+        pytest.param(
+            ["mypy"],
+            [],
+            dedent(r"""
+            dependencies = [
+                "mypy>=0.0.0",
+                'pyright>=0.0.0',
+                "an-example>=0.0.0",
+            ]
+            """),
+            dedent(r"""
+            dependencies = [
+                "mypy>=1.2.3",
+                'pyright>=0.0.0',
+                "an-example>=0.0.0",
+            ]
+            """),
+            id="replace mixecd",
+        ),
+        pytest.param(
+            [],
+            ["mypy"],
+            dedent(r"""
+            dependencies = [
+                "mypy>=0.0.0",
+                'pyright>=0.0.0',
+                "an-example>=0.0.0",
+            ]
+            """),
+            dedent(r"""
+            dependencies = [
+                "mypy>=0.0.0",
+                'pyright>=2.3.4',
+                "an-example>=3.4.5",
+            ]
+            """),
+            id="replace mixecd",
+        ),
     ],
 )
 
 
 @versions_markers
 @toml_markers
-def test_regex(versions: dict[str, str], toml: str, expected: str | None) -> None:
+def test_regex(
+    versions: dict[str, str],
+    include: list[str],
+    exclude: list[str],
+    toml: str,
+    expected: str | None,
+) -> None:
     if versions == {}:
         expected = toml
+    else:
+        versions = mod._normalize_versions(versions, include=include, exclude=exclude)
     replacer = mod._factory_replacer(versions)
     assert mod.REQUIREMENT_REGEX.sub(replacer, toml) == expected
 
@@ -185,7 +233,12 @@ def test_regex(versions: dict[str, str], toml: str, expected: str | None) -> Non
 @versions_markers
 @toml_markers
 def test_main(
-    tmp_path: Path, versions: dict[str, str], toml: str, expected: str | None
+    tmp_path: Path,
+    versions: dict[str, str],
+    include: list[str],
+    exclude: list[str],
+    toml: str,
+    expected: str | None,
 ) -> None:
 
     if versions == {}:
@@ -201,6 +254,14 @@ def test_main(
     requirements_path.write_text(versions_str, encoding="utf-8")
     toml_path.write_text(toml, encoding="utf-8")
 
-    assert not mod.main(["--requirements", str(requirements_path), str(toml_path)])
+    include_opts = [f"--include={x}" for x in include]
+    exclude_opts = [f"--exclude={x}" for x in exclude]
+
+    assert not mod.main([
+        f"--requirements={requirements_path}",
+        *include_opts,
+        *exclude_opts,
+        str(toml_path),
+    ])
 
     assert toml_path.read_text(encoding="utf-8") == expected
