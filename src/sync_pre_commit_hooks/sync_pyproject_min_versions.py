@@ -1,9 +1,11 @@
 """Sync minimum versions of pyproject.toml dependencies to locked requirement file"""
 # ruff: noqa: D101, D102
+# pylint: disable=missing-class-docstring
 
 from __future__ import annotations
 
 import re
+import sys
 from argparse import ArgumentParser
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -22,7 +24,52 @@ if TYPE_CHECKING:
 
 logger = get_logger("sync-pyproject-min-versions")
 
-_regex_pattern = r"""
+# taken from https://github.com/pypa/packaging/blob/main/src/packaging/version.py
+_version_pattern = r"""
+    v?+                                                   # optional leading v
+    (?a:
+        (?:(?P<epoch>[0-9]+)!)?+                          # epoch
+        (?P<release>[0-9]+(?:\.[0-9]+)*+)                 # release segment
+        (?P<pre>                                          # pre-release
+            [._-]?+
+            (?P<pre_l>alpha|a|beta|b|preview|pre|c|rc)
+            [._-]?+
+            (?P<pre_n>[0-9]+)?
+        )?+
+        (?P<post>                                         # post release
+            (?:-(?P<post_n1>[0-9]+))
+            |
+            (?:
+                [._-]?
+                (?P<post_l>post|rev|r)
+                [._-]?
+                (?P<post_n2>[0-9]+)?
+            )
+        )?+
+        (?P<dev>                                          # dev release
+            [._-]?+
+            (?P<dev_l>dev)
+            [._-]?+
+            (?P<dev_n>[0-9]+)?
+        )?+
+    )
+    (?a:\+
+        (?P<local>                                        # local version
+            [a-z0-9]+
+            (?:[._-][a-z0-9]+)*+
+        )
+    )?+
+"""
+
+_version_pattern = (
+    _version_pattern.replace("*+", "*").replace("?+", "?")
+    if (sys.implementation.name == "cpython" and sys.version_info < (3, 11, 5))
+    or (sys.implementation.name == "pypy" and sys.version_info < (3, 11, 13))
+    or sys.version_info < (3, 11)
+    else _version_pattern
+)
+
+_regex_pattern = rf"""
 (?P<quote>["'])
 \s*
 (?P<inner>
@@ -33,39 +80,7 @@ _regex_pattern = r"""
         (?:\s*\[(?:\w|[,. -])*\])?\s*>=\s*
     )
     (?P<version>
-        v?+                                                   # optional leading v
-        (?a:
-            (?:(?P<epoch>[0-9]+)!)?+                          # epoch
-            (?P<release>[0-9]+(?:\.[0-9]+)*+)                 # release segment
-            (?P<pre>                                          # pre-release
-                [._-]?+
-                (?P<pre_l>alpha|a|beta|b|preview|pre|c|rc)
-                [._-]?+
-                (?P<pre_n>[0-9]+)?
-            )?+
-            (?P<post>                                         # post release
-                (?:-(?P<post_n1>[0-9]+))
-                |
-                (?:
-                    [._-]?
-                    (?P<post_l>post|rev|r)
-                    [._-]?
-                    (?P<post_n2>[0-9]+)?
-                )
-            )?+
-            (?P<dev>                                          # dev release
-                [._-]?+
-                (?P<dev_l>dev)
-                [._-]?+
-                (?P<dev_n>[0-9]+)?
-            )?+
-        )
-        (?a:\+
-            (?P<local>                                        # local version
-                [a-z0-9]+
-                (?:[._-][a-z0-9]+)*+
-            )
-        )?+
+       {_version_pattern}
     )
     (?P<markers>                                              # everything else
         .*?
