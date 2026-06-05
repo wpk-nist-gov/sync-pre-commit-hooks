@@ -5,15 +5,15 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 from ._logging import get_logger
 from ._utils import (
     add_pre_commit_config_argument,
     add_yaml_arguments,
     get_version_from_lastversion,
+    get_versions_from_requirements,
     pre_commit_config_load,
     pre_commit_config_repo_hook_iter,
 )
@@ -44,23 +44,6 @@ def _get_versions_from_ids(
         key: str = id_to_package_mapping.get(hid, hid)
         versions[key] = cleaned_rev
 
-    return versions
-
-
-@lru_cache
-def _get_versions_from_requirements(
-    requirements_path: Path | None,
-) -> dict[str, str]:
-    if requirements_path is None:
-        return {}
-
-    from requirements import parse
-
-    versions: dict[str, str] = {}
-    with requirements_path.open(encoding="utf-8") as f:
-        for requirement in parse(f):
-            name = cast("str", requirement.name)
-            versions[name] = requirement.specs[0][-1]
     return versions
 
 
@@ -122,7 +105,7 @@ def _update_yaml_file(
     hook_ids_from = _limit_hooks(hook_ids, include=from_include, exclude=from_exclude)
 
     versions = _get_versions_from_ids(loaded, hook_ids_from, id_to_package_mapping)
-    versions.update(_get_versions_from_requirements(requirements))
+    versions.update(get_versions_from_requirements(requirements))
     versions.update(_get_versions_from_lastversion(lastversion_dependencies))
 
     updated = False

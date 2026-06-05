@@ -67,3 +67,17 @@
   entry: Found forbidden file
   language: fail
   files: \.(rej|bak|log)$
+- id: sync-pyproject-min-versions
+  name: sync-pyproject-min-versions
+  description:
+    Sync minimum package versions in "pyproject.toml" with those in a locked
+    "requirements.txt" file
+  entry: sync-pyproject-min-versions
+  language: python
+  additional_dependencies:
+    - ".[all]"
+  args:
+    - "--help"
+  files: ^pyproject\.toml$
+  pass_filenames: true
+  minimum_pre_commit_version: *min_pre_commit
