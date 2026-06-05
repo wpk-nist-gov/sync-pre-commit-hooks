@@ -5,6 +5,18 @@
 
 Changelog for `sync-pre-commit-hooks`
 
+## 0.6.1
+
+Released on 2026-06-05.
+
+### Bug fixes
+
+- fix: fix redundant read ([#162](https://github.com/wpk-nist-gov/sync-pre-commit-hooks/pull/162))
+
+### Contributors
+
+- [@wpk-nist-gov](https://github.com/wpk-nist-gov)
+
 ## 0.6.0
 
 Released on 2026-06-05.
