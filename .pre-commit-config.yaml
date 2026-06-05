@@ -283,6 +283,16 @@ repos:
           - "--requirements-include=pyrefly"
         additional_dependencies:
           - "--editable=.[all]"
+      - id: sync-pyproject-min-versions
+        name: sync-pyproject-min-versions
+        alias: requirements
+        entry: sync-pyproject-min-versions
+        language: python
+        files: ^pyproject\.toml$|^requirements/lock/uvx-tools\.txt$
+        args:
+          - "--requirements=requirements/lock/uvx-tools.txt"
+        additional_dependencies:
+          - "--editable=.[all]"
 
   # ** typecheck-runner
   - repo: https://github.com/wpk-nist-gov/typecheck-runner

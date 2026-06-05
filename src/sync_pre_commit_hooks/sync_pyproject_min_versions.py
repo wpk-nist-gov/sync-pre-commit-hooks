@@ -27,7 +27,7 @@ _regex_pattern = r"""
 \s*
 (?P<inner>
     (?P<package>                                              # package name
-        (?:[A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])*
+        \b[a-zA-Z0-9][a-zA-Z0-9._-]*\b
     )
     (?P<extras>                                               # extras
         (?:\s*\[(?:\w|[,. -])*\])?\s*>=\s*
@@ -219,6 +219,8 @@ def main(argv: Sequence[str] | None = None) -> bool:
     replacer = _factory_replacer(versions)
 
     for path in paths:
+        logger.info("processing %s", path)
+        s = path.read_text(encoding="utf-8")
         s = REQUIREMENT_REGEX.sub(replacer, path.read_text(encoding="utf-8"))
         _ = path.write_text(s, encoding="utf-8")
 

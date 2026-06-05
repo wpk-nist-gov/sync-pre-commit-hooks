@@ -460,10 +460,11 @@ repos:
       files: ^pyproject\.toml$|path/to/locked/requirements.txt
 ```
 
-Note that you need to specify the locked requirementsNote that you should
+Note that you need to specify the locked requirements and that you should
 include the path to locked requirements file so the hook will run on any updates
 to that file. By default, the hook ignores non toml files passed in, so you
-don't have to mess with `pass_filenames`, etc.
+don't have to mess with `pass_filenames`, etc. Only dependencies of the form
+`dep>={version}` will be updated.
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable MD013 -->
@@ -484,8 +485,11 @@ options:
   -r, --requirements REQUIREMENTS
                         Requirements file to extract locked versions from.
   --include INCLUDE     Package names to include. Default is to consider all packages in
-                        requirements file.
-  --exclude EXCLUDE     Packages to exclude.
+                        requirements file. Specifying ``--include`` will only update
+                        those packages. Can specify multiple times.
+  --exclude EXCLUDE     Packages to exclude. Default is to consider all packages in
+                        requirements file. Specifying ``--exclude`` will skip those
+                        packages. Can specify multiple times.
   --no-ignore-non-toml  Default is to only consider ``paths`` that end in ``".toml"``,
                         which is useful for using ``sync-pre-commit-hooks`` via pre-
                         commit. Passing ``--no-ignore-non-toml`` will not ignore any
