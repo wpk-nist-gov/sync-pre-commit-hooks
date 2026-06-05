@@ -172,3 +172,20 @@ def get_version_from_lastversion(dep: str) -> str:
     from lastversion import latest  # pyright: ignore[reportMissingTypeStubs, reportUnknownVariableType]  # noqa: I001
 
     return cast("str", latest(dep, output_format="tag"))
+
+
+@lru_cache
+def get_versions_from_requirements(
+    requirements_path: Path | None,
+) -> dict[str, str]:
+    if requirements_path is None:
+        return {}
+
+    from requirements import parse
+
+    versions: dict[str, str] = {}
+    with requirements_path.open(encoding="utf-8") as f:
+        for requirement in parse(f):
+            name = cast("str", requirement.name)
+            versions[name] = requirement.specs[0][-1]
+    return versions

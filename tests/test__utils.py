@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from contextlib import nullcontext
 from pathlib import Path
+from textwrap import dedent
 from typing import Any
 from unittest.mock import patch
 
@@ -10,6 +11,7 @@ import pytest
 from sync_pre_commit_hooks._utils import (  # noqa: PLC2701
     get_language_version,
     get_version_from_lastversion,
+    get_versions_from_requirements,
 )
 
 
@@ -46,3 +48,24 @@ def test_get_language_version(
 def test_get_version_from_lastversion() -> None:
     with patch("lastversion.latest", autospec=True, return_value="abc"):
         assert get_version_from_lastversion("ruff") == "abc"
+
+
+@pytest.mark.parametrize(
+    ("data", "expected"),
+    [
+        (
+            dedent("""\
+            ruff==0.14.6
+            black==23.4.0,
+            """),
+            {"ruff": "0.14.6", "black": "23.4.0"},
+        ),
+    ],
+)
+def test_get_versions_from_requirements(
+    tmp_path: Path, data: str, expected: dict[str, Any]
+) -> None:
+    path = tmp_path / "requirements.txt"
+    path.write_text(data)
+
+    assert get_versions_from_requirements(path) == expected

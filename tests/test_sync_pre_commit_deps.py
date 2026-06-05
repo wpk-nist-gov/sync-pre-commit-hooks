@@ -57,27 +57,6 @@ def test__get_versions_from_ids(
     )
 
 
-@pytest.mark.parametrize(
-    ("data", "expected"),
-    [
-        (
-            dedent("""\
-            ruff==0.14.6
-            black==23.4.0,
-            """),
-            {"ruff": "0.14.6", "black": "23.4.0"},
-        ),
-    ],
-)
-def test__get_versions_from_requirements(
-    tmp_path: Path, data: str, expected: dict[str, Any]
-) -> None:
-    path = tmp_path / "requirements.txt"
-    path.write_text(data)
-
-    assert sync_pre_commit_deps._get_versions_from_requirements(path) == expected
-
-
 def test__lastversion() -> None:
     with patch("lastversion.latest", autospec=True, return_value="abc"):
         assert sync_pre_commit_deps._get_versions_from_lastversion(["ruff"]) == {

@@ -59,6 +59,7 @@ sync-pre-commit-deps = "sync_pre_commit_hooks.sync_pre_commit_deps:main"
 sync-pre-commit-language-version = "sync_pre_commit_hooks.sync_pre_commit_language_version:main"
 sync-uv-dependency-groups = "sync_pre_commit_hooks.sync_uv_dependency_groups:main"
 sync-uv-build-deps = "sync_pre_commit_hooks.sync_uv_build_deps:main"
+sync-pyproject-min-versions = "sync_pre_commit_hooks.sync_pyproject_min_versions:main"
 
 [project.urls]
 Documentation = "https://pages.nist.gov/sync-pre-commit-hooks/"
