@@ -143,7 +143,7 @@ version: version-scm version-import
 # * Requirements/Environment files ---------------------------------------------
 
 _requirements *options:
-    just pre-commit run pyproject2conda-project --all-files --verbose || true
+    just lint pyproject2conda-project --verbose || true
     uv run --no-project tools/requirements_lock.py --all-files {{ options }}
 
 # Rebuild requirements, lock requirements, and run uv sync.  Pass --upgrade/-U to upgrade
@@ -162,6 +162,14 @@ requirements *options: (_requirements "--sync-or-lock" options)
 [group("requirements")]
 pyproject-upgrade-min-versions:
     uvx --from "uv-upx>=0.4.3" uv-upx upgrade run --no-sync
+
+# Sync min versions in pyproject.toml with using tools/sync_uvx_tool_min_version.py
+sync-pyproject-min-versions: && lock
+    # sync with pyprojects
+    just lint sync-pyproject-min-versions --verbose || true
+
+# Update/Upgrade all dependencies
+update-deps: (lock "--upgrade") sync-pyproject-min-versions lint-upgrade
 
 # * Typecheck ---------------------------------------------------------------------
 
