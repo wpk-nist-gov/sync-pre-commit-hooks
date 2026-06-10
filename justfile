@@ -91,10 +91,10 @@ lint-upgrade: (pre-commit "autoupdate") lint-sync-deps
 # sync dependencies (used primarily with lint-upgrade)
 [group("lint")]
 lint-sync-deps:
-    [[ -f requirements/pre-commit-additional-dependencies.txt ]] && uv run --no-project --script tools/requirements_lock.py --upgrade requirements/pre-commit-additional-dependencies.txt || true
-    just pre-commit run -v -a sync-pre-commit-deps fill-pre-commit-hook-deps || true
-    just pre-commit run -v sync-uv-build-deps -a || true
-    just pre-commit run -v -a trailing-whitespace prettier || true
+    [[ -f requirements/pre-commit-additional-dependencies.txt ]] && uv run tools/uv_locker.py --upgrade requirements/pre-commit-additional-dependencies.txt || true
+    just lint -v sync-pre-commit-deps fill-pre-commit-hook-deps || true
+    just lint -v sync-uv-build-deps || true
+    just lint -v trailing-whitespace prettier || true
 
 # * User setup -----------------------------------------------------------------
 
@@ -144,7 +144,7 @@ version: version-scm version-import
 
 _requirements *options:
     just lint pyproject2conda-project --verbose || true
-    uv run --no-project tools/requirements_lock.py --all-files {{ options }}
+    uv run tools/uv_locker.py --all-files {{ options }}
 
 # Rebuild requirements, lock requirements, and run uv sync.  Pass --upgrade/-U to upgrade
 [group("requirements")]

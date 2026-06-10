@@ -348,6 +348,15 @@ groups = [
 skip-package = true
 style = "requirements"
 
+[tool.uv-locker]
+requirements = [
+    { path = "requirements/uvx-tools.txt", python = "min", output-file = "requirements/lock/uvx-tools.txt", options = [
+        "--no-deps",
+        "--no-strip-extras",
+        "--universal",
+    ] },
+]
+
 # * Other tools ----------------------------------------------------------------
 [tool.rooster]
 changelog_contributors = true
