@@ -111,6 +111,7 @@ managed = true
 build-backend.source-include = [ "tests/**" ]
 pip.annotation-style = "line"
 pip.generate-hashes = true
+pip.universal = true
 
 [tool.uv.dependency-groups]
 cog.requires-python = ">=3.14"
@@ -356,7 +357,6 @@ python = "min"
 options = [
     "--no-deps",
     "--no-strip-extras",
-    "--universal",
 ]
 
 # * Other tools ----------------------------------------------------------------
