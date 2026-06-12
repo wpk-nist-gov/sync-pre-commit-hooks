@@ -1,4 +1,4 @@
-"""Sync minimum versions of pyproject.toml dependencies to locked requirement file"""
+"""Sync minimum versions of dependencies in pyproject.toml or pep723 section of python scripts to locked requirement file."""
 # ruff: noqa: D101, D102
 # pylint: disable=missing-class-docstring
 
@@ -8,6 +8,8 @@ import re
 import sys
 from argparse import ArgumentParser
 from dataclasses import dataclass, field
+from functools import partial
+from itertools import chain
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -116,13 +118,35 @@ def _factory_replacer(versions: dict[str, str]) -> Callable[[re.Match[str]], str
     return replacer
 
 
+def _replace_pep723_section(replacer: Callable[[str], str], contents: str) -> str:
+    out: list[str] = []
+    found = False
+    lines = iter(contents.splitlines(keepends=True))
+
+    for line in lines:
+        if not found and re.match(r"^#\s+///\s+script$", line):
+            found = True
+            out.append(line)
+            continue
+
+        if found and re.match(r"^#\s+///$", line):
+            return "".join(chain(out, [line], lines))
+
+        out.append(replacer(line) if found and re.match(r"^#", line) else line)
+
+    if found:
+        logger.warning("Skipping update.  Found pep723 script start but no end")
+
+    # if got here, didn't find pep723 data
+    return contents
+
+
 @dataclass
 class Options:
     requirements: Path
     include: list[str] = field(default_factory=list)
     exclude: list[str] = field(default_factory=list)
     paths: list[Path] = field(default_factory=list)
-    ignore_non_toml: bool = True
 
     @classmethod
     def from_kws(cls, kws: Any) -> Options:
@@ -161,16 +185,7 @@ def _get_options(
         """,
     )
     _ = parser.add_argument(
-        "--no-ignore-non-toml",
-        action="store_true",
-        help="""
-        Default is to only consider ``paths`` that end in ``".toml"``, which is
-        useful for using ``sync-pre-commit-hooks`` via pre-commit. Passing
-        ``--no-ignore-non-toml`` will not ignore any ``paths``.
-        """,
-    )
-    _ = parser.add_argument(
-        "paths", nargs="*", help="pyproject.toml files to process", type=Path
+        "paths", nargs="*", help="pyproject.toml/script files to process", type=Path
     )
 
     opts = parser.parse_args(argv)
@@ -180,7 +195,6 @@ def _get_options(
         include=opts.include,
         exclude=opts.exclude,
         paths=opts.paths,
-        ignore_non_toml=not opts.no_ignore_non_toml,
     )
 
 
@@ -205,17 +219,32 @@ def _normalize_versions(
     return versions
 
 
-def _normalize_paths(paths: list[Path], ignore_non_toml: bool) -> list[Path]:
-    if not ignore_non_toml:
-        return paths
+def _get_toml_and_script_paths(paths: list[Path]) -> tuple[list[Path], list[Path]]:
+    tomls: list[Path] = []
+    scripts: list[Path] = []
 
-    out: list[Path] = []
     for path in paths:
-        if path.suffix != ".toml":
-            logger.info("ignoring non toml path %s", path)
+        suffix = path.suffix
+
+        if suffix == ".toml":
+            tomls.append(path)
+        elif suffix == ".py":
+            scripts.append(path)
         else:
-            out.append(path)
-    return out
+            logger.info("ignoring path %s", path)
+    return tomls, scripts
+
+
+def _process_paths(paths: list[Path], replacer: Callable[[str], str]) -> None:
+    for path in paths:
+        logger.info("processing %s", path)
+        contents = path.read_text(encoding="utf-8")
+        out = replacer(contents)
+        if contents != out:
+            logger.info("update %s", path)
+            _ = path.write_text(out, encoding="utf-8")
+        else:
+            logger.info("no change %s", path)
 
 
 def main(argv: Sequence[str] | None = None) -> bool:
@@ -230,15 +259,11 @@ def main(argv: Sequence[str] | None = None) -> bool:
     if not versions:
         return False
 
-    paths = _normalize_paths(opts.paths, opts.ignore_non_toml)
-    replacer = _factory_replacer(versions)
+    replacer = partial(REQUIREMENT_REGEX.sub, _factory_replacer(versions))
+    tomls, scripts = _get_toml_and_script_paths(opts.paths)
 
-    for path in paths:
-        logger.info("processing %s", path)
-        _ = path.write_text(
-            REQUIREMENT_REGEX.sub(replacer, path.read_text(encoding="utf-8")),
-            encoding="utf-8",
-        )
+    _process_paths(tomls, replacer)
+    _process_paths(scripts, partial(_replace_pep723_section, replacer))
 
     return False
 
