@@ -102,7 +102,7 @@ def test__normalize_versions(
     [
         pytest.param(
             [],
-            [[], []],
+            [[], []],  # pyright: ignore[reportUnknownArgumentType]
         ),
         pytest.param(
             ["one.toml", "two.txt"],
@@ -359,11 +359,7 @@ def test_main(
 
     requirements_path.write_text(versions_str, encoding="utf-8")
 
-    if as_script:
-        toml_or_script_path = tmp_path / "a_script.py"
-    else:
-        toml_or_script_path = tmp_path / "pyproject.toml"
-
+    toml_or_script_path = tmp_path / ("a_script.py" if as_script else "pyproject.toml")
     toml_or_script_path.write_text(toml_or_script, encoding="utf-8")
 
     include_opts = [f"--include={x}" for x in include]
