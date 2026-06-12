@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from contextlib import nullcontext
+from functools import partial
 from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING
@@ -31,14 +32,12 @@ if TYPE_CHECKING:
                 "b",
                 "--exclude",
                 "c",
-                "--no-ignore-non-toml",
                 "thing.toml",
             ],
             {
                 "requirements": Path("hello.txt"),
                 "include": ["a", "b"],
                 "exclude": ["c"],
-                "ignore_non_toml": False,
                 "paths": [Path("thing.toml")],
             },
             id="all",
@@ -99,30 +98,28 @@ def test__normalize_versions(
 
 
 @pytest.mark.parametrize(
-    ("paths", "ignore_non_toml", "expected"),
+    ("paths", "expected"),
     [
         pytest.param(
             [],
-            True,
-            [],
+            [[], []],
         ),
         pytest.param(
             ["one.toml", "two.txt"],
-            False,
-            ["one.toml", "two.txt"],
+            [["one.toml"], []],
         ),
         pytest.param(
-            ["one.toml", "two.txt"],
-            True,
-            ["one.toml"],
+            ["one.toml", "two.txt", "foo.py", "bar.py"],
+            [["one.toml"], ["foo.py", "bar.py"]],
         ),
     ],
 )
-def test__normalize_paths(
-    paths: list[str], ignore_non_toml: bool, expected: list[str]
+def test__get_toml_and_script_paths(
+    paths: list[str], expected: tuple[list[str], list[str]]
 ) -> None:
-    paths_, expected_ = ([Path(x) for x in thing] for thing in (paths, expected))
-    assert mod._normalize_paths(paths_, ignore_non_toml) == expected_
+    paths_ = [Path(x) for x in paths]
+    expected_ = tuple([Path(x) for x in e] for e in expected)
+    assert mod._get_toml_and_script_paths(paths_) == expected_
 
 
 versions_markers = pytest.mark.parametrize(
@@ -130,9 +127,10 @@ versions_markers = pytest.mark.parametrize(
     [{}, {"mypy": "1.2.3", "pyright": "2.3.4", "an-example": "3.4.5"}],
 )
 toml_markers = pytest.mark.parametrize(
-    ("include", "exclude", "toml", "expected"),
+    ("as_script", "include", "exclude", "toml_or_script", "expected"),
     [
         pytest.param(
+            False,
             [],
             [],
             dedent(r"""
@@ -169,9 +167,10 @@ toml_markers = pytest.mark.parametrize(
                 "mypy >= 1.2.3",      # untouched
             ]
             """),
-            id="replace mixecd",
+            id="replace multi",
         ),
         pytest.param(
+            False,
             ["mypy"],
             [],
             dedent(r"""
@@ -188,9 +187,10 @@ toml_markers = pytest.mark.parametrize(
                 "an-example>=0.0.0",
             ]
             """),
-            id="replace mixecd",
+            id="replace mixed",
         ),
         pytest.param(
+            False,
             [],
             ["mypy"],
             dedent(r"""
@@ -207,7 +207,110 @@ toml_markers = pytest.mark.parametrize(
                 "an-example>=3.4.5",
             ]
             """),
-            id="replace mixecd",
+            id="replace mixed 2",
+        ),
+        # scripts
+        pytest.param(
+            True,
+            [],
+            [],
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     "mypy>=0.0.0",
+            #     'pyright[other-thing,another.thing] >= 0.0.0; python_version<"3.11"',
+            #     "an.example>=0.0.0",
+            #     "an_example>=0.0.0",
+            #     "a>=0.0.0",           # missing
+            #     "mypy>0.0.0",         # >
+            #     "mypy>=0.0.0,<4.0",   # mixed
+            #     "mypy-other>=0.0.0",  # -other
+            #     "other-mypy>=0.0.0",  # other-
+            #     mypy>=0.0.0,          # no quote
+            #     "mypy>=0.0.0,<4.0.0", # not just >=
+            #     "mypy>=0.0.0; other-thing"  # invalid marker
+            #     "mypy >= 1.2.3",      # untouched
+            # ]
+            # ///
+            """),
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     "mypy>=1.2.3",
+            #     'pyright[other-thing,another.thing] >= 2.3.4; python_version<"3.11"',
+            #     "an.example>=3.4.5",
+            #     "an_example>=3.4.5",
+            #     "a>=0.0.0",           # missing
+            #     "mypy>0.0.0",         # >
+            #     "mypy>=0.0.0,<4.0",   # mixed
+            #     "mypy-other>=0.0.0",  # -other
+            #     "other-mypy>=0.0.0",  # other-
+            #     mypy>=0.0.0,          # no quote
+            #     "mypy>=0.0.0,<4.0.0", # not just >=
+            #     "mypy>=0.0.0; other-thing"  # invalid marker
+            #     "mypy >= 1.2.3",      # untouched
+            # ]
+            # ///
+            """),
+            id="replace multi script",
+        ),
+        pytest.param(
+            True,
+            [],
+            [],
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     "mypy>=0.0.0",
+            # ]
+            # ///
+            """),
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     "mypy>=1.2.3",
+            # ]
+            # ///
+            """),
+            id="replace mixed script",
+        ),
+        pytest.param(
+            True,
+            ["mypy"],
+            [],
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     "mypy>=0.0.0",
+            # ]
+            """),
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     "mypy>=0.0.0",
+            # ]
+            """),
+            id="noreplace script (missing end)",
+        ),
+        pytest.param(
+            True,
+            ["mypy"],
+            [],
+            dedent(r"""
+            # /// scripts
+            # dependencies = [
+            #     "mypy>=0.0.0",
+            # ]
+            # ///
+            """),
+            dedent(r"""
+            # /// scripts
+            # dependencies = [
+            #     "mypy>=0.0.0",
+            # ]
+            # ///
+            """),
+            id="noreplace script (bad header)",
         ),
     ],
 )
@@ -217,17 +320,21 @@ toml_markers = pytest.mark.parametrize(
 @toml_markers
 def test_regex(
     versions: dict[str, str],
+    as_script: bool,
     include: list[str],
     exclude: list[str],
-    toml: str,
+    toml_or_script: str,
     expected: str | None,
 ) -> None:
     if versions == {}:
-        expected = toml
+        expected = toml_or_script
     else:
         versions = mod._normalize_versions(versions, include=include, exclude=exclude)
-    replacer = mod._factory_replacer(versions)
-    assert mod.REQUIREMENT_REGEX.sub(replacer, toml) == expected
+
+    replacer = partial(mod.REQUIREMENT_REGEX.sub, mod._factory_replacer(versions))
+    if as_script:
+        replacer = partial(mod._replace_pep723_section, replacer)
+    assert replacer(toml_or_script) == expected
 
 
 @versions_markers
@@ -235,24 +342,29 @@ def test_regex(
 def test_main(
     tmp_path: Path,
     versions: dict[str, str],
+    as_script: bool,
     include: list[str],
     exclude: list[str],
-    toml: str,
+    toml_or_script: str,
     expected: str | None,
 ) -> None:
 
     if versions == {}:
-        expected = toml
+        expected = toml_or_script
 
     requirements_path = tmp_path / "locked.txt"
-    toml_path = tmp_path / "pyproject.toml"
-
     versions_str = "\n".join([
         f"{name} >= {version}" for name, version in versions.items()
     ])
 
     requirements_path.write_text(versions_str, encoding="utf-8")
-    toml_path.write_text(toml, encoding="utf-8")
+
+    if as_script:
+        toml_or_script_path = tmp_path / "a_script.py"
+    else:
+        toml_or_script_path = tmp_path / "pyproject.toml"
+
+    toml_or_script_path.write_text(toml_or_script, encoding="utf-8")
 
     include_opts = [f"--include={x}" for x in include]
     exclude_opts = [f"--exclude={x}" for x in exclude]
@@ -261,7 +373,7 @@ def test_main(
         f"--requirements={requirements_path}",
         *include_opts,
         *exclude_opts,
-        str(toml_path),
+        str(toml_or_script_path),
     ])
 
-    assert toml_path.read_text(encoding="utf-8") == expected
+    assert toml_or_script_path.read_text(encoding="utf-8") == expected
