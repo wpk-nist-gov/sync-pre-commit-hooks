@@ -5,6 +5,18 @@
 
 Changelog for `sync-pre-commit-hooks`
 
+## 0.7.0
+
+Released on 2026-06-12.
+
+### Enhancements
+
+- feat: support pep723 scripts with sync-pyproject-min-versions ([#178](https://github.com/wpk-nist-gov/sync-pre-commit-hooks/pull/178))
+
+### Contributors
+
+- [@wpk-nist-gov](https://github.com/wpk-nist-gov)
+
 ## 0.6.1
 
 Released on 2026-06-05.
