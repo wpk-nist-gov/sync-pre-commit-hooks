@@ -5,6 +5,18 @@
 
 Changelog for `sync-pre-commit-hooks`
 
+## 0.8.0
+
+Released on 2026-06-15.
+
+### Enhancements
+
+- feat: sync-pyproject-min-versions supports extracting versions for `uv export` ([#183](https://github.com/wpk-nist-gov/sync-pre-commit-hooks/pull/183))
+
+### Contributors
+
+- [@wpk-nist-gov](https://github.com/wpk-nist-gov)
+
 ## 0.7.0
 
 Released on 2026-06-12.
