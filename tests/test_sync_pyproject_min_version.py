@@ -7,7 +7,7 @@ from functools import partial
 from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 import pytest
 
@@ -143,11 +143,40 @@ def test__get_requirements_from_script(
     with patch(
         "sync_pre_commit_hooks.sync_pyproject_min_versions.check_output",
         side_effect=lambda x: export_output.encode(),
-    ):
+    ) as mocked:
         assert (
             mod._get_requirements_from_script(script_path, requirements, script_lock)
             == expected
         )
+
+        if locked and script_lock in {"force", "infer"}:
+            expected_calls = [
+                call([
+                    "uv",
+                    "export",
+                    "--locked",
+                    "--quiet",
+                    "--no-color",
+                    "--script",
+                    str(script_path),
+                ])
+            ]
+        elif script_lock == "force" or (script_lock == "infer" and locked):
+            expected_calls = [
+                call([
+                    "uv",
+                    "export",
+                    "--quiet",
+                    "--no-color",
+                    "--script",
+                    str(script_path),
+                ])
+            ]
+
+        else:
+            expected_calls = []
+
+        assert mocked.mock_calls == expected_calls
 
 
 @pytest.mark.parametrize(
