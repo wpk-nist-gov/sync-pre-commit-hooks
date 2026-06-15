@@ -161,12 +161,11 @@ def test__get_requirements_for_script(
         ),
     ],
 )
-def test__get_toml_and_script_paths(
-    paths: list[str], expected: tuple[list[str], list[str]]
-) -> None:
+def test_options_paths(paths: list[str], expected: tuple[list[str], list[str]]) -> None:
     paths_ = [Path(x) for x in paths]
     expected_ = tuple([Path(x) for x in e] for e in expected)
-    assert mod._get_toml_and_script_paths(paths_) == expected_
+    opts = mod.Options.from_params(paths=paths_)
+    assert (opts.toml_paths, opts.script_paths) == expected_
 
 
 versions_markers = pytest.mark.parametrize(
@@ -378,7 +377,7 @@ def test_regex(
     else:
         versions = mod._normalize_versions(versions, include=include, exclude=exclude)
 
-    replacer = mod._factory_inner_replacer(versions)
+    replacer = mod._factory_quoted_requirement_replacer(versions)
     if as_script:
         replacer = partial(mod._replace_pep723_section, replacer)
     assert replacer(toml_or_script) == expected

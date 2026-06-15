@@ -97,8 +97,10 @@ _regex_pattern = rf"""
 REQUIREMENT_REGEX = re.compile(_regex_pattern, flags=re.VERBOSE | re.IGNORECASE)
 
 
-def _factory_inner_replacer(versions: dict[str, str]) -> Callable[[str], str]:
-    def replacer(match: re.Match[str]) -> str:
+def _factory_quoted_requirement_replacer(
+    versions: dict[str, str],
+) -> Callable[[str], str]:
+    def quoted_requirement_replacer(match: re.Match[str]) -> str:
         original_string = match.group(0)
         try:
             dep = Requirement(match.group("inner"))
@@ -118,10 +120,12 @@ def _factory_inner_replacer(versions: dict[str, str]) -> Callable[[str], str]:
 
         return original_string
 
-    return partial(REQUIREMENT_REGEX.sub, replacer)
+    return partial(REQUIREMENT_REGEX.sub, quoted_requirement_replacer)
 
 
-def _replace_pep723_section(inner_replacer: Callable[[str], str], contents: str) -> str:
+def _replace_pep723_section(
+    quoted_requirement_replacer: Callable[[str], str], contents: str
+) -> str:
     out: list[str] = []
     found = False
     lines = iter(contents.splitlines(keepends=True))
@@ -135,7 +139,11 @@ def _replace_pep723_section(inner_replacer: Callable[[str], str], contents: str)
         if found and re.match(r"^#\s+///$", line):
             return "".join(chain(out, [line], lines))
 
-        out.append(inner_replacer(line) if found and re.match(r"^#", line) else line)
+        out.append(
+            quoted_requirement_replacer(line)
+            if found and re.match(r"^#", line)
+            else line
+        )
 
     if found:
         logger.warning("Skipping update.  Found pep723 script start but no end")
@@ -173,10 +181,12 @@ def _get_replacer(
 ) -> Callable[[str], str] | None:
 
     if script_replacer:
-        inner_replacer = _get_replacer(requirements, include, exclude, False)
+        quoted_requirement_replacer = _get_replacer(
+            requirements, include, exclude, False
+        )
         return (
-            partial(_replace_pep723_section, inner_replacer)
-            if inner_replacer is not None
+            partial(_replace_pep723_section, quoted_requirement_replacer)
+            if quoted_requirement_replacer is not None
             else None
         )
 
@@ -185,23 +195,7 @@ def _get_replacer(
         include=include,
         exclude=exclude,
     )
-    return _factory_inner_replacer(versions) if versions else None
-
-
-def _get_toml_and_script_paths(paths: Iterable[Path]) -> tuple[list[Path], list[Path]]:
-    toml_paths: list[Path] = []
-    script_paths: list[Path] = []
-
-    for path in paths:
-        suffix = path.suffix
-
-        if suffix == ".toml":
-            toml_paths.append(path)
-        elif suffix == ".py":
-            script_paths.append(path)
-        else:
-            logger.info("ignoring path %s", path)
-    return toml_paths, script_paths
+    return _factory_quoted_requirement_replacer(versions) if versions else None
 
 
 @dataclass
@@ -211,9 +205,9 @@ class Options:
     exclude: tuple[str, ...] = field(default_factory=tuple)
     toml_paths: list[Path] = field(default_factory=list)
     script_paths: list[Path] = field(default_factory=list)
-    script_lock: SCRIPT_LOCK = "requirements"
+    script_lock: SCRIPT_LOCK = "infer"
 
-    def replacer(
+    def quoted_requirement_replacer(
         self, requirements: str | Path | None, script_replacer: bool = False
     ) -> Callable[[str], str] | None:
         return _get_replacer(
@@ -227,9 +221,21 @@ class Options:
         include: Iterable[str] = (),
         exclude: Iterable[str] = (),
         paths: Iterable[Path] = (),
-        script_lock: SCRIPT_LOCK = "requirements",
+        script_lock: SCRIPT_LOCK = "infer",
     ) -> Options:
-        toml_paths, script_paths = _get_toml_and_script_paths(paths)
+        # parse paths
+        toml_paths: list[Path] = []
+        script_paths: list[Path] = []
+        for path in paths:
+            suffix = path.suffix
+
+            if suffix == ".toml":
+                toml_paths.append(path)
+            elif suffix == ".py":
+                script_paths.append(path)
+            else:
+                logger.info("ignoring path %s", path)
+
         return cls(
             requirements=requirements,
             include=tuple(include),
@@ -275,7 +281,7 @@ class Options:
         _ = parser.add_argument(
             "--script-lock",
             choices=("requirements", "infer", "force"),
-            default="requirements",
+            default="infer",
             help="""
             How to detemermine locked dependencies for scripts.
 
@@ -318,10 +324,12 @@ def _get_requirements_for_script(
     return requirements
 
 
-def _process_path(path: Path, replacer: Callable[[str], str]) -> None:
+def _process_path(
+    path: Path, quoted_requirement_replacer: Callable[[str], str]
+) -> None:
     logger.info("processing %s", path)
     contents = path.read_text(encoding="utf-8")
-    out = replacer(contents)
+    out = quoted_requirement_replacer(contents)
     if contents != out:
         logger.info("update %s", path)
         _ = path.write_text(out, encoding="utf-8")
@@ -333,14 +341,16 @@ def main(argv: Sequence[str] | None = None) -> bool:
     """Main function"""
     opts = Options.from_argv(argv)
 
-    replacer = opts.replacer(opts.requirements)
-    if opts.toml_paths and replacer:
+    quoted_requirement_replacer = opts.quoted_requirement_replacer(opts.requirements)
+    if opts.toml_paths and quoted_requirement_replacer:
         for path in opts.toml_paths:
-            _process_path(path, replacer)
+            _process_path(path, quoted_requirement_replacer)
 
-    if (replacer or opts.script_lock in {"infer", "force"}) and opts.script_paths:
+    if (
+        quoted_requirement_replacer or opts.script_lock in {"infer", "force"}
+    ) and opts.script_paths:
         for path in opts.script_paths:
-            lock_replacer = opts.replacer(
+            lock_replacer = opts.quoted_requirement_replacer(
                 _get_requirements_for_script(path, opts.requirements, opts.script_lock),
                 script_replacer=True,
             )
