@@ -291,13 +291,15 @@ def _get_requirements_from_script(
     requirements: str | Path | None,
     script_lock: SCRIPT_LOCK,
 ) -> str | Path | None:
-    if script_lock == "force" or (
-        script_lock == "infer" and script_path.with_suffix(".py.lock").exists()
-    ):
+
+    lock_exists = script_path.with_suffix(".py.lock").exists()
+    if script_lock == "force" or (script_lock == "infer" and lock_exists):
         logger.info("Run: uv export --no-color --script %s", script_path)
         return check_output([
             "uv",
             "export",
+            *(["--locked"] if lock_exists else []),
+            "--quiet",
             "--no-color",
             "--script",
             str(script_path),

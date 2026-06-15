@@ -289,7 +289,7 @@ repos:
         alias: requirements
         entry: sync-pyproject-min-versions
         language: python
-        files: ^pyproject\.toml$|^requirements/lock/uvx-tools\.txt$
+        files: ^pyproject\.toml$|^requirements/lock/uvx-tools\.txt$|^noxfile\.py$|^tools/.*\.py$
         args:
           - "--requirements=requirements/lock/uvx-tools.txt"
         additional_dependencies:
