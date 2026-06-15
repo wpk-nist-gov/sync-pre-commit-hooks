@@ -472,8 +472,9 @@ don't have to mess with `pass_filenames`, etc. Only dependencies of the form
 <!-- [[[cog run_command("sync-pyproject-min-versions --help", include_cmd=False, wrapper="restructuredtext")]]] -->
 
 ```restructuredtext
-usage: sync-pyproject-min-versions [-h] -r REQUIREMENTS [--include INCLUDE]
+usage: sync-pyproject-min-versions [-h] [-r REQUIREMENTS] [--include INCLUDE]
                                    [--exclude EXCLUDE]
+                                   [--script-lock {requirements,infer,force}]
                                    [paths ...]
 
 Sync minimum versions of dependencies in pyproject.toml or pep723 section of python
@@ -492,6 +493,12 @@ options:
   --exclude EXCLUDE     Packages to exclude. Default is to consider all packages in
                         requirements file. Specifying ``--exclude`` will skip those
                         packages. Can specify multiple times.
+  --script-lock {requirements,infer,force}
+                        How to detemermine locked dependencies for scripts. * infer
+                        (default): Use ``uv export --script script.py`` if
+                        ``script.py.lock`` exists or fallback to ``requirements`` *
+                        force: Use output of ``uv export --script script.py`` always. *
+                        requirements: Use passed ``--requirements`` file
 ```
 
 <!-- [[[end]]] -->

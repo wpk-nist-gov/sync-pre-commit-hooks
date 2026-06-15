@@ -8,9 +8,10 @@ import re
 import sys
 from argparse import ArgumentParser
 from dataclasses import dataclass, field
-from functools import partial
+from functools import lru_cache, partial
 from itertools import chain
 from pathlib import Path
+from subprocess import check_output
 from typing import TYPE_CHECKING
 
 from packaging.requirements import InvalidRequirement, Requirement
@@ -20,8 +21,10 @@ from ._logging import get_logger
 from ._utils import get_versions_from_requirements
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
-    from typing import Any
+    from collections.abc import Callable, Iterable, Sequence
+    from typing import Any, Literal
+
+    SCRIPT_LOCK = Literal["requirements", "infer", "force"]
 
 
 logger = get_logger("sync-pyproject-min-versions")
@@ -94,7 +97,7 @@ _regex_pattern = rf"""
 REQUIREMENT_REGEX = re.compile(_regex_pattern, flags=re.VERBOSE | re.IGNORECASE)
 
 
-def _factory_replacer(versions: dict[str, str]) -> Callable[[re.Match[str]], str]:
+def _factory_inner_replacer(versions: dict[str, str]) -> Callable[[str], str]:
     def replacer(match: re.Match[str]) -> str:
         original_string = match.group(0)
         try:
@@ -115,10 +118,10 @@ def _factory_replacer(versions: dict[str, str]) -> Callable[[re.Match[str]], str
 
         return original_string
 
-    return replacer
+    return partial(REQUIREMENT_REGEX.sub, replacer)
 
 
-def _replace_pep723_section(replacer: Callable[[str], str], contents: str) -> str:
+def _replace_pep723_section(inner_replacer: Callable[[str], str], contents: str) -> str:
     out: list[str] = []
     found = False
     lines = iter(contents.splitlines(keepends=True))
@@ -132,7 +135,7 @@ def _replace_pep723_section(replacer: Callable[[str], str], contents: str) -> st
         if found and re.match(r"^#\s+///$", line):
             return "".join(chain(out, [line], lines))
 
-        out.append(replacer(line) if found and re.match(r"^#", line) else line)
+        out.append(inner_replacer(line) if found and re.match(r"^#", line) else line)
 
     if found:
         logger.warning("Skipping update.  Found pep723 script start but no end")
@@ -141,65 +144,8 @@ def _replace_pep723_section(replacer: Callable[[str], str], contents: str) -> st
     return contents
 
 
-@dataclass
-class Options:
-    requirements: Path
-    include: list[str] = field(default_factory=list)
-    exclude: list[str] = field(default_factory=list)
-    paths: list[Path] = field(default_factory=list)
-
-    @classmethod
-    def from_kws(cls, kws: Any) -> Options:
-        return cls(**kws)
-
-
-def _get_options(
-    argv: Sequence[str] | None = None,
-) -> Options:
-    parser = ArgumentParser(description=__doc__)
-    _ = parser.add_argument(
-        "-r",
-        "--requirements",
-        required=True,
-        type=Path,
-        help="Requirements file to extract locked versions from.",
-    )
-    _ = parser.add_argument(
-        "--include",
-        default=[],
-        action="append",
-        help="""
-        Package names to include. Default is to consider all packages in
-        requirements file. Specifying ``--include`` will only update those
-        packages. Can specify multiple times.
-        """,
-    )
-    _ = parser.add_argument(
-        "--exclude",
-        default=[],
-        action="append",
-        help="""
-        Packages to exclude. Default is to consider all packages in
-        requirements file. Specifying ``--exclude`` will skip those packages.
-        Can specify multiple times.
-        """,
-    )
-    _ = parser.add_argument(
-        "paths", nargs="*", help="pyproject.toml/script files to process", type=Path
-    )
-
-    opts = parser.parse_args(argv)
-
-    return Options(
-        requirements=opts.requirements,
-        include=opts.include,
-        exclude=opts.exclude,
-        paths=opts.paths,
-    )
-
-
 def _normalize_versions(
-    versions: dict[str, str], include: list[str], exclude: list[str]
+    versions: dict[str, str], include: Iterable[str], exclude: Iterable[str]
 ) -> dict[str, str]:
 
     # canonicalize names
@@ -215,55 +161,192 @@ def _normalize_versions(
         }
     if exclude_set:
         versions = {k: v for k, v in versions.items() if k not in exclude_set}
-
     return versions
 
 
-def _get_toml_and_script_paths(paths: list[Path]) -> tuple[list[Path], list[Path]]:
-    tomls: list[Path] = []
-    scripts: list[Path] = []
+@lru_cache
+def _get_replacer(
+    requirements: str | Path | None,
+    include: tuple[str],
+    exclude: tuple[str],
+    script_replacer: bool = False,
+) -> Callable[[str], str] | None:
+
+    if script_replacer:
+        inner_replacer = _get_replacer(requirements, include, exclude, False)
+        return (
+            partial(_replace_pep723_section, inner_replacer)
+            if inner_replacer is not None
+            else None
+        )
+
+    versions = _normalize_versions(
+        versions=get_versions_from_requirements(requirements),
+        include=include,
+        exclude=exclude,
+    )
+    return _factory_inner_replacer(versions) if versions else None
+
+
+def _get_toml_and_script_paths(paths: Iterable[Path]) -> tuple[list[Path], list[Path]]:
+    toml_paths: list[Path] = []
+    script_paths: list[Path] = []
 
     for path in paths:
         suffix = path.suffix
 
         if suffix == ".toml":
-            tomls.append(path)
+            toml_paths.append(path)
         elif suffix == ".py":
-            scripts.append(path)
+            script_paths.append(path)
         else:
             logger.info("ignoring path %s", path)
-    return tomls, scripts
+    return toml_paths, script_paths
 
 
-def _process_paths(paths: list[Path], replacer: Callable[[str], str]) -> None:
-    for path in paths:
-        logger.info("processing %s", path)
-        contents = path.read_text(encoding="utf-8")
-        out = replacer(contents)
-        if contents != out:
-            logger.info("update %s", path)
-            _ = path.write_text(out, encoding="utf-8")
-        else:
-            logger.info("no change %s", path)
+@dataclass
+class Options:
+    requirements: Path | None = None
+    include: tuple[str, ...] = field(default_factory=tuple)
+    exclude: tuple[str, ...] = field(default_factory=tuple)
+    toml_paths: list[Path] = field(default_factory=list)
+    script_paths: list[Path] = field(default_factory=list)
+    script_lock: SCRIPT_LOCK = "requirements"
+
+    def replacer(
+        self, requirements: str | Path | None, script_replacer: bool = False
+    ) -> Callable[[str], str] | None:
+        return _get_replacer(
+            requirements, self.include, self.exclude, script_replacer=script_replacer
+        )
+
+    @classmethod
+    def from_params(
+        cls,
+        requirements: Path | None = None,
+        include: Iterable[str] = (),
+        exclude: Iterable[str] = (),
+        paths: Iterable[Path] = (),
+        script_lock: SCRIPT_LOCK = "requirements",
+    ) -> Options:
+        toml_paths, script_paths = _get_toml_and_script_paths(paths)
+        return cls(
+            requirements=requirements,
+            include=tuple(include),
+            exclude=tuple(exclude),
+            toml_paths=toml_paths,
+            script_paths=script_paths,
+            script_lock=script_lock,
+        )
+
+    @classmethod
+    def from_kws(cls, kws: Any) -> Options:
+        return cls.from_params(**kws)
+
+    @classmethod
+    def from_argv(cls, argv: Sequence[str] | None = None) -> Options:
+        parser = ArgumentParser(description=__doc__)
+        _ = parser.add_argument(
+            "-r",
+            "--requirements",
+            type=Path,
+            help="Requirements file to extract locked versions from.",
+        )
+        _ = parser.add_argument(
+            "--include",
+            default=[],
+            action="append",
+            help="""
+            Package names to include. Default is to consider all packages in
+            requirements file. Specifying ``--include`` will only update those
+            packages. Can specify multiple times.
+            """,
+        )
+        _ = parser.add_argument(
+            "--exclude",
+            default=[],
+            action="append",
+            help="""
+            Packages to exclude. Default is to consider all packages in
+            requirements file. Specifying ``--exclude`` will skip those packages.
+            Can specify multiple times.
+            """,
+        )
+        _ = parser.add_argument(
+            "--script-lock",
+            choices=("requirements", "infer", "force"),
+            default="requirements",
+            help="""
+            How to detemermine locked dependencies for scripts.
+
+            * infer (default): Use ``uv export --script script.py`` if ``script.py.lock`` exists or fallback to ``requirements``
+            * force: Use output of ``uv export --script script.py`` always.
+            * requirements:  Use passed ``--requirements`` file
+            """,
+        )
+        _ = parser.add_argument(
+            "paths", nargs="*", help="pyproject.toml/script files to process", type=Path
+        )
+
+        opts = parser.parse_args(argv)
+
+        return cls.from_params(
+            requirements=opts.requirements,
+            include=opts.include,
+            exclude=opts.exclude,
+            paths=opts.paths,
+            script_lock=opts.script_lock,
+        )
+
+
+def _get_requirements_for_script(
+    script_path: Path,
+    requirements: str | Path | None,
+    script_lock: SCRIPT_LOCK,
+) -> str | Path | None:
+    if script_lock == "force" or (
+        script_lock == "infer" and script_path.with_suffix(".py.lock").exists()
+    ):
+        logger.info("Run: uv export --no-color --script %s", script_path)
+        return check_output([
+            "uv",
+            "export",
+            "--no-color",
+            "--script",
+            str(script_path),
+        ]).decode("utf-8")
+    return requirements
+
+
+def _process_path(path: Path, replacer: Callable[[str], str]) -> None:
+    logger.info("processing %s", path)
+    contents = path.read_text(encoding="utf-8")
+    out = replacer(contents)
+    if contents != out:
+        logger.info("update %s", path)
+        _ = path.write_text(out, encoding="utf-8")
+    else:
+        logger.info("no change %s", path)
 
 
 def main(argv: Sequence[str] | None = None) -> bool:
     """Main function"""
-    opts = _get_options(argv)
+    opts = Options.from_argv(argv)
 
-    versions = _normalize_versions(
-        versions=get_versions_from_requirements(opts.requirements),
-        include=opts.include,
-        exclude=opts.exclude,
-    )
-    if not versions:
-        return False
+    replacer = opts.replacer(opts.requirements)
+    if opts.toml_paths and replacer:
+        for path in opts.toml_paths:
+            _process_path(path, replacer)
 
-    replacer = partial(REQUIREMENT_REGEX.sub, _factory_replacer(versions))
-    tomls, scripts = _get_toml_and_script_paths(opts.paths)
+    if (replacer or opts.script_lock in {"infer", "force"}) and opts.script_paths:
+        for path in opts.script_paths:
+            lock_replacer = opts.replacer(
+                _get_requirements_for_script(path, opts.requirements, opts.script_lock),
+                script_replacer=True,
+            )
 
-    _process_paths(tomls, replacer)
-    _process_paths(scripts, partial(_replace_pep723_section, replacer))
+            if lock_replacer:
+                _process_path(path, lock_replacer)
 
     return False
 

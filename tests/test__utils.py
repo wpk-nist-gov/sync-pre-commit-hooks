@@ -65,7 +65,8 @@ def test_get_version_from_lastversion() -> None:
 def test_get_versions_from_requirements(
     tmp_path: Path, data: str, expected: dict[str, Any]
 ) -> None:
+    assert get_versions_from_requirements(data) == expected
+
     path = tmp_path / "requirements.txt"
     path.write_text(data)
-
     assert get_versions_from_requirements(path) == expected
