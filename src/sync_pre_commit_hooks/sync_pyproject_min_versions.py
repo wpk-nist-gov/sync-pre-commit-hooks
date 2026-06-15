@@ -24,6 +24,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Sequence
     from typing import Any, Literal
 
+    from packaging.utils import NormalizedName
+
     SCRIPT_LOCK = Literal["requirements", "infer", "force"]
 
 
@@ -98,7 +100,7 @@ REQUIREMENT_REGEX = re.compile(_regex_pattern, flags=re.VERBOSE | re.IGNORECASE)
 
 
 def _factory_quoted_requirement_replacer(
-    versions: dict[str, str],
+    versions: dict[NormalizedName, str],
 ) -> Callable[[str], str]:
     def quoted_requirement_replacer(match: re.Match[str]) -> str:
         original_string = match.group(0)
@@ -152,67 +154,26 @@ def _replace_pep723_section(
     return contents
 
 
-def _normalize_versions(
-    versions: dict[str, str], include: Iterable[str], exclude: Iterable[str]
-) -> dict[str, str]:
-
-    # canonicalize names
-    versions = {canonicalize_name(name): version for name, version in versions.items()}
-
-    include_set, exclude_set = (
-        {canonicalize_name(x) for x in o} for o in (include, exclude)
-    )
-
-    if include_set:
-        versions = {
-            name: version for name, version in versions.items() if name in include_set
-        }
-    if exclude_set:
-        versions = {k: v for k, v in versions.items() if k not in exclude_set}
-    return versions
-
-
-@lru_cache
-def _get_replacer(
-    requirements: str | Path | None,
-    include: tuple[str],
-    exclude: tuple[str],
-    script_replacer: bool = False,
-) -> Callable[[str], str] | None:
-
-    if script_replacer:
-        quoted_requirement_replacer = _get_replacer(
-            requirements, include, exclude, False
-        )
-        return (
-            partial(_replace_pep723_section, quoted_requirement_replacer)
-            if quoted_requirement_replacer is not None
-            else None
-        )
-
-    versions = _normalize_versions(
-        versions=get_versions_from_requirements(requirements),
-        include=include,
-        exclude=exclude,
-    )
-    return _factory_quoted_requirement_replacer(versions) if versions else None
-
-
-@dataclass
+@dataclass(frozen=True)
 class Options:
     requirements: Path | None = None
-    include: tuple[str, ...] = field(default_factory=tuple)
-    exclude: tuple[str, ...] = field(default_factory=tuple)
-    toml_paths: list[Path] = field(default_factory=list)
-    script_paths: list[Path] = field(default_factory=list)
+    include: frozenset[NormalizedName] = field(default_factory=frozenset)
+    exclude: frozenset[NormalizedName] = field(default_factory=frozenset)
+    toml_paths: tuple[Path, ...] = field(default_factory=tuple)
+    script_paths: tuple[Path, ...] = field(default_factory=tuple)
     script_lock: SCRIPT_LOCK = "infer"
 
-    def quoted_requirement_replacer(
-        self, requirements: str | Path | None, script_replacer: bool = False
-    ) -> Callable[[str], str] | None:
-        return _get_replacer(
-            requirements, self.include, self.exclude, script_replacer=script_replacer
-        )
+    def normalize_versions(self, versions: dict[str, str]) -> dict[NormalizedName, str]:
+        out = {canonicalize_name(name): version for name, version in versions.items()}
+
+        if self.include:
+            out = {
+                name: version for name, version in out.items() if name in self.include
+            }
+        if self.exclude:
+            out = {k: v for k, v in out.items() if k not in self.exclude}
+
+        return out
 
     @classmethod
     def from_params(
@@ -228,7 +189,6 @@ class Options:
         script_paths: list[Path] = []
         for path in paths:
             suffix = path.suffix
-
             if suffix == ".toml":
                 toml_paths.append(path)
             elif suffix == ".py":
@@ -238,10 +198,10 @@ class Options:
 
         return cls(
             requirements=requirements,
-            include=tuple(include),
-            exclude=tuple(exclude),
-            toml_paths=toml_paths,
-            script_paths=script_paths,
+            include=frozenset(canonicalize_name(x) for x in include),
+            exclude=frozenset(canonicalize_name(x) for x in exclude),
+            toml_paths=tuple(toml_paths),
+            script_paths=tuple(script_paths),
             script_lock=script_lock,
         )
 
@@ -305,7 +265,28 @@ class Options:
         )
 
 
-def _get_requirements_for_script(
+@lru_cache
+def _get_replacer(
+    requirements: str | Path | None,
+    opts: Options,
+    script_replacer: bool = False,
+) -> Callable[[str], str] | None:
+
+    if script_replacer:
+        quoted_requirement_replacer = _get_replacer(requirements, opts, False)
+        return (
+            partial(_replace_pep723_section, quoted_requirement_replacer)
+            if quoted_requirement_replacer is not None
+            else None
+        )
+
+    versions = opts.normalize_versions(
+        versions=get_versions_from_requirements(requirements),
+    )
+    return _factory_quoted_requirement_replacer(versions) if versions else None
+
+
+def _get_requirements_from_script(
     script_path: Path,
     requirements: str | Path | None,
     script_lock: SCRIPT_LOCK,
@@ -324,12 +305,10 @@ def _get_requirements_for_script(
     return requirements
 
 
-def _process_path(
-    path: Path, quoted_requirement_replacer: Callable[[str], str]
-) -> None:
+def _process_path(path: Path, replacer: Callable[[str], str]) -> None:
     logger.info("processing %s", path)
     contents = path.read_text(encoding="utf-8")
-    out = quoted_requirement_replacer(contents)
+    out = replacer(contents)
     if contents != out:
         logger.info("update %s", path)
         _ = path.write_text(out, encoding="utf-8")
@@ -341,22 +320,23 @@ def main(argv: Sequence[str] | None = None) -> bool:
     """Main function"""
     opts = Options.from_argv(argv)
 
-    quoted_requirement_replacer = opts.quoted_requirement_replacer(opts.requirements)
-    if opts.toml_paths and quoted_requirement_replacer:
+    replacer = _get_replacer(opts.requirements, opts, False)
+    if opts.toml_paths and replacer:
         for path in opts.toml_paths:
-            _process_path(path, quoted_requirement_replacer)
+            _process_path(path=path, replacer=replacer)
 
-    if (
-        quoted_requirement_replacer or opts.script_lock in {"infer", "force"}
-    ) and opts.script_paths:
+    if (replacer or opts.script_lock in {"infer", "force"}) and opts.script_paths:
         for path in opts.script_paths:
-            lock_replacer = opts.quoted_requirement_replacer(
-                _get_requirements_for_script(path, opts.requirements, opts.script_lock),
+            lock_replacer = _get_replacer(
+                requirements=_get_requirements_from_script(
+                    path, opts.requirements, opts.script_lock
+                ),
+                opts=opts,
                 script_replacer=True,
             )
 
             if lock_replacer:
-                _process_path(path, lock_replacer)
+                _process_path(path=path, replacer=lock_replacer)
 
     return False
 

@@ -16,6 +16,8 @@ import sync_pre_commit_hooks.sync_pyproject_min_versions as mod
 if TYPE_CHECKING:
     from typing import Any
 
+    from packaging.utils import NormalizedName
+
 
 @pytest.mark.parametrize(
     ("argv", "expected"),
@@ -95,8 +97,12 @@ def test__normalize_versions(
 ) -> None:
     if expected is None:
         expected = versions
+
     assert (
-        mod._normalize_versions(versions, include=include, exclude=exclude) == expected
+        mod.Options.from_params(include=include, exclude=exclude).normalize_versions(
+            versions
+        )
+        == expected
     )
 
 
@@ -117,7 +123,7 @@ def test__normalize_versions(
         ("hello.py", True, "force", "there==2.3.4"),
     ],
 )
-def test__get_requirements_for_script(
+def test__get_requirements_from_script(
     tmp_path: Path,
     requirements: str,
     export_output: str,
@@ -139,7 +145,7 @@ def test__get_requirements_for_script(
         side_effect=lambda x: export_output.encode(),
     ):
         assert (
-            mod._get_requirements_for_script(script_path, requirements, script_lock)
+            mod._get_requirements_from_script(script_path, requirements, script_lock)
             == expected
         )
 
@@ -149,21 +155,23 @@ def test__get_requirements_for_script(
     [
         pytest.param(
             [],
-            [[], []],  # pyright: ignore[reportUnknownArgumentType]
+            ((), ()),
         ),
         pytest.param(
             ["one.toml", "two.txt"],
-            [["one.toml"], []],
+            (("one.toml",), ()),
         ),
         pytest.param(
             ["one.toml", "two.txt", "foo.py", "bar.py"],
-            [["one.toml"], ["foo.py", "bar.py"]],
+            (("one.toml",), ("foo.py", "bar.py")),
         ),
     ],
 )
-def test_options_paths(paths: list[str], expected: tuple[list[str], list[str]]) -> None:
+def test_options_paths(
+    paths: list[str], expected: tuple[tuple[str, ...], tuple[str, ...]]
+) -> None:
     paths_ = [Path(x) for x in paths]
-    expected_ = tuple([Path(x) for x in e] for e in expected)
+    expected_ = tuple(tuple(Path(x) for x in e) for e in expected)
     opts = mod.Options.from_params(paths=paths_)
     assert (opts.toml_paths, opts.script_paths) == expected_
 
@@ -372,12 +380,16 @@ def test_regex(
     toml_or_script: str,
     expected: str | None,
 ) -> None:
+    versions_: dict[NormalizedName, str] = {}
     if versions == {}:
         expected = toml_or_script
     else:
-        versions = mod._normalize_versions(versions, include=include, exclude=exclude)
+        versions_ = mod.Options.from_params(
+            include=include,
+            exclude=exclude,
+        ).normalize_versions(versions)
 
-    replacer = mod._factory_quoted_requirement_replacer(versions)
+    replacer = mod._factory_quoted_requirement_replacer(versions_)
     if as_script:
         replacer = partial(mod._replace_pep723_section, replacer)
     assert replacer(toml_or_script) == expected

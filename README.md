@@ -458,14 +458,15 @@ repos:
     - id: sync-pyproject-min-versions
       args:
         - "--requirements=path/to/locked/requirements.txt"
-      files: ^pyproject\.toml$|path/to/locked/requirements\.txt$|^path/to/pep723/script\.py$
+      files: ^pyproject\.toml$|^path/to/locked/requirements\.txt$|^path/to/pep723/script\.py$|^path/to/scripts\.py$
 ```
 
-Note that you need to specify the locked requirements and that you should
-include the path to locked requirements file so the hook will run on any updates
-to that file. By default, the hook ignores non toml files passed in, so you
-don't have to mess with `pass_filenames`, etc. Only dependencies of the form
-`dep>={version}` will be updated.
+Note that if syncing `pyproject.toml`, you need to specify the locked
+requirements file, and this file should be included under `files:` in
+`.pre-commit-config.yaml` so the hook will run on any updates to that file. The
+hook ignores non toml and python script files passed in, so you don't have to
+mess with `pass_filenames`, etc. Only dependencies of the form `dep>={version}`
+will be updated.
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable MD013 -->
