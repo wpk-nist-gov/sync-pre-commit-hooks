@@ -176,16 +176,21 @@ def get_version_from_lastversion(dep: str) -> str:
 
 @lru_cache
 def get_versions_from_requirements(
-    requirements_path: Path | None,
+    requirements_string_or_path: str | Path | None,
 ) -> dict[str, str]:
-    if requirements_path is None:
+    if requirements_string_or_path is None:
         return {}
+
+    requirements_string = (
+        requirements_string_or_path.read_text(encoding="utf-8")
+        if isinstance(requirements_string_or_path, Path)
+        else requirements_string_or_path
+    )
 
     from requirements import parse
 
     versions: dict[str, str] = {}
-    with requirements_path.open(encoding="utf-8") as f:
-        for requirement in parse(f):
-            name = cast("str", requirement.name)
-            versions[name] = requirement.specs[0][-1]
+    for requirement in parse(requirements_string):
+        name = cast("str", requirement.name)
+        versions[name] = requirement.specs[0][-1]
     return versions

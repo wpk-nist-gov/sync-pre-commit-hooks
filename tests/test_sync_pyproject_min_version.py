@@ -1,3 +1,5 @@
+# pyright: reportUnknownLambdaType=false
+# ruff: noqa: ARG005
 from __future__ import annotations
 
 from contextlib import nullcontext
@@ -5,6 +7,7 @@ from functools import partial
 from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING
+from unittest.mock import call, patch
 
 import pytest
 
@@ -13,11 +16,13 @@ import sync_pre_commit_hooks.sync_pyproject_min_versions as mod
 if TYPE_CHECKING:
     from typing import Any
 
+    from packaging.utils import NormalizedName
+
 
 @pytest.mark.parametrize(
-    ("params", "expected"),
+    ("argv", "expected"),
     [
-        pytest.param([], pytest.raises(SystemExit, match=r"2"), id="no requirements"),
+        pytest.param([], {}, id="no requirements"),
         pytest.param(
             ["-rhello.txt"],
             {"requirements": Path("hello.txt")},
@@ -44,13 +49,13 @@ if TYPE_CHECKING:
         ),
     ],
 )
-def test__get_params(params: list[str], expected: Any) -> None:
+def test__get_params(argv: list[str], expected: Any) -> None:
 
     if isinstance(expected, dict):
         expected = nullcontext(mod.Options.from_kws(expected))
 
     with expected as e:
-        assert mod._get_options(params) == e
+        assert mod.Options.from_argv(argv) == e
 
 
 @pytest.mark.parametrize(
@@ -92,9 +97,86 @@ def test__normalize_versions(
 ) -> None:
     if expected is None:
         expected = versions
+
     assert (
-        mod._normalize_versions(versions, include=include, exclude=exclude) == expected
+        mod.Options.from_params(include=include, exclude=exclude).normalize_versions(
+            versions
+        )
+        == expected
     )
+
+
+@pytest.mark.parametrize(
+    ("requirements", "export_output"),
+    [
+        ("hello==1.2.3", "there==2.3.4"),
+    ],
+)
+@pytest.mark.parametrize(
+    ("script_name", "locked", "script_lock", "expected"),
+    [
+        ("hello.py", False, "requirements", "hello==1.2.3"),
+        ("hello.py", True, "requirements", "hello==1.2.3"),
+        ("hello.py", False, "infer", "hello==1.2.3"),
+        ("hello.py", True, "infer", "there==2.3.4"),
+        ("hello.py", False, "force", "there==2.3.4"),
+        ("hello.py", True, "force", "there==2.3.4"),
+    ],
+)
+def test__get_requirements_from_script(
+    tmp_path: Path,
+    requirements: str,
+    export_output: str,
+    script_name: str,
+    locked: bool,
+    script_lock: mod.SCRIPT_LOCK,
+    expected: str,
+) -> None:
+
+    script_path = tmp_path / script_name
+
+    script_path.write_text("")
+    if locked:
+        lock_path = script_path.with_suffix(".py.lock")
+        lock_path.write_text("")
+
+    with patch(
+        "sync_pre_commit_hooks.sync_pyproject_min_versions.check_output",
+        side_effect=lambda x: export_output.encode(),
+    ) as mocked:
+        assert (
+            mod._get_requirements_from_script(script_path, requirements, script_lock)
+            == expected
+        )
+
+        if locked and script_lock in {"force", "infer"}:
+            expected_calls = [
+                call([
+                    "uv",
+                    "export",
+                    "--locked",
+                    "--quiet",
+                    "--no-color",
+                    "--script",
+                    str(script_path),
+                ])
+            ]
+        elif script_lock == "force" or (script_lock == "infer" and locked):
+            expected_calls = [
+                call([
+                    "uv",
+                    "export",
+                    "--quiet",
+                    "--no-color",
+                    "--script",
+                    str(script_path),
+                ])
+            ]
+
+        else:
+            expected_calls = []
+
+        assert mocked.mock_calls == expected_calls
 
 
 @pytest.mark.parametrize(
@@ -102,24 +184,25 @@ def test__normalize_versions(
     [
         pytest.param(
             [],
-            [[], []],  # pyright: ignore[reportUnknownArgumentType]
+            ((), ()),
         ),
         pytest.param(
             ["one.toml", "two.txt"],
-            [["one.toml"], []],
+            (("one.toml",), ()),
         ),
         pytest.param(
             ["one.toml", "two.txt", "foo.py", "bar.py"],
-            [["one.toml"], ["foo.py", "bar.py"]],
+            (("one.toml",), ("foo.py", "bar.py")),
         ),
     ],
 )
-def test__get_toml_and_script_paths(
-    paths: list[str], expected: tuple[list[str], list[str]]
+def test_options_paths(
+    paths: list[str], expected: tuple[tuple[str, ...], tuple[str, ...]]
 ) -> None:
     paths_ = [Path(x) for x in paths]
-    expected_ = tuple([Path(x) for x in e] for e in expected)
-    assert mod._get_toml_and_script_paths(paths_) == expected_
+    expected_ = tuple(tuple(Path(x) for x in e) for e in expected)
+    opts = mod.Options.from_params(paths=paths_)
+    assert (opts.toml_paths, opts.script_paths) == expected_
 
 
 versions_markers = pytest.mark.parametrize(
@@ -326,12 +409,16 @@ def test_regex(
     toml_or_script: str,
     expected: str | None,
 ) -> None:
+    versions_: dict[NormalizedName, str] = {}
     if versions == {}:
         expected = toml_or_script
     else:
-        versions = mod._normalize_versions(versions, include=include, exclude=exclude)
+        versions_ = mod.Options.from_params(
+            include=include,
+            exclude=exclude,
+        ).normalize_versions(versions)
 
-    replacer = partial(mod.REQUIREMENT_REGEX.sub, mod._factory_replacer(versions))
+    replacer = mod._factory_quoted_requirement_replacer(versions_)
     if as_script:
         replacer = partial(mod._replace_pep723_section, replacer)
     assert replacer(toml_or_script) == expected
@@ -339,6 +426,7 @@ def test_regex(
 
 @versions_markers
 @toml_markers
+@pytest.mark.parametrize("script_lock", ["requirements", "infer", "force"])
 def test_main(
     tmp_path: Path,
     versions: dict[str, str],
@@ -347,7 +435,11 @@ def test_main(
     exclude: list[str],
     toml_or_script: str,
     expected: str | None,
+    script_lock: str,
 ) -> None:
+
+    if not as_script and script_lock != "requirements":
+        return
 
     if versions == {}:
         expected = toml_or_script
@@ -365,11 +457,22 @@ def test_main(
     include_opts = [f"--include={x}" for x in include]
     exclude_opts = [f"--exclude={x}" for x in exclude]
 
-    assert not mod.main([
-        f"--requirements={requirements_path}",
-        *include_opts,
-        *exclude_opts,
-        str(toml_or_script_path),
-    ])
+    with patch(
+        "sync_pre_commit_hooks.sync_pyproject_min_versions.check_output",
+        side_effect=lambda x: versions_str.encode(),
+    ):
+        assert not mod.main([
+            *(
+                [f"--requirements={requirements_path}"]
+                if script_lock in {"requirements", "infer"}
+                else []
+            ),
+            f"--script-lock={script_lock}",
+            *include_opts,
+            *exclude_opts,
+            str(toml_or_script_path),
+        ])
 
-    assert toml_or_script_path.read_text(encoding="utf-8") == expected
+        out = toml_or_script_path.read_text(encoding="utf-8")
+
+        assert out == expected

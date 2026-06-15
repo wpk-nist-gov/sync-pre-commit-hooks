@@ -349,6 +349,10 @@ skip-package = true
 style = "requirements"
 
 [tool.uv-locker]
+scripts = [
+    "noxfile.py",
+]
+
 [[tool.uv-locker.requirements]]
 path = "requirements/uvx-tools.txt"
 output-file = "requirements/lock/uvx-tools.txt"

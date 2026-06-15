@@ -458,22 +458,24 @@ repos:
     - id: sync-pyproject-min-versions
       args:
         - "--requirements=path/to/locked/requirements.txt"
-      files: ^pyproject\.toml$|path/to/locked/requirements\.txt$|^path/to/pep723/script\.py$
+      files: ^pyproject\.toml$|^path/to/locked/requirements\.txt$|^path/to/pep723/script\.py$|^path/to/scripts\.py$
 ```
 
-Note that you need to specify the locked requirements and that you should
-include the path to locked requirements file so the hook will run on any updates
-to that file. By default, the hook ignores non toml files passed in, so you
-don't have to mess with `pass_filenames`, etc. Only dependencies of the form
-`dep>={version}` will be updated.
+Note that if syncing `pyproject.toml`, you need to specify the locked
+requirements file, and this file should be included under `files:` in
+`.pre-commit-config.yaml` so the hook will run on any updates to that file. The
+hook ignores non toml and python script files passed in, so you don't have to
+mess with `pass_filenames`, etc. Only dependencies of the form `dep>={version}`
+will be updated.
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable MD013 -->
 <!-- [[[cog run_command("sync-pyproject-min-versions --help", include_cmd=False, wrapper="restructuredtext")]]] -->
 
 ```restructuredtext
-usage: sync-pyproject-min-versions [-h] -r REQUIREMENTS [--include INCLUDE]
+usage: sync-pyproject-min-versions [-h] [-r REQUIREMENTS] [--include INCLUDE]
                                    [--exclude EXCLUDE]
+                                   [--script-lock {requirements,infer,force}]
                                    [paths ...]
 
 Sync minimum versions of dependencies in pyproject.toml or pep723 section of python
@@ -492,6 +494,12 @@ options:
   --exclude EXCLUDE     Packages to exclude. Default is to consider all packages in
                         requirements file. Specifying ``--exclude`` will skip those
                         packages. Can specify multiple times.
+  --script-lock {requirements,infer,force}
+                        How to detemermine locked dependencies for scripts. * infer
+                        (default): Use ``uv export --script script.py`` if
+                        ``script.py.lock`` exists or fallback to ``requirements`` *
+                        force: Use output of ``uv export --script script.py`` always. *
+                        requirements: Use passed ``--requirements`` file
 ```
 
 <!-- [[[end]]] -->
