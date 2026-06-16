@@ -89,7 +89,19 @@ type = [
 ]
 # other groups
 basedpyright = [ "basedpyright>=1.39.7" ]
+<<<<<<< before updating
 cog = [ "cogapp" ]
+=======
+docs-live = [
+    "sphinx-autobuild",
+    { include-group = "docs" },
+]
+docs-spelling = [
+    "pyenchant",
+    "sphinxcontrib-spelling",
+    { include-group = "docs" },
+]
+>>>>>>> after updating
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.1.0" ]
 nox = [ "nox>=2026.4.10" ]
@@ -113,7 +125,6 @@ pip.annotation-style = "line"
 pip.generate-hashes = true
 
 [tool.uv.dependency-groups]
-cog.requires-python = ">=3.14"
 dev.requires-python = ">=3.14"
 ipython.requires-python = ">=3.14"
 mypy.requires-python = ">=3.14"
@@ -337,7 +348,7 @@ pip-deps = [
     "pyright>=1.1.410",
     "rooster>=0.1.1",
     "twine>=6.2.0",
-    "ty>=0.0.44",
+    "ty>=0.0.46",
 ]
 groups = [
     "basedpyright",
@@ -350,6 +361,12 @@ style = "requirements"
 [tool.uv-locker]
 scripts = [
     "noxfile.py",
+<<<<<<< before updating
+=======
+    "tools/check_dist_version.py",
+    "tools/cog_runner.py",
+    "tools/sync_pyproject_min_versions.py",
+>>>>>>> after updating
 ]
 
 [[tool.uv-locker.requirements]]
