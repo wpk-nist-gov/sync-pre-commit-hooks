@@ -160,9 +160,9 @@ repos:
       - id: cog-readme
         name: cog-readme
         alias: cog
-        entry: >
-          python tools/cog_runner.py --group=cog --group=optional-dependencies
-          --no-dev --no-active -- README.md
+        entry: >-
+          uv run --no-dev --group=optional-dependencies --isolated uv run
+          tools/cog_runner.py -- README.md
         language: python
         pass_filenames: false
         stages: [manual]
@@ -320,6 +320,6 @@ repos:
           - ruamel-yaml>=0.19.1
           - tomli>=2.4.1; python_version < "3.11"
           - tomlkit>=0.14.0
-          - ty==0.0.44
+          - ty==0.0.46
           - typecheck-runner>=0.2.0; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
