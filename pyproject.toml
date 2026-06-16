@@ -350,11 +350,6 @@ style = "requirements"
 [tool.uv-locker]
 scripts = [
     "noxfile.py",
-<<<<<<< before updating
-=======
-    "tools/check_dist_version.py",
-    "tools/sync_pyproject_min_versions.py",
->>>>>>> after updating
 ]
 
 [[tool.uv-locker.requirements]]
