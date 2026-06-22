@@ -495,7 +495,7 @@ options:
                         requirements file. Specifying ``--exclude`` will skip those
                         packages. Can specify multiple times.
   --script-lock {requirements,infer,force}
-                        How to detemermine locked dependencies for scripts. * infer
+                        How to determine locked dependencies for scripts. * infer
                         (default): Use ``uv export --script script.py`` if
                         ``script.py.lock`` exists or fallback to ``requirements`` *
                         force: Use output of ``uv export --script script.py`` always. *
