@@ -315,7 +315,7 @@ repos:
           - nox>=2026.4.10
           - packaging>=26.0
           - pyrefly==1.0.0
-          - pytest>=9.0.2
+          - pytest>=9.1.0
           - requirements-parser>=0.13.0
           - ruamel-yaml>=0.19.1
           - tomli>=2.4.1; python_version < "3.11"
