@@ -88,24 +88,12 @@ type = [
 ]
 # other groups
 basedpyright = [ "basedpyright>=1.39.8" ]
-<<<<<<< before updating
-=======
-docs-live = [
-    "sphinx-autobuild",
-    { include-group = "docs" },
-]
-docs-spelling = [
-    "pyenchant",
-    "sphinxcontrib-spelling",
-    { include-group = "docs" },
-]
->>>>>>> after updating
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.1.0" ]
 nox = [ "nox>=2026.4.10" ]
 optional-dependencies = [ "sync-pre-commit-hooks[complete]" ]
-pylint = [ "pylint>=4.0.5" ]
-pytest = [ "pytest>=9.0.2" ]
+pylint = [ "pylint>=4.0.6" ]
+pytest = [ "pytest>=9.1.0" ]
 test-extras = [
     { include-group = "test" },
 ]
@@ -341,7 +329,7 @@ pip-deps = [
     "copier-template-extensions>=0.3.3",
     "copier>=9.15.2",
     "grayskull>=3.1.1",
-    "prek>=0.4.4",
+    "prek>=0.4.5",
     "pyrefly>=1.0.0",
     "pyright>=1.1.410",
     "rooster>=0.1.1",
@@ -352,6 +340,9 @@ groups = [
     "basedpyright",
     "mypy",
     "typecheck-runner",
+    # min versions
+    "pylint",
+    "pytest",
 ]
 skip-package = true
 style = "requirements"
