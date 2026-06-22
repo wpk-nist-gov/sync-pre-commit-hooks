@@ -61,12 +61,12 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.24.0
+    rev: v2.24.1
     hooks:
       - id: pyproject-fmt
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2026.06.11
+    rev: 2026.06.14
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -169,7 +169,7 @@ repos:
 
   # * Actions
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.37.2
+    rev: 0.37.3
     hooks:
       - id: check-github-workflows
         alias: actions
