@@ -61,7 +61,7 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.24.1
+    rev: v2.25.0
     hooks:
       - id: pyproject-fmt
   # ** validate (schema-store)
@@ -314,12 +314,12 @@ repos:
           - lastversion>=3.6.10
           - nox>=2026.4.10
           - packaging>=26.0
-          - pyrefly==1.0.0
+          - pyrefly==1.1.0
           - pytest>=9.1.0
           - requirements-parser>=0.13.0
           - ruamel-yaml>=0.19.1
           - tomli>=2.4.1; python_version < "3.11"
           - tomlkit>=0.14.0
-          - ty==0.0.49
+          - ty==0.0.50
           - typecheck-runner>=0.2.0; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
