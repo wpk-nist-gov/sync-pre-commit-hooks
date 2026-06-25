@@ -28,6 +28,7 @@ repos:
       - id: check-useless-excludes
 
   # * sync dependencies
+<<<<<<< before updating
   # - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
   #   rev: v0.5.1
   #   hooks:
@@ -35,6 +36,15 @@ repos:
   #     - id: sync-pre-commit-deps
   #     - id: sync-uv-build-deps
   #     - id: sync-uv-dependency-groups
+=======
+  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
+    rev: v0.8.0
+    hooks:
+      - id: forbidden-files
+      - id: sync-pre-commit-deps
+      - id: sync-uv-build-deps
+      - id: sync-uv-dependency-groups
+>>>>>>> after updating
 
   # * Top level
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -61,7 +71,7 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.24.1
+    rev: v2.25.0
     hooks:
       - id: pyproject-fmt
   # ** validate (schema-store)
