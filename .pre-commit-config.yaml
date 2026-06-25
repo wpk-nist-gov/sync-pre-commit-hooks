@@ -28,7 +28,6 @@ repos:
       - id: check-useless-excludes
 
   # * sync dependencies
-<<<<<<< before updating
   # - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
   #   rev: v0.5.1
   #   hooks:
@@ -36,15 +35,6 @@ repos:
   #     - id: sync-pre-commit-deps
   #     - id: sync-uv-build-deps
   #     - id: sync-uv-dependency-groups
-=======
-  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.8.0
-    hooks:
-      - id: forbidden-files
-      - id: sync-pre-commit-deps
-      - id: sync-uv-build-deps
-      - id: sync-uv-dependency-groups
->>>>>>> after updating
 
   # * Top level
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -283,7 +273,8 @@ repos:
         alias: typecheck
         entry: fill-pre-commit-deps
         language: python
-        files: ^pyproject.toml$|^\.pre-commit-config.yaml$|^requirements/lock/uvx-tools\.txt$
+        files:
+          ^pyproject.toml$|^\.pre-commit-config.yaml$|^requirements/lock/uvx-tools\.txt$
         pass_filenames: false
         args:
           - "--hook=typecheck-runner"
@@ -299,7 +290,8 @@ repos:
         alias: requirements
         entry: sync-pyproject-min-versions
         language: python
-        files: ^pyproject\.toml$|^requirements/lock/uvx-tools\.txt$|^noxfile\.py$|^tools/.*\.py$
+        files:
+          ^pyproject\.toml$|^requirements/lock/uvx-tools\.txt$|^noxfile\.py$|^tools/.*\.py$
         args:
           - "--requirements=requirements/lock/uvx-tools.txt"
         additional_dependencies:
@@ -324,12 +316,12 @@ repos:
           - lastversion>=3.6.10
           - nox>=2026.4.10
           - packaging>=26.0
-          - pyrefly==1.0.0
+          - pyrefly==1.1.0
           - pytest>=9.1.0
           - requirements-parser>=0.13.0
           - ruamel-yaml>=0.19.1
           - tomli>=2.4.1; python_version < "3.11"
           - tomlkit>=0.14.0
-          - ty==0.0.49
+          - ty==0.0.50
           - typecheck-runner>=0.2.0; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
