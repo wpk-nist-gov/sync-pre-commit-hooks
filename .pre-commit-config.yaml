@@ -273,8 +273,7 @@ repos:
         alias: typecheck
         entry: fill-pre-commit-deps
         language: python
-        files:
-          ^pyproject.toml$|^\.pre-commit-config.yaml$|^requirements/lock/uvx-tools\.txt$
+        files: ^pyproject.toml$|^\.pre-commit-config.yaml$|^requirements/lock/uvx-tools\.txt$
         pass_filenames: false
         args:
           - "--hook=typecheck-runner"
@@ -290,8 +289,7 @@ repos:
         alias: requirements
         entry: sync-pyproject-min-versions
         language: python
-        files:
-          ^pyproject\.toml$|^requirements/lock/uvx-tools\.txt$|^noxfile\.py$|^tools/.*\.py$
+        files: ^pyproject\.toml$|^requirements/lock/uvx-tools\.txt$|^noxfile\.py$|^tools/.*\.py$
         args:
           - "--requirements=requirements/lock/uvx-tools.txt"
         additional_dependencies:
