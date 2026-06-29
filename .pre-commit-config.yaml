@@ -136,7 +136,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.22
+    rev: 0.11.23
     hooks:
       - id: uv-lock
         alias: requirements
@@ -149,7 +149,7 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.16.3
+    rev: v4.16.4
     hooks:
       - id: commitizen
         stages: [commit-msg]
@@ -196,7 +196,7 @@ repos:
         priority: 0
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
     # Zizmor version.
-    rev: v1.25.2
+    rev: v1.26.1
     hooks:
       # Run the linter.
       - id: zizmor
@@ -315,7 +315,7 @@ repos:
           - nox>=2026.4.10
           - packaging>=26.0
           - pyrefly==1.1.1
-          - pytest>=9.1.0
+          - pytest>=9.1.1
           - requirements-parser>=0.13.0
           - ruamel-yaml>=0.19.1
           - tomli>=2.4.1; python_version < "3.11"
