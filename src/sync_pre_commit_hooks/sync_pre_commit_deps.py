@@ -1,7 +1,7 @@
 """Update ``additional_dependencies`` in ``.pre-commit-pre_commit_config.yaml``"""
 
 # NOTE: adapted from https://github.com/pre-commit/sync-pre-commit-deps
-# ruff: noqa: D103
+# ruff:file-ignore[undocumented-public-function]
 from __future__ import annotations
 
 from argparse import ArgumentParser

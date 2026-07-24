@@ -10,7 +10,9 @@ import pytest
 import ruamel.yaml
 
 from sync_pre_commit_hooks import sync_pre_commit_deps
-from sync_pre_commit_hooks._utils import pre_commit_config_load  # noqa: PLC2701
+from sync_pre_commit_hooks._utils import (
+    pre_commit_config_load,
+)
 from sync_pre_commit_hooks.sync_pre_commit_deps import main
 
 from ._utils import create_config_file

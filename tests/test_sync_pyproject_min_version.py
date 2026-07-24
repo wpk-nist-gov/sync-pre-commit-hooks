@@ -1,5 +1,5 @@
 # pyright: reportUnknownLambdaType=false
-# ruff: noqa: ARG005
+# ruff:file-ignore[unused-lambda-argument]
 from __future__ import annotations
 
 from contextlib import nullcontext

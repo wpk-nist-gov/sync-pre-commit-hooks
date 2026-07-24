@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from sync_pre_commit_hooks._utils import (  # noqa: PLC2701
+from sync_pre_commit_hooks._utils import (  # ruff:ignore[import-private-name]
     get_language_version,
     get_version_from_lastversion,
     get_versions_from_requirements,
@@ -31,7 +31,7 @@ from sync_pre_commit_hooks._utils import (  # noqa: PLC2701
     ],
 )
 def test_get_language_version(
-    example_path: Path,  # noqa: ARG001
+    example_path: Path,  # ruff:ignore[unused-function-argument]
     python_version: str | None,
     python_version_file: str,
     create_file: bool,

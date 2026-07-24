@@ -11,7 +11,7 @@ from packaging.requirements import Requirement
 
 from sync_pre_commit_hooks import fill_pre_commit_deps as fill_deps
 from sync_pre_commit_hooks.fill_pre_commit_deps import (
-    _limit_requirements,  # noqa: PLC2701
+    _limit_requirements,  # ruff:ignore[import-private-name]
 )
 
 from ._utils import create_config_file
