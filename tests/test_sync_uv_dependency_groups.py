@@ -1,4 +1,4 @@
-# ruff: noqa: ARG001, PLC2701
+# ruff:file-ignore[unused-function-argument, import-private-name]
 
 from __future__ import annotations
 

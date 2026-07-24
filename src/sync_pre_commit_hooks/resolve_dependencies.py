@@ -34,9 +34,9 @@ if TYPE_CHECKING:
 #         if requirement.name == package_name:
 #             for extra in requirement.extras:
 #                 yield from _resolve_requirements(
-#                     optional_dependencies[extra], package_name, optional_dependencies  # noqa: ERA001
-#                 )  # noqa: ERA001,RUF100
-#         else:  # noqa: ERA001
+#                     optional_dependencies[extra], package_name, optional_dependencies  # ruff:ignore[commented-out-code]
+#                 )  # ruff:ignore[commented-out-code]
+#         else:  # ruff:ignore[commented-out-code]
 #             yield requirement
 
 

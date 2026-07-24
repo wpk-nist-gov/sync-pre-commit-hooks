@@ -169,7 +169,7 @@ def pre_commit_config_repo_hook_iter(
 
 @lru_cache
 def get_version_from_lastversion(dep: str) -> str:
-    from lastversion import latest  # pyright: ignore[reportMissingTypeStubs, reportUnknownVariableType]  # noqa: I001
+    from lastversion import latest  # pyright: ignore[reportMissingTypeStubs, reportUnknownVariableType]  # ruff:ignore[unsorted-imports]
 
     return cast("str", latest(dep, output_format="tag"))
 
