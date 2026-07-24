@@ -10,7 +10,7 @@ import pytest
 import ruamel.yaml
 
 from sync_pre_commit_hooks import sync_pre_commit_deps
-from sync_pre_commit_hooks._utils import (
+from sync_pre_commit_hooks._utils import (  # ruff:ignore[import-private-name]
     pre_commit_config_load,
 )
 from sync_pre_commit_hooks.sync_pre_commit_deps import main
