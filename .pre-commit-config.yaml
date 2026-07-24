@@ -320,6 +320,6 @@ repos:
           - ruamel-yaml>=0.19.1
           - tomli>=2.4.1; python_version < "3.11"
           - tomlkit>=0.14.0
-          - ty==0.0.59
+          - ty==0.0.60
           - typecheck-runner>=0.2.0; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
