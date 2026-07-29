@@ -207,15 +207,25 @@ basedpyright-verifytypes:
 [group("typecheck")]
 ty *options: (_typecheck "-cty" options)
 
+# Run ty with `--add-ignore` option to add ty: ignore statements
+[group("typecheck")]
+ty-add-ignores *options: (_typecheck "-c'ty check --add-ignore'" options)
+
+# Run ty with `--fix` option to fix errors
+[group("typecheck")]
+ty-fix *options: (_typecheck "-c'ty check --fix'" options)
+
 # Run pyrefly (Note: in alpha)
 [group("typecheck")]
 pyrefly *options: (_typecheck "-cpyrefly" options)
 
+# Run pyrefly suppress
 [group("typecheck")]
-pyrefly-suppress-errors *options: (_typecheck "-c'pyrefly check --suppress-errors'")
+pyrefly-suppress *options: (_typecheck "-c'pyrefly suppress --comment-location=same-line'" options)
 
+# Run pyrefly suppress --remove-unused
 [group("typecheck")]
-pyrefly-remove-unused-ignores *options: (_typecheck "-c'pyrefly check --remove-unused-ignores'")
+pyrefly-remove-unused *options: (_typecheck "-c'pyrefly suppress --remove-unused'" options)
 
 # Run pylint (with optional args)
 [group("lint")]
