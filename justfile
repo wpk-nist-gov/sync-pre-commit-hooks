@@ -166,11 +166,7 @@ pyproject-upgrade-min-versions:
 # Sync min versions in pyproject.toml with using tools/sync_uvx_tool_min_version.py
 sync-pyproject-min-versions: && lock
     # sync with pyprojects
-<<<<<<< before updating
     just lint sync-pyproject-min-versions --verbose || true
-=======
-    just lint sync-pyproject-min-versions -v || true
->>>>>>> after updating
 
 # Update/Upgrade all dependencies
 update-deps: (lock "--upgrade") sync-pyproject-min-versions lint-upgrade
