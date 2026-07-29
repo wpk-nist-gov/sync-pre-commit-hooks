@@ -90,7 +90,7 @@ type = [
 basedpyright = [ "basedpyright>=1.39.9" ]
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.3.0" ]
-nox = [ "nox>=2026.4.10" ]
+nox = [ "nox>=2026.7.11" ]
 optional-dependencies = [ "sync-pre-commit-hooks[complete]" ]
 pylint = [ "pylint>=4.0.6" ]
 pytest = [ "pytest>=9.1.1" ]
@@ -338,6 +338,7 @@ pip-deps = [
 groups = [
     "basedpyright",
     "mypy",
+    "nox",
     "typecheck-runner",
     # min versions
     "pylint",
