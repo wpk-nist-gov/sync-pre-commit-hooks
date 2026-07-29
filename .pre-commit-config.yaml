@@ -7,6 +7,7 @@ ci:
   skip:
     - uv-lock
     - pip-compile
+<<<<<<< before updating
     - typecheck
     # no way to use these on pre-commit-ci
     - sync-pre-commit-deps
@@ -17,6 +18,9 @@ ci:
     - fill-pre-commit-hook-deps
     - sync-pyproject-min-versions
 
+=======
+    - sync-pyproject-min-versions
+>>>>>>> after updating
 default_install_hook_types:
   - pre-commit
   - commit-msg
@@ -28,6 +32,7 @@ repos:
       - id: check-useless-excludes
 
   # * sync dependencies
+<<<<<<< before updating
   # - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
   #   rev: v0.5.1
   #   hooks:
@@ -35,6 +40,25 @@ repos:
   #     - id: sync-pre-commit-deps
   #     - id: sync-uv-build-deps
   #     - id: sync-uv-dependency-groups
+=======
+  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
+    rev: v0.8.1
+    hooks:
+      - id: forbidden-files
+      - id: sync-pre-commit-deps
+      - id: sync-uv-build-deps
+      - id: sync-uv-dependency-groups
+      - id: sync-pyproject-min-versions
+        files: |
+          (?x)^(
+            pyproject\.toml|
+            requirements/lock/uvx-tools\.txt|
+            noxfile\.py|
+            ^tools/.*\.py
+          )$
+        args:
+          - "--requirements=requirements/lock/uvx-tools.txt"
+>>>>>>> after updating
 
   # * Top level
   - repo: https://github.com/pre-commit/pre-commit-hooks
