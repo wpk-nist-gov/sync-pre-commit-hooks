@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from contextlib import nullcontext
-from functools import partial
 from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING
@@ -14,9 +13,39 @@ import pytest
 import sync_pre_commit_hooks.sync_pyproject_min_versions as mod
 
 if TYPE_CHECKING:
+    from types import EllipsisType
     from typing import Any
 
     from packaging.utils import NormalizedName
+
+
+@pytest.mark.parametrize(
+    ("line", "ignore"),
+    [  # pyright: ignore[reportUnknownArgumentType]
+        ("# sync-pyproject-min-versions:ignore", (Ellipsis, True)),
+        ("# sync-pyproject-min-version:ignore", (Ellipsis, True)),
+        ("#sync-pyproject-min-version:   ignore", (Ellipsis, True)),
+        ("hello # sync-pyproject-min-versions:ignore", (Ellipsis, False)),
+        ("hello # sync-pyproject-min-versions:ignore[a.b]", ({"a-b"}, False)),
+        ("hello # sync-pyproject-min-versions:ignore[a.b, c]", ({"a-b", "c"}, False)),
+        ("hello # a thing there", (set(), False)),
+        # comment before negates
+        ("# a thing # sync-pyproject-min-versions: ignore", (set(), False)),
+        # comment after is fine
+        (
+            "# sync-pyproject-min-versions: ignore[a,b] # another thing",
+            ({"a", "b"}, True),
+        ),
+        (
+            "a thing # sync-pyproject-min-versions: ignore[a,b] # another thing",
+            ({"a", "b"}, False),
+        ),
+    ],
+)
+def test__get_ignore_names(
+    line: str, ignore: tuple[set[NormalizedName] | EllipsisType, bool]
+) -> None:
+    assert mod._get_ignore_names(line) == ignore
 
 
 @pytest.mark.parametrize(
@@ -49,7 +78,7 @@ if TYPE_CHECKING:
         ),
     ],
 )
-def test__get_params(argv: list[str], expected: Any) -> None:
+def test_options_from_argv(argv: list[str], expected: Any) -> None:
 
     if isinstance(expected, dict):
         expected = nullcontext(mod.Options.from_kws(expected))
@@ -89,7 +118,7 @@ def test__get_params(argv: list[str], expected: Any) -> None:
         ),
     ],
 )
-def test__normalize_versions(
+def test_options_from_params(
     versions: dict[str, str],
     include: list[str],
     exclude: list[str],
@@ -115,26 +144,30 @@ def test__normalize_versions(
 @pytest.mark.parametrize(
     ("script_name", "locked", "script_lock", "expected"),
     [
-        ("hello.py", False, "requirements", "hello==1.2.3"),
-        ("hello.py", True, "requirements", "hello==1.2.3"),
-        ("hello.py", False, "infer", "hello==1.2.3"),
-        ("hello.py", True, "infer", "there==2.3.4"),
-        ("hello.py", False, "force", "there==2.3.4"),
-        ("hello.py", True, "force", "there==2.3.4"),
+        ("hello.py", False, "requirements", {"hello": "1.2.3"}),
+        ("hello.py", True, "requirements", {"hello": "1.2.3"}),
+        ("hello.py", False, "infer", {"hello": "1.2.3"}),
+        ("hello.py", True, "infer", {"there": "2.3.4"}),
+        ("hello.py", False, "force", {"there": "2.3.4"}),
+        ("hello.py", True, "force", {"there": "2.3.4"}),
     ],
 )
-def test__get_requirements_from_script(
+def test_options_get_versions(
     tmp_path: Path,
     requirements: str,
     export_output: str,
     script_name: str,
     locked: bool,
     script_lock: mod.SCRIPT_LOCK,
-    expected: str,
+    expected: dict[NormalizedName, str],
 ) -> None:
 
-    script_path = tmp_path / script_name
+    requirements_path = tmp_path / "requirements.txt"
+    requirements_path.write_text(requirements)
 
+    opts = mod.Options(requirements=requirements_path, script_lock=script_lock)
+
+    script_path = tmp_path / script_name
     script_path.write_text("")
     if locked:
         lock_path = script_path.with_suffix(".py.lock")
@@ -144,10 +177,7 @@ def test__get_requirements_from_script(
         "sync_pre_commit_hooks.sync_pyproject_min_versions.check_output",
         side_effect=lambda x: export_output.encode(),
     ) as mocked:
-        assert (
-            mod._get_requirements_from_script(script_path, requirements, script_lock)
-            == expected
-        )
+        assert opts.get_versions_from_script(script_path) == expected
 
         if locked and script_lock in {"force", "infer"}:
             expected_calls = [
@@ -292,6 +322,86 @@ toml_markers = pytest.mark.parametrize(
             """),
             id="replace mixed 2",
         ),
+        pytest.param(
+            False,
+            [],
+            [],
+            dedent(r"""
+            dependencies = [
+                "mypy>=0.0.0",
+                'pyright>=0.0.0',  # sync-pyproject-min-versions: ignore
+                "an-example>=0.0.0",
+            ]
+            """),
+            dedent(r"""
+            dependencies = [
+                "mypy>=1.2.3",
+                'pyright>=0.0.0',  # sync-pyproject-min-versions: ignore
+                "an-example>=3.4.5",
+            ]
+            """),
+            id="comment inline",
+        ),
+        pytest.param(
+            False,
+            [],
+            [],
+            dedent(r"""
+            dependencies = [
+                "mypy>=0.0.0",
+                # sync-pyproject-min-versions: ignore
+                'pyright>=0.0.0',
+                "an-example>=0.0.0",
+            ]
+            """),
+            dedent(r"""
+            dependencies = [
+                "mypy>=1.2.3",
+                # sync-pyproject-min-versions: ignore
+                'pyright>=0.0.0',
+                "an-example>=3.4.5",
+            ]
+            """),
+            id="comment next line",
+        ),
+        pytest.param(
+            False,
+            [],
+            [],
+            dedent(r"""
+            dependencies = [
+                "mypy>=0.0.0", 'pyright>=0.0.0'  # sync-pyproject-min-versions: ignore[pyright]
+                "an-example>=0.0.0",
+            ]
+            """),
+            dedent(r"""
+            dependencies = [
+                "mypy>=1.2.3", 'pyright>=0.0.0'  # sync-pyproject-min-versions: ignore[pyright]
+                "an-example>=3.4.5",
+            ]
+            """),
+            id="comment spec",
+        ),
+        pytest.param(
+            False,
+            [],
+            ["an.example"],
+            dedent(r"""
+            dependencies = [
+                # sync-pyproject-min-versions: ignore[pyright]
+                "mypy>=0.0.0", 'pyright>=0.0.0'
+                "an-example>=0.0.0",
+            ]
+            """),
+            dedent(r"""
+            dependencies = [
+                # sync-pyproject-min-versions: ignore[pyright]
+                "mypy>=1.2.3", 'pyright>=0.0.0'
+                "an-example>=0.0.0",
+            ]
+            """),
+            id="comment spec next line",
+        ),
         # scripts
         pytest.param(
             True,
@@ -395,13 +505,151 @@ toml_markers = pytest.mark.parametrize(
             """),
             id="noreplace script (bad header)",
         ),
+        # comments
+        pytest.param(
+            True,
+            [],
+            [],
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     "mypy>=0.0.0",
+            #     'pyright>=0.0.0',
+            # ]
+            # ///
+            """),
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     "mypy>=1.2.3",
+            #     'pyright>=2.3.4',
+            # ]
+            # ///
+            """),
+            id="multi",
+        ),
+        pytest.param(
+            True,
+            [],
+            [],
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     "mypy>=0.0.0",
+            #     'pyright>=0.0.0',  # sync-pyproject-min-versions: ignore
+            # ]
+            # ///
+            """),
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     "mypy>=1.2.3",
+            #     'pyright>=0.0.0',  # sync-pyproject-min-versions: ignore
+            # ]
+            # ///
+            """),
+            id="multi comment",
+        ),
+        pytest.param(
+            True,
+            [],
+            [],
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     "mypy>=0.0.0",
+            #     # sync-pyproject-min-versions: ignore
+            #     'pyright>=0.0.0',
+            # ]
+            # ///
+            """),
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     "mypy>=1.2.3",
+            #     # sync-pyproject-min-versions: ignore
+            #     'pyright>=0.0.0',
+            # ]
+            # ///
+            """),
+            id="multi comment next line",
+        ),
+        # note that first comment is removed so need #  # sync-pyproject-min-versions
+        pytest.param(
+            True,
+            [],
+            [],
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     "mypy>=0.0.0",
+            #     sync-pyproject-min-versions: ignore
+            #     'pyright>=0.0.0',
+            # ]
+            # ///
+            """),
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     "mypy>=1.2.3",
+            #     sync-pyproject-min-versions: ignore
+            #     'pyright>=2.3.4',
+            # ]
+            # ///
+            """),
+            id="multi comment next line ill formed",
+        ),
+        pytest.param(
+            True,
+            [],
+            [],
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     "mypy>=0.0.0",  'pyright>=0.0.0',  # sync-pyproject-min-versions: ignore[pyright]
+            # ]
+            # ///
+            """),
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     "mypy>=1.2.3",  'pyright>=0.0.0',  # sync-pyproject-min-versions: ignore[pyright]
+            # ]
+            # ///
+            """),
+            id="multi comment spec",
+        ),
+        pytest.param(
+            True,
+            [],
+            [],
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     # sync-pyproject-min-versions: ignore[pyright]
+            #     "mypy>=0.0.0",  'pyright>=0.0.0',
+
+            # ]
+            # ///
+            """),
+            dedent(r"""
+            # /// script
+            # dependencies = [
+            #     # sync-pyproject-min-versions: ignore[pyright]
+            #     "mypy>=1.2.3",  'pyright>=0.0.0',
+
+            # ]
+            # ///
+            """),
+            id="multi comment spec next line",
+        ),
     ],
 )
 
 
 @versions_markers
 @toml_markers
-def test_regex(
+def test_replace_contents(
     versions: dict[str, str],
     as_script: bool,
     include: list[str],
@@ -418,10 +666,9 @@ def test_regex(
             exclude=exclude,
         ).normalize_versions(versions)
 
-    replacer = mod._factory_quoted_requirement_replacer(versions_)
-    if as_script:
-        replacer = partial(mod._replace_pep723_section, replacer)
-    assert replacer(toml_or_script) == expected
+    replacer = mod.Replacer(versions_)
+    func = replacer.replace_contents_pep723 if as_script else replacer.replace_contents
+    assert func(toml_or_script) == expected
 
 
 @versions_markers

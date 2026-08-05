@@ -7,7 +7,7 @@ exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for 
 exclude-newer-span = "P7D"
 
 [manifest]
-requirements = [{ name = "nox", specifier = ">=2026.7.11" }]
+requirements = [{ name = "nox", specifier = ">=2026.2.11" }]
 
 [[package]]
 name = "argcomplete"
