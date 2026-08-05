@@ -111,10 +111,7 @@ IGNORE_PATTERN: Final = re.compile(
         [^\#]*
     )
     (:?
-        \#
-        \s*
-        sync-pyproject-min-versions?:\s*ignore
-        \s*
+        \#\s*sync-pyproject-min-versions?:\s*ignore\s*
     )
     (?:
         \[(?P<ignore>[^\]]*)
@@ -171,9 +168,7 @@ class Replacer:
         except InvalidRequirement:
             return original_string
 
-        name = canonicalize_name(dep.name)
-
-        if name in ignore:
+        if (name := canonicalize_name(dep.name)) in ignore:
             return original_string
 
         if (
