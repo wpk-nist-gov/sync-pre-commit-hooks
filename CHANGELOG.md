@@ -5,6 +5,18 @@
 
 Changelog for `sync-pre-commit-hooks`
 
+## 0.9.0
+
+Released on 2026-08-05.
+
+### Enhancements
+
+- feat: add `# sync-pyproject-min-versions:ignore` directive ([#236](https://github.com/wpk-nist-gov/sync-pre-commit-hooks/pull/236))
+
+### Contributors
+
+- [@wpk-nist-gov](https://github.com/wpk-nist-gov)
+
 ## 0.8.1
 
 Released on 2026-06-22.
