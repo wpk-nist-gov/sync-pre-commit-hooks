@@ -492,7 +492,7 @@ options:
                         requirements file. Specifying ``--include`` will only update
                         those packages. Can specify multiple times.
   --exclude EXCLUDE     Packages to exclude. Default is to consider all packages in
-                        requirements file. Specifying ``--exclude`` will skip those
+                        requirements file. Specifying ``--exclude`` will ignore those
                         packages. Can specify multiple times.
   --script-lock {requirements,infer,force}
                         How to determine locked dependencies for scripts. * infer
