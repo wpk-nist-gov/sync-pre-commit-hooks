@@ -8,7 +8,7 @@ import re
 import sys
 from argparse import ArgumentParser
 from dataclasses import dataclass, field
-from functools import lru_cache, partial
+from functools import cached_property, partial
 from itertools import chain
 from pathlib import Path
 from subprocess import check_output
@@ -21,8 +21,9 @@ from ._logging import get_logger
 from ._utils import get_versions_from_requirements
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Sequence
-    from typing import Any, Literal
+    from collections.abc import Callable, Container, Iterable, Sequence
+    from types import EllipsisType
+    from typing import Any, Final, Literal
 
     from packaging.utils import NormalizedName
 
@@ -31,127 +32,211 @@ if TYPE_CHECKING:
 
 logger = get_logger("sync-pyproject-min-versions")
 
-# taken from https://github.com/pypa/packaging/blob/main/src/packaging/version.py
-_version_pattern = r"""
-    v?+                                                   # optional leading v
-    (?a:
-        (?:(?P<epoch>[0-9]+)!)?+                          # epoch
-        (?P<release>[0-9]+(?:\.[0-9]+)*+)                 # release segment
-        (?P<pre>                                          # pre-release
-            [._-]?+
-            (?P<pre_l>alpha|a|beta|b|preview|pre|c|rc)
-            [._-]?+
-            (?P<pre_n>[0-9]+)?
-        )?+
-        (?P<post>                                         # post release
-            (?:-(?P<post_n1>[0-9]+))
-            |
-            (?:
-                [._-]?
-                (?P<post_l>post|rev|r)
-                [._-]?
-                (?P<post_n2>[0-9]+)?
+
+def _get_requirements_pattern() -> str:
+
+    # taken from https://github.com/pypa/packaging/blob/main/src/packaging/version.py
+    version_pattern = r"""
+        v?+                                                   # optional leading v
+        (?a:
+            (?:(?P<epoch>[0-9]+)!)?+                          # epoch
+            (?P<release>[0-9]+(?:\.[0-9]+)*+)                 # release segment
+            (?P<pre>                                          # pre-release
+                [._-]?+
+                (?P<pre_l>alpha|a|beta|b|preview|pre|c|rc)
+                [._-]?+
+                (?P<pre_n>[0-9]+)?
+            )?+
+            (?P<post>                                         # post release
+                (?:-(?P<post_n1>[0-9]+))
+                |
+                (?:
+                    [._-]?
+                    (?P<post_l>post|rev|r)
+                    [._-]?
+                    (?P<post_n2>[0-9]+)?
+                )
+            )?+
+            (?P<dev>                                          # dev release
+                [._-]?+
+                (?P<dev_l>dev)
+                [._-]?+
+                (?P<dev_n>[0-9]+)?
+            )?+
+        )
+        (?a:\+
+            (?P<local>                                        # local version
+                [a-z0-9]+
+                (?:[._-][a-z0-9]+)*+
             )
         )?+
-        (?P<dev>                                          # dev release
-            [._-]?+
-            (?P<dev_l>dev)
-            [._-]?+
-            (?P<dev_n>[0-9]+)?
-        )?+
+    """
+
+    version_pattern = (
+        version_pattern.replace("*+", "*").replace("?+", "?")
+        if (sys.implementation.name == "cpython" and sys.version_info < (3, 11, 5))
+        or (sys.implementation.name == "pypy" and sys.version_info < (3, 11, 13))
+        or sys.version_info < (3, 11)
+        else version_pattern
     )
-    (?a:\+
-        (?P<local>                                        # local version
-            [a-z0-9]+
-            (?:[._-][a-z0-9]+)*+
+
+    return rf"""
+    (?P<quote>["'])
+    \s*
+    (?P<inner>
+        (?P<package>                                              # package name
+            \b[a-zA-Z0-9][a-zA-Z0-9._-]*\b
         )
-    )?+
-"""
+        (?P<extras>                                               # extras
+            (?:\s*\[(?:\w|[,. -])*\])?\s*>=\s*
+        )
+        (?P<version>
+        {version_pattern}
+        )
+        (?P<markers>                                              # everything else
+            .*?
+        )
+    )
+    (?P=quote)
+    """
 
-_version_pattern = (
-    _version_pattern.replace("*+", "*").replace("?+", "?")
-    if (sys.implementation.name == "cpython" and sys.version_info < (3, 11, 5))
-    or (sys.implementation.name == "pypy" and sys.version_info < (3, 11, 13))
-    or sys.version_info < (3, 11)
-    else _version_pattern
+
+REQUIREMENT_REGEX: Final = re.compile(
+    _get_requirements_pattern(), flags=re.VERBOSE | re.IGNORECASE
+)
+IGNORE_PATTERN: Final = re.compile(
+    r"""
+    \s*
+    (?P<deps>
+        [^\#]*
+    )
+    (:?
+        \#\s*sync-pyproject-min-versions?:\s*ignore\s*
+    )
+    (?:
+        \[(?P<ignore>[^\]]*)
+    )?
+    """,
+    flags=re.VERBOSE,
 )
 
-_regex_pattern = rf"""
-(?P<quote>["'])
-\s*
-(?P<inner>
-    (?P<package>                                              # package name
-        \b[a-zA-Z0-9][a-zA-Z0-9._-]*\b
-    )
-    (?P<extras>                                               # extras
-        (?:\s*\[(?:\w|[,. -])*\])?\s*>=\s*
-    )
-    (?P<version>
-       {_version_pattern}
-    )
-    (?P<markers>                                              # everything else
-        .*?
-    )
-)
-(?P=quote)
-"""
 
-REQUIREMENT_REGEX = re.compile(_regex_pattern, flags=re.VERBOSE | re.IGNORECASE)
+def _get_ignore_names(line: str) -> tuple[set[NormalizedName] | EllipsisType, bool]:
+    """
+    Parse for ignore comments
+
+    Look for comments of form `# sync-pyproject-min-versions: ignore[dep, ...]`
+
+        * if no such comment, do not ignore (return []).
+        * if comment without [dep, ...], ignore all (return Ellipsis)
+        * if comment with [dep, ...], (return [dep, ...])
 
 
-def _factory_quoted_requirement_replacer(
-    versions: dict[NormalizedName, str],
-) -> Callable[[str], str]:
-    def quoted_requirement_replacer(match: re.Match[str]) -> str:
+    Parameters
+    ----------
+    line : str
+        String to analyze
+
+
+    Returns
+    -------
+    ignore : set or ellipsis
+        If ignore all, return ellipsis. Otherwise, return set of normalized
+        dependency names to ignore.
+    next_line: bool
+        If True, ignore comment applies to the following line
+
+    """
+    if match := IGNORE_PATTERN.match(line):
+        next_line = not bool(match.group("deps"))
+        if ignore := match.group("ignore"):
+            return {canonicalize_name(d.strip()) for d in ignore.split(",")}, next_line
+        return Ellipsis, next_line
+    return set(), False
+
+
+class Replacer:
+    def __init__(self, versions: dict[NormalizedName, str]) -> None:
+        self.versions = versions
+
+    def _match_func(
+        self, match: re.Match[str], ignore: Container[NormalizedName]
+    ) -> str:
         original_string = match.group(0)
         try:
             dep = Requirement(match.group("inner"))
         except InvalidRequirement:
             return original_string
 
-        name = canonicalize_name(dep.name)
+        if (name := canonicalize_name(dep.name)) in ignore:
+            return original_string
+
         if (
-            name in versions
+            name in self.versions
             and len(dep.specifier) == 1
             and next(iter(dep.specifier)).operator == ">="
         ):
-            s = f"{match.group('quote')}{match.group('package')}{match.group('extras')}{versions[name]}{match.group('markers')}{match.group('quote')}"
+            s = f"{match.group('quote')}{match.group('package')}{match.group('extras')}{self.versions[name]}{match.group('markers')}{match.group('quote')}"
             if s != original_string:
                 logger.info("replace %s with %s", original_string, s)
             return s
-
         return original_string
 
-    return partial(REQUIREMENT_REGEX.sub, quoted_requirement_replacer)
+    def _replace_line(
+        self,
+        line: str,
+        ignore: Container[NormalizedName] | EllipsisType,
+    ) -> str:
+        if ignore is ...:
+            return line
+        return REQUIREMENT_REGEX.sub(partial(self._match_func, ignore=ignore), line)
 
+    def replace_contents(self, contents: str) -> str:
+        out: list[str] = []
+        lines = iter(contents.splitlines(keepends=True))
+        line: str
 
-def _replace_pep723_section(
-    quoted_requirement_replacer: Callable[[str], str], contents: str
-) -> str:
-    out: list[str] = []
-    found = False
-    lines = iter(contents.splitlines(keepends=True))
+        for line_ in lines:
+            line = line_
+            ignore, nextline = _get_ignore_names(line)
+            if nextline:
+                out.append(line)
+                line = next(lines)
+            out.append(self._replace_line(line, ignore))
+        return "".join(out)
 
-    for line in lines:
-        if not found and re.match(r"^#\s+///\s+script$", line):
-            found = True
-            out.append(line)
-            continue
+    def replace_contents_pep723(self, contents: str) -> str:
+        out: list[str] = []
+        found = False
+        lines = iter(contents.splitlines(keepends=True))
+        line: str
 
-        if found and re.match(r"^#\s+///$", line):
-            return "".join(chain(out, [line], lines))
+        for line_ in lines:
+            line = line_
+            if not found:
+                found = re.match(r"^#\s+///\s+script$", line) is not None
+                out.append(line)
+                continue
 
-        out.append(
-            quoted_requirement_replacer(line)
-            if found and re.match(r"^#", line)
-            else line
-        )
+            if re.match(r"^#\s+///$", line):
+                return "".join(chain(out, [line], lines))
 
-    if found:
-        logger.warning("Skipping update.  Found pep723 script start but no end")
+            if not re.match(r"^#", line):
+                out.append(line)
+                continue
 
-    # if got here, didn't find pep723 data
-    return contents
+            ignore, nextline = _get_ignore_names(line[1:])  # skip preceding '#'
+            if nextline:
+                out.append(line)
+                line = next(lines)
+
+            out.append(self._replace_line(line, ignore))
+
+        if found:
+            logger.warning("Skipping update.  Found pep723 script start but no end")
+
+        # if got here, didn't find pep723 data
+        return contents
 
 
 @dataclass(frozen=True)
@@ -174,6 +259,36 @@ class Options:
             out = {k: v for k, v in out.items() if k not in self.exclude}
 
         return out
+
+    def get_versions_from_requirements(
+        self, requirements: str | Path
+    ) -> dict[NormalizedName, str]:
+        return self.normalize_versions(get_versions_from_requirements(requirements))
+
+    @cached_property
+    def versions(self) -> dict[NormalizedName, str]:
+        return (
+            self.get_versions_from_requirements(self.requirements)
+            if self.requirements
+            else {}
+        )
+
+    def get_versions_from_script(self, script_path: Path) -> dict[NormalizedName, str]:
+        lock_exists = script_path.with_suffix(".py.lock").exists()
+        if self.script_lock == "force" or (self.script_lock == "infer" and lock_exists):
+            logger.info("Run: uv export --no-color --script %s", script_path)
+            return self.get_versions_from_requirements(
+                check_output([
+                    "uv",
+                    "export",
+                    *(["--locked"] if lock_exists else []),
+                    "--quiet",
+                    "--no-color",
+                    "--script",
+                    str(script_path),
+                ]).decode("utf-8")
+            )
+        return self.versions
 
     @classmethod
     def from_params(
@@ -234,7 +349,7 @@ class Options:
             action="append",
             help="""
             Packages to exclude. Default is to consider all packages in
-            requirements file. Specifying ``--exclude`` will skip those packages.
+            requirements file. Specifying ``--exclude`` will ignore those packages.
             Can specify multiple times.
             """,
         )
@@ -265,48 +380,6 @@ class Options:
         )
 
 
-@lru_cache
-def _get_replacer(
-    requirements: str | Path | None,
-    opts: Options,
-    script_replacer: bool = False,
-) -> Callable[[str], str] | None:
-
-    if script_replacer:
-        quoted_requirement_replacer = _get_replacer(requirements, opts, False)
-        return (
-            partial(_replace_pep723_section, quoted_requirement_replacer)
-            if quoted_requirement_replacer is not None
-            else None
-        )
-
-    versions = opts.normalize_versions(
-        versions=get_versions_from_requirements(requirements),
-    )
-    return _factory_quoted_requirement_replacer(versions) if versions else None
-
-
-def _get_requirements_from_script(
-    script_path: Path,
-    requirements: str | Path | None,
-    script_lock: SCRIPT_LOCK,
-) -> str | Path | None:
-
-    lock_exists = script_path.with_suffix(".py.lock").exists()
-    if script_lock == "force" or (script_lock == "infer" and lock_exists):
-        logger.info("Run: uv export --no-color --script %s", script_path)
-        return check_output([
-            "uv",
-            "export",
-            *(["--locked"] if lock_exists else []),
-            "--quiet",
-            "--no-color",
-            "--script",
-            str(script_path),
-        ]).decode("utf-8")
-    return requirements
-
-
 def _process_path(path: Path, replacer: Callable[[str], str]) -> None:
     logger.info("processing %s", path)
     contents = path.read_text(encoding="utf-8")
@@ -322,23 +395,16 @@ def main(argv: Sequence[str] | None = None) -> bool:
     """Main function"""
     opts = Options.from_argv(argv)
 
-    replacer = _get_replacer(opts.requirements, opts, False)
-    if opts.toml_paths and replacer:
+    if opts.toml_paths and opts.versions:
+        replacer = Replacer(opts.versions)
         for path in opts.toml_paths:
-            _process_path(path=path, replacer=replacer)
+            _process_path(path=path, replacer=replacer.replace_contents)
 
-    if (replacer or opts.script_lock in {"infer", "force"}) and opts.script_paths:
+    if (opts.versions or opts.script_lock in {"infer", "force"}) and opts.script_paths:
         for path in opts.script_paths:
-            lock_replacer = _get_replacer(
-                requirements=_get_requirements_from_script(
-                    path, opts.requirements, opts.script_lock
-                ),
-                opts=opts,
-                script_replacer=True,
-            )
-
-            if lock_replacer:
-                _process_path(path=path, replacer=lock_replacer)
+            lock_replacer = Replacer(opts.get_versions_from_script(path))
+            if lock_replacer.versions:
+                _process_path(path=path, replacer=lock_replacer.replace_contents_pep723)
 
     return False
 

@@ -27,15 +27,6 @@ repos:
       - id: check-hooks-apply
       - id: check-useless-excludes
 
-  # * sync dependencies
-  # - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-  #   rev: v0.5.1
-  #   hooks:
-  #     - id: forbidden-files
-  #     - id: sync-pre-commit-deps
-  #     - id: sync-uv-build-deps
-  #     - id: sync-uv-dependency-groups
-
   # * Top level
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -57,7 +48,7 @@ repos:
     rev: v0.9.3
     hooks:
       - id: taplo-format
-        # exclude: (^|/)pyproject\.toml$
+        exclude: (^|/)pyproject\.toml$
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt

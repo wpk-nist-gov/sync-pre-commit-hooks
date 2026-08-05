@@ -492,7 +492,7 @@ options:
                         requirements file. Specifying ``--include`` will only update
                         those packages. Can specify multiple times.
   --exclude EXCLUDE     Packages to exclude. Default is to consider all packages in
-                        requirements file. Specifying ``--exclude`` will skip those
+                        requirements file. Specifying ``--exclude`` will ignore those
                         packages. Can specify multiple times.
   --script-lock {requirements,infer,force}
                         How to determine locked dependencies for scripts. * infer
@@ -504,6 +504,20 @@ options:
 
 <!-- [[[end]]] -->
 <!-- prettier-ignore-end -->
+
+You can skip updates by adding the comment
+`# sync-pyproject-min-versions: ignore[dep]`. If the comment is on a line by
+itself, the comment applies to the following line. If the comment follows a
+dependency, it applies to the current line. To ignore all dependencies on a
+line, exclude `[dep]`.
+
+```toml
+dependencies = [
+  "a-package>=0.0.1", #  sync-pyproject-min-versions: ignore  # no update
+  # sync-pyproject-min-versions: ignore[another-package]
+  "another-package>=0.0.1",  "yet-another>=0.0.1"  # no update to `another-package`
+]
+```
 
 ## sync-uv-build-deps
 
