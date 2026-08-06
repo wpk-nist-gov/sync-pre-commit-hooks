@@ -496,10 +496,11 @@ options:
                         packages. Can specify multiple times.
   --script-lock {requirements,infer,force}
                         How to determine locked dependencies for scripts. * infer
-                        (default): Use ``uv export --script script.py`` if
+                        (default): Use ``uv export --frozen --script script.py`` if
                         ``script.py.lock`` exists or fallback to ``requirements`` *
-                        force: Use output of ``uv export --script script.py`` always. *
-                        requirements: Use passed ``--requirements`` file
+                        force: Use output of ``uv export --script script.py`` always.
+                        Note that this may require network access. * requirements: Use
+                        passed ``--requirements`` file
 ```
 
 <!-- [[[end]]] -->
