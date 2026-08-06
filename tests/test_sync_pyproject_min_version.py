@@ -184,7 +184,8 @@ def test_options_get_versions(
                 call([
                     "uv",
                     "export",
-                    "--locked",
+                    "--frozen",
+                    "--offline",
                     "--quiet",
                     "--no-color",
                     "--script",

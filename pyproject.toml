@@ -44,6 +44,7 @@ all = [
     "tomli>=2.4.1; python_version<'3.11'",
     "tomlkit>=0.14.0",
     "typing-extensions>=4.15.0; python_version<'3.12'",
+    "uv>=0.12.0",
 ]
 complete = [
     "sync-pre-commit-hooks[all,lastversion]>=0.4.0",
@@ -334,6 +335,8 @@ pip-deps = [
     "rooster>=0.1.1",
     "twine>=7.0.0",
     "ty>=0.0.64",
+    # needed above"
+    "uv>=0.12.0",
 ]
 groups = [
     "basedpyright",

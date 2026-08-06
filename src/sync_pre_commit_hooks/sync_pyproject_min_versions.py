@@ -276,17 +276,20 @@ class Options:
     def get_versions_from_script(self, script_path: Path) -> dict[NormalizedName, str]:
         lock_exists = script_path.with_suffix(".py.lock").exists()
         if self.script_lock == "force" or (self.script_lock == "infer" and lock_exists):
-            logger.info("Run: uv export --no-color --script %s", script_path)
+            import shlex
+
+            args = [
+                "uv",
+                "export",
+                *(["--frozen", "--offline"] if lock_exists else []),
+                "--quiet",
+                "--no-color",
+                "--script",
+                str(script_path),
+            ]
+            logger.info("Run: %s", shlex.join(args))
             return self.get_versions_from_requirements(
-                check_output([
-                    "uv",
-                    "export",
-                    *(["--locked"] if lock_exists else []),
-                    "--quiet",
-                    "--no-color",
-                    "--script",
-                    str(script_path),
-                ]).decode("utf-8")
+                check_output(args).decode("utf-8")
             )
         return self.versions
 
@@ -360,8 +363,10 @@ class Options:
             help="""
             How to determine locked dependencies for scripts.
 
-            * infer (default): Use ``uv export --script script.py`` if ``script.py.lock`` exists or fallback to ``requirements``
+            * infer (default): Use ``uv export --frozen --script script.py`` if
+              ``script.py.lock`` exists or fallback to ``requirements``
             * force: Use output of ``uv export --script script.py`` always.
+              Note that this may require network access.
             * requirements:  Use passed ``--requirements`` file
             """,
         )
