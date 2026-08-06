@@ -44,11 +44,12 @@ dependencies = [
 
 [project.optional-dependencies]
 complete = [
-    "sync-pre-commit-hooks[lastversion]>=0.4.0",
+    "sync-pre-commit-hooks[lastversion,uv]>=0.4.0",
 ]
 lastversion = [
     "lastversion>=3.6.10",
 ]
+uv = [ "uv" ]
 
 [project.scripts]
 apply-command = "sync_pre_commit_hooks.apply_command:main"
@@ -89,7 +90,7 @@ basedpyright = [ "basedpyright>=1.39.9" ]
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.3.0" ]
 nox = [ "nox>=2026.7.11" ]
-optional-dependencies = [ "sync-pre-commit-hooks[complete]" ]
+optional-dependencies = [ "sync-pre-commit-hooks[lastversion]" ]
 pylint = [ "pylint>=4.0.6" ]
 pytest = [ "pytest>=9.1.1" ]
 test-extras = [
