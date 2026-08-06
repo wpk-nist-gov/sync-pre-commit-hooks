@@ -5,6 +5,18 @@
 
 Changelog for `sync-pre-commit-hooks`
 
+## 0.9.1
+
+Released on 2026-08-06.
+
+### Bug fixes
+
+- fix: use `--frozen --offline` with scripts ([#239](https://github.com/wpk-nist-gov/sync-pre-commit-hooks/pull/239))
+
+### Contributors
+
+- [@wpk-nist-gov](https://github.com/wpk-nist-gov)
+
 ## 0.9.0
 
 Released on 2026-08-05.
