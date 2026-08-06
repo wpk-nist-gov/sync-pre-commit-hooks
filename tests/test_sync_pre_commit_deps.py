@@ -73,6 +73,7 @@ def test__get_hook_ids(loaded_simple: PreCommitConfigType) -> None:
         "ruff-check",
         "ruff-format",
         "doccmd",
+        "test",
     ]
 
 

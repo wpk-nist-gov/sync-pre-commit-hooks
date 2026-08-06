@@ -23,7 +23,13 @@ if TYPE_CHECKING:
 
     from ._typing import PreCommitConfigType
 
-ID_TO_PACKAGE = ["ruff-format:ruff", "ruff-check:ruff"]
+ID_TO_PACKAGE = [
+    "ruff-format:ruff",
+    "ruff-check:ruff",
+    "uv-lock:uv",
+    "uv-sync:uv",
+    "uv-export:uv",
+]
 
 logger = get_logger("sync-pre-commit-deps")
 
@@ -55,7 +61,7 @@ def _get_hook_ids(loaded: PreCommitConfigType) -> list[str]:
     return [
         hook["id"]
         for _, hook in pre_commit_config_repo_hook_iter(
-            loaded, exclude_repos={"local", "meta"}
+            loaded,
         )
     ]
 

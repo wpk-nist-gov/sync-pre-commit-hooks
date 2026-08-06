@@ -231,7 +231,7 @@ repos:
           ^\.pre-commit-config\.yaml$
         pass_filenames: false
         additional_dependencies:
-          - "--editable=.[all]"
+          - "--editable=."
       - id: sync-uv-build-deps
         name: sync-uv-build-deps
         entry: sync-uv-build-deps
@@ -239,7 +239,7 @@ repos:
         files: ^pyproject\.toml$|^\.pre-commit-config\.yaml$
         pass_filenames: false
         additional_dependencies:
-          - "--editable=.[all]"
+          - "--editable=."
       - id: sync-uv-dependency-groups
         name: sync-uv-dependency-groups
         entry: sync-uv-dependency-groups
@@ -247,7 +247,7 @@ repos:
         files: ^pyproject.toml$|^\.python-version$
         pass_filenames: false
         additional_dependencies:
-          - "--editable=.[all]"
+          - "--editable=."
       - id: sync-pre-commit-language-version
         name: sync-pre-commit-language-version
         entry: sync-pre-commit-language-version
@@ -258,7 +258,7 @@ repos:
         files: ^\.python-version$
         pass_filenames: false
         additional_dependencies:
-          - "--editable=.[all]"
+          - "--editable=."
       - id: fill-pre-commit-hook-deps
         name: fill-pre-commit-hook-deps
         alias: typecheck
@@ -274,7 +274,7 @@ repos:
           - "--requirements-include=ty"
           - "--requirements-include=pyrefly"
         additional_dependencies:
-          - "--editable=.[all]"
+          - "--editable=."
       - id: sync-pyproject-min-versions
         name: sync-pyproject-min-versions
         alias: requirements
@@ -284,7 +284,8 @@ repos:
         args:
           - "--requirements=requirements/lock/uvx-tools.txt"
         additional_dependencies:
-          - "--editable=.[all]"
+          - "--editable=."
+          - "uv==0.12.0"
 
   # ** typecheck-runner
   - repo: https://github.com/wpk-nist-gov/typecheck-runner
@@ -314,4 +315,3 @@ repos:
           - ty==0.0.65
           - typecheck-runner>=0.2.0; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
-          - uv>=0.12.0

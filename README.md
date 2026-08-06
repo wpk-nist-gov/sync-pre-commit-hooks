@@ -200,7 +200,8 @@ options:
   -m, --id-dep ID_DEP   Colon separated hook id to dependency mapping
                         (``{hook_id}:{dependency}``). For example, to map the ``ruff-
                         check`` hook to ``ruff``, pass ``-m 'ruff-check:ruff'. (Default:
-                        ['ruff-format:ruff', 'ruff-check:ruff'])
+                        ['ruff-format:ruff', 'ruff-check:ruff', 'uv-lock:uv', 'uv-
+                        sync:uv', 'uv-export:uv'])
   --config, --pre-commit-config PRE_COMMIT_CONFIG
                         pre-commit config file (Default '.pre-commit-config.yaml')
   --yaml-mapping YAML_MAPPING
@@ -459,14 +460,18 @@ repos:
       args:
         - "--requirements=path/to/locked/requirements.txt"
       files: ^pyproject\.toml$|^path/to/locked/requirements\.txt$|^path/to/pep723/script\.py$|^path/to/scripts\.py$
+      additional_dependencies:
+        # add uv dependency if syncing locked script files.
+        - 'uv==...'
 ```
 
-Note that if syncing `pyproject.toml`, you need to specify the locked
-requirements file, and this file should be included under `files:` in
-`.pre-commit-config.yaml` so the hook will run on any updates to that file. The
-hook ignores non toml and python script files passed in, so you don't have to
-mess with `pass_filenames`, etc. Only dependencies of the form `dep>={version}`
-will be updated.
+Note that the `uv` dependency is only needed if syncing a locked script file.
+This dependency can be kept up to date using `sync-pre-commit-deps`. If syncing
+`pyproject.toml`, you need to specify the locked requirements file, and this
+file should be included under `files:` in `.pre-commit-config.yaml` so the hook
+will run on any updates to that file. The hook ignores non toml and python
+script files passed in, so you don't have to mess with `pass_filenames`, etc.
+Only dependencies of the form `dep>={version}` will be updated.
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable MD013 -->
