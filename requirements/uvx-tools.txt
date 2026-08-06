@@ -23,3 +23,4 @@ rooster>=0.1.1
 twine>=7.0.0
 ty>=0.0.64
 typecheck-runner>=0.2.0; python_version > "3.9"
+uv>=0.12.0

@@ -314,3 +314,4 @@ repos:
           - ty==0.0.64
           - typecheck-runner>=0.2.0; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
+          - uv>=0.12.0
