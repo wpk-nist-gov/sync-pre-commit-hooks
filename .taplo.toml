@@ -27,6 +27,7 @@ keys = [
     "tool.pyproject2conda",
     "tool.pyrefly",
     "tool.pyright",
+    "tool.ruff",
     "tool.ty",
     "tool.uv",
     "tool.uv-locker.requirements",
