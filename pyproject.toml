@@ -181,8 +181,9 @@ ruff.strictly-empty-init-modules = false
 # Project specific ignores
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
-    "D",    # - Don't need to document tests
-    "S101", # - Assert is fine with tests
+    "D",      # - Don't need to document tests
+    "S101",   # - Assert is fine with tests
+    "SLF001",
 ]
 
 # * Checks ---------------------------------------------------------------------
