@@ -4,8 +4,6 @@
     Sync pre-commit hook additional_dependencies based on installed hooks
   entry: sync-pre-commit-deps
   language: python
-  additional_dependencies:
-    - ".[all]"
   files: ^\.pre-commit-config\.yaml$
   pass_filenames: false
   minimum_pre_commit_version: &min_pre_commit "2.9.2"
@@ -16,8 +14,6 @@
   entry: fill-pre-commit-deps
   args: ["--help"]
   language: python
-  additional_dependencies:
-    - ".[all]"
   files: ^\.pre-commit-config\.yaml$|^pyproject\.toml$
   pass_filenames: false
   minimum_pre_commit_version: *min_pre_commit
@@ -27,8 +23,6 @@
   entry: sync-pre-commit-language-version
   args: ["--help"]
   language: python
-  additional_dependencies:
-    - ".[all]"
   files: ^\.pre-commit-config\.yaml$|^\.python-version$
   pass_filenames: false
   minimum_pre_commit_version: *min_pre_commit
@@ -47,8 +41,6 @@
     "pyproject.toml"
   entry: sync-uv-dependency-groups
   language: python
-  additional_dependencies:
-    - ".[all]"
   files: ^pyproject\.toml$|^\.python-version$
   pass_filenames: false
   minimum_pre_commit_version: *min_pre_commit
@@ -56,8 +48,6 @@
   name: sync-uv-build-deps
   entry: sync-uv-build-deps
   language: python
-  additional_dependencies:
-    - ".[all]"
   files: ^pyproject\.toml$|^\.pre-commit-config\.yaml$
   pass_filenames: false
   minimum_pre_commit_version: *min_pre_commit
@@ -74,8 +64,6 @@
     "requirements.txt" file
   entry: sync-pyproject-min-versions
   language: python
-  additional_dependencies:
-    - ".[all]"
   args:
     - "--help"
   files: ^pyproject\.toml$
