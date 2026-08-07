@@ -5,6 +5,18 @@
 
 Changelog for `sync-pre-commit-hooks`
 
+## 0.9.2
+
+Released on 2026-08-07.
+
+### Bug fixes
+
+- fix: remove uv from dependencies. ([#241](https://github.com/wpk-nist-gov/sync-pre-commit-hooks/pull/241))
+
+### Contributors
+
+- [@wpk-nist-gov](https://github.com/wpk-nist-gov)
+
 ## 0.9.1
 
 Released on 2026-08-06.
