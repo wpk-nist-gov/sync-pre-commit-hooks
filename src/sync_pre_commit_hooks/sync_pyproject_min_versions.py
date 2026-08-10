@@ -189,7 +189,7 @@ class Replacer:
     ) -> str:
         if ignore is ...:
             return line
-        return REQUIREMENT_REGEX.sub(partial(self._match_func, ignore=ignore), line)
+        return REQUIREMENT_REGEX.sub(partial(self._match_func, ignore=ignore), line)  # pyrefly: ignore[bad-argument-type]  # pyrefly bug
 
     def replace_contents(self, contents: str) -> str:
         out: list[str] = []
