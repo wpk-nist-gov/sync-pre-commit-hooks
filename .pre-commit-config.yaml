@@ -57,7 +57,7 @@ repos:
       - id: pyproject-fmt
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2026.08.01
+    rev: 2026.08.05
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -127,7 +127,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.12.1
+    rev: 0.12.2
     hooks:
       - id: uv-lock
         alias: requirements
@@ -285,7 +285,7 @@ repos:
           - "--requirements=requirements/lock/uvx-tools.txt"
         additional_dependencies:
           - "--editable=."
-          - "uv==0.12.1"
+          - "uv==0.12.2"
 
   # ** typecheck-runner
   - repo: https://github.com/wpk-nist-gov/typecheck-runner
@@ -312,6 +312,6 @@ repos:
           - ruamel-yaml>=0.19.1
           - tomli>=2.4.1; python_version < "3.11"
           - tomlkit>=0.14.0
-          - ty==0.0.66
+          - ty==0.0.69
           - typecheck-runner>=0.2.0; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
