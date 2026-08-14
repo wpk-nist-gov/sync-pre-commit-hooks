@@ -20,6 +20,19 @@ if TYPE_CHECKING:
 
 
 @pytest.mark.parametrize(
+    ("line", "default", "expected"),
+    [
+        ("", True, True),
+        ("", False, False),
+        ("# sync-pyproject-min-version: on ", False, True),
+        ("# sync-pyproject-min-versions: off", True, False),
+    ],
+)
+def test__get_replace_on(line: str, default: bool, expected: bool) -> None:
+    assert mod._get_replace_on(line, default) is expected
+
+
+@pytest.mark.parametrize(
     ("line", "ignore"),
     [  # pyright: ignore[reportUnknownArgumentType]
         ("# sync-pyproject-min-versions:ignore", (Ellipsis, True)),
@@ -243,6 +256,7 @@ versions_markers = pytest.mark.parametrize(
 toml_markers = pytest.mark.parametrize(
     ("as_script", "include", "exclude", "toml_or_script", "expected"),
     [
+        # * pyproject
         pytest.param(
             False,
             [],
@@ -323,6 +337,7 @@ toml_markers = pytest.mark.parametrize(
             """),
             id="replace mixed 2",
         ),
+        # ** ignore
         pytest.param(
             False,
             [],
@@ -403,7 +418,76 @@ toml_markers = pytest.mark.parametrize(
             """),
             id="comment spec next line",
         ),
-        # scripts
+        # ** on/off
+        pytest.param(
+            False,
+            [],
+            [],
+            dedent(r"""
+            # sync-pyproject-min-versions: off
+            dependencies = [
+                "mypy>=0.0.0",
+                'pyright>=0.0.0'
+                "an-example>=0.0.0",
+            ]
+            """),
+            dedent(r"""
+            # sync-pyproject-min-versions: off
+            dependencies = [
+                "mypy>=0.0.0",
+                'pyright>=0.0.0'
+                "an-example>=0.0.0",
+            ]
+            """),
+            id="turn off",
+        ),
+        pytest.param(
+            False,
+            [],
+            [],
+            dedent(r"""
+            # sync-pyproject-min-versions: on
+            dependencies = [
+                "mypy>=0.0.0",
+                'pyright>=0.0.0'
+                "an-example>=0.0.0",
+            ]
+            """),
+            dedent(r"""
+            # sync-pyproject-min-versions: on
+            dependencies = [
+                "mypy>=1.2.3",
+                'pyright>=2.3.4'
+                "an-example>=3.4.5",
+            ]
+            """),
+            id="turn on",
+        ),
+        pytest.param(
+            False,
+            [],
+            [],
+            dedent(r"""
+            # sync-pyproject-min-versions: off
+            dependencies = [
+                "mypy>=0.0.0",
+                'pyright>=0.0.0'
+            # sync-pyproject-min-versions: on
+                "an-example>=0.0.0",
+            ]
+            """),
+            dedent(r"""
+            # sync-pyproject-min-versions: off
+            dependencies = [
+                "mypy>=0.0.0",
+                'pyright>=0.0.0'
+            # sync-pyproject-min-versions: on
+                "an-example>=3.4.5",
+            ]
+            """),
+            id="turn on",
+        ),
+        # * scripts
         pytest.param(
             True,
             [],
@@ -506,7 +590,7 @@ toml_markers = pytest.mark.parametrize(
             """),
             id="noreplace script (bad header)",
         ),
-        # comments
+        # ** comments
         pytest.param(
             True,
             [],
@@ -643,6 +727,81 @@ toml_markers = pytest.mark.parametrize(
             # ///
             """),
             id="multi comment spec next line",
+        ),
+        # ** on/off
+        pytest.param(
+            True,
+            [],
+            [],
+            dedent(r"""
+            # /// script
+            # # sync-pyproject-min-versions: on
+            # dependencies = [
+            #     "mypy>=0.0.0",
+            #     'pyright>=0.0.0',
+            # ]
+            # ///
+            """),
+            dedent(r"""
+            # /// script
+            # # sync-pyproject-min-versions: on
+            # dependencies = [
+            #     "mypy>=1.2.3",
+            #     'pyright>=2.3.4',
+            # ]
+            # ///
+            """),
+            id="script on",
+        ),
+        pytest.param(
+            True,
+            [],
+            [],
+            dedent(r"""
+            # /// script
+            # # sync-pyproject-min-versions: off
+            # dependencies = [
+            #     "mypy>=0.0.0",
+            #     'pyright>=0.0.0',
+            # ]
+            # ///
+            """),
+            dedent(r"""
+            # /// script
+            # # sync-pyproject-min-versions: off
+            # dependencies = [
+            #     "mypy>=0.0.0",
+            #     'pyright>=0.0.0',
+            # ]
+            # ///
+            """),
+            id="script off",
+        ),
+        pytest.param(
+            True,
+            [],
+            [],
+            dedent(r"""
+            # /// script
+            # # sync-pyproject-min-versions: off
+            # dependencies = [
+            #     "mypy>=0.0.0",
+            # # sync-pyproject-min-versions: on
+            #     'pyright>=0.0.0',
+            # ]
+            # ///
+            """),
+            dedent(r"""
+            # /// script
+            # # sync-pyproject-min-versions: off
+            # dependencies = [
+            #     "mypy>=0.0.0",
+            # # sync-pyproject-min-versions: on
+            #     'pyright>=2.3.4',
+            # ]
+            # ///
+            """),
+            id="script on-off",
         ),
     ],
 )

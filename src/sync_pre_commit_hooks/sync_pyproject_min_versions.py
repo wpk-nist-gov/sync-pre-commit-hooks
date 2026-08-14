@@ -104,7 +104,7 @@ def _get_requirements_pattern() -> str:
 REQUIREMENT_REGEX: Final = re.compile(
     _get_requirements_pattern(), flags=re.VERBOSE | re.IGNORECASE
 )
-IGNORE_PATTERN: Final = re.compile(
+IGNORE_REGEX: Final = re.compile(
     r"""
     \s*
     (?P<deps>
@@ -119,6 +119,32 @@ IGNORE_PATTERN: Final = re.compile(
     """,
     flags=re.VERBOSE,
 )
+REPLACE_ONOFF_REGEX: Final = re.compile(
+    r"""
+    \s*
+    (:?
+        \#\s*
+        sync-pyproject-min-versions?:
+        \s*
+        (?P<on_or_off>on|off)
+        \s*
+    )
+    """,
+    flags=re.VERBOSE,
+)
+
+
+def _get_replace_on(line: str, default: bool = True) -> bool:
+    """
+    Match lines like `# sync-pyproject-min-versions: on/off`.
+
+    * 'on': return True
+    * 'off': return False
+    * No match: return `default`
+    """
+    if m := REPLACE_ONOFF_REGEX.match(line):
+        return m.group("on_or_off") == "on"
+    return default
 
 
 def _get_ignore_names(line: str) -> tuple[set[NormalizedName] | EllipsisType, bool]:
@@ -147,7 +173,7 @@ def _get_ignore_names(line: str) -> tuple[set[NormalizedName] | EllipsisType, bo
         If True, ignore comment applies to the following line
 
     """
-    if match := IGNORE_PATTERN.match(line):
+    if match := IGNORE_REGEX.match(line):
         next_line = not bool(match.group("deps"))
         if ignore := match.group("ignore"):
             return {canonicalize_name(d.strip()) for d in ignore.split(",")}, next_line
@@ -160,7 +186,10 @@ class Replacer:
         self.versions = versions
 
     def _match_func(
-        self, match: re.Match[str], ignore: Container[NormalizedName]
+        self,
+        match: re.Match[str],
+        ignore: Container[NormalizedName],
+        include: Container[NormalizedName] | EllipsisType = ...,
     ) -> str:
         original_string = match.group(0)
         try:
@@ -169,6 +198,9 @@ class Replacer:
             return original_string
 
         if (name := canonicalize_name(dep.name)) in ignore:
+            return original_string
+
+        if include is not ... and name not in include:  # pragma: no cover  # pyrefly: ignore [not-iterable]
             return original_string
 
         if (
@@ -195,9 +227,14 @@ class Replacer:
         out: list[str] = []
         lines = iter(contents.splitlines(keepends=True))
         line: str
+        replace_on = True
 
         for line_ in lines:
             line = line_
+            if not (replace_on := _get_replace_on(line, replace_on)):
+                out.append(line)
+                continue
+
             ignore, nextline = _get_ignore_names(line)
             if nextline:
                 out.append(line)
@@ -210,11 +247,16 @@ class Replacer:
         found = False
         lines = iter(contents.splitlines(keepends=True))
         line: str
+        replace_on = True
 
         for line_ in lines:
             line = line_
             if not found:
                 found = re.match(r"^#\s+///\s+script$", line) is not None
+                out.append(line)
+                continue
+
+            if not (replace_on := _get_replace_on(line[1:], replace_on)):
                 out.append(line)
                 continue
 
