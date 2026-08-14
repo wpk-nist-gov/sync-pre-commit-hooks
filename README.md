@@ -515,15 +515,26 @@ You can skip updates by adding the comment
 `# sync-pyproject-min-versions: ignore[dep]`. If the comment is on a line by
 itself, the comment applies to the following line. If the comment follows a
 dependency, it applies to the current line. To ignore all dependencies on a
-line, exclude `[dep]`.
+line, exclude `[dep]`. You can also disable/enable replacement for a section
+using `# sync-pyproject-min-versions: off/on` comments.
 
 ```toml
+[project]
+# ...
 dependencies = [
   "a-package>=0.0.1", #  sync-pyproject-min-versions: ignore  # no update
   # sync-pyproject-min-versions: ignore[another-package]
   "another-package>=0.0.1",  "yet-another>=0.0.1"  # no update to `another-package`
 ]
+
+[project.optional-dependencies]
+# sync-pyproject-min-versions: off  # this will disable an updates until turned back on
+# ...
+# ...
+# sync-pyproject-min-versions: on   # this will enable updates
 ```
+
+Note that the default is to allow updates.
 
 ## sync-uv-build-deps
 
