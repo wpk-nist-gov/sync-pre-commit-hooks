@@ -57,7 +57,7 @@ repos:
       - id: pyproject-fmt
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2026.08.05
+    rev: 2026.08.08
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -97,7 +97,7 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.1
+    rev: v0.16.2
     hooks:
       - id: ruff-check
         alias: ruff
@@ -127,7 +127,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.12.2
+    rev: 0.12.3
     hooks:
       - id: uv-lock
         alias: requirements
@@ -160,7 +160,7 @@ repos:
 
   # * Actions
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.37.4
+    rev: 0.38.0
     hooks:
       - id: check-github-workflows
         alias: actions
@@ -285,7 +285,7 @@ repos:
           - "--requirements=requirements/lock/uvx-tools.txt"
         additional_dependencies:
           - "--editable=."
-          - "uv==0.12.2"
+          - "uv==0.12.3"
 
   # ** typecheck-runner
   - repo: https://github.com/wpk-nist-gov/typecheck-runner
