@@ -27,6 +27,28 @@ repos:
       - id: check-hooks-apply
       - id: check-useless-excludes
 
+<<<<<<< before updating
+=======
+  # * sync dependencies
+  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
+    rev: v0.9.2
+    hooks:
+      - id: forbidden-files
+      - id: sync-pre-commit-deps
+      - id: sync-uv-build-deps
+      - id: sync-uv-dependency-groups
+      - id: sync-pyproject-min-versions
+        files: |
+          (?x)^(
+            pyproject\.toml|
+            requirements/lock/uvx-tools\.txt|
+            noxfile\.py|
+            ^tools/.*\.py
+          )$
+        args:
+          - "--requirements=requirements/lock/uvx-tools.txt"
+
+>>>>>>> after updating
   # * Top level
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
