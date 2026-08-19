@@ -601,7 +601,7 @@ wheels = [
 
 [[package]]
 name = "lastversion"
-version = "3.6.13"
+version = "3.6.17"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "appdirs" },
@@ -616,9 +616,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/07/f1/ca15d42fec0c5a525570f01fcd75d7abe427ba2e9bb4c9312ec5648cb863/lastversion-3.6.13.tar.gz", hash = "sha256:e4c109a6270a844294629f85588817b0408dd34857ece051c2b189d3620d70f3", size = 122366, upload-time = "2026-08-11T18:08:47.547Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a9/40/b2822b9b99496d7788d82fb6d4ae700de1148f5f11d95002a1d9f64c78f5/lastversion-3.6.17.tar.gz", hash = "sha256:d74f9d0995768d4fb31e3d2dcb7b45eb63cf3efdc25d37bdaf1a1a295f0b3d07", size = 125473, upload-time = "2026-08-12T06:45:37.289Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/16/5b/48d3f0c626d38199fc34f1345a79820ed118440a19f757b55a6427b165d0/lastversion-3.6.13-py3-none-any.whl", hash = "sha256:ae1eb335f3ad0b97dd5b7bbbfaa32da5a6bddc4b7b0d5c141c9b47359c546d4e", size = 98206, upload-time = "2026-08-11T18:08:46.222Z" },
+    { url = "https://files.pythonhosted.org/packages/07/9a/b30852caea2347d4a65b413299f8f1368ab9bec6cc8c259cd6c8ec0e532c/lastversion-3.6.17-py3-none-any.whl", hash = "sha256:73917d489360d1b3d475c8d92708023168e4db0171be247d1fed0711c4ac53c2", size = 99859, upload-time = "2026-08-12T06:45:35.84Z" },
 ]
 
 [[package]]
