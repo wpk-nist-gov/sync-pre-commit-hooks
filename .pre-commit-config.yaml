@@ -52,7 +52,7 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.27.0
+    rev: v2.27.1
     hooks:
       - id: pyproject-fmt
   # ** validate (schema-store)
@@ -97,7 +97,7 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.2
+    rev: v0.16.3
     hooks:
       - id: ruff-check
         alias: ruff
@@ -127,7 +127,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.12.3
+    rev: 0.12.4
     hooks:
       - id: uv-lock
         alias: requirements
@@ -285,7 +285,7 @@ repos:
           - "--requirements=requirements/lock/uvx-tools.txt"
         additional_dependencies:
           - "--editable=."
-          - "uv==0.12.3"
+          - "uv==0.12.4"
 
   # ** typecheck-runner
   - repo: https://github.com/wpk-nist-gov/typecheck-runner
@@ -312,6 +312,6 @@ repos:
           - ruamel-yaml>=0.19.1
           - tomli>=2.4.1; python_version < "3.11"
           - tomlkit>=0.14.0
-          - ty==0.0.70
+          - ty==0.0.71
           - typecheck-runner>=0.2.0; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
