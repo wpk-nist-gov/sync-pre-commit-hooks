@@ -27,6 +27,28 @@ repos:
       - id: check-hooks-apply
       - id: check-useless-excludes
 
+<<<<<<< before updating
+=======
+  # * sync dependencies
+  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
+    rev: v0.10.0
+    hooks:
+      - id: forbidden-files
+      - id: sync-pre-commit-deps
+      - id: sync-uv-build-deps
+      - id: sync-uv-dependency-groups
+      - id: sync-pyproject-min-versions
+        files: |
+          (?x)^(
+            pyproject\.toml|
+            requirements/lock/uvx-tools\.txt|
+            noxfile\.py|
+            ^tools/.*\.py
+          )$
+        args:
+          - "--requirements=requirements/lock/uvx-tools.txt"
+
+>>>>>>> after updating
   # * Top level
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -52,19 +74,23 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
+<<<<<<< before updating
     rev: v2.27.1
+=======
+    rev: v2.28.0
+>>>>>>> after updating
     hooks:
       - id: pyproject-fmt
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2026.08.08
+    rev: 2026.08.15
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
         stages: [manual]
   # ** repo review
   - repo: https://github.com/scientific-python/cookie
-    rev: 2026.06.18
+    rev: 2026.08.14
     hooks:
       - id: sp-repo-review
         stages: [manual]
@@ -127,7 +153,11 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
+<<<<<<< before updating
     rev: 0.12.4
+=======
+    rev: 0.12.5
+>>>>>>> after updating
     hooks:
       - id: uv-lock
         alias: requirements
@@ -140,7 +170,7 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.17.0
+    rev: v4.17.1
     hooks:
       - id: commitizen
         stages: [commit-msg]
