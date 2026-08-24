@@ -1,11 +1,7 @@
 [build-system]
 build-backend = "uv_build"
 requires = [
-<<<<<<< before updating
-    "uv-build>=0.12.4,<0.13.0",
-=======
     "uv-build>=0.12.5,<0.13.0",
->>>>>>> after updating
 ]
 
 [project]
@@ -46,7 +42,6 @@ dependencies = [
     "typing-extensions>=4.15.0; python_version<'3.12'",
 ]
 
-<<<<<<< before updating
 [project.optional-dependencies]
 complete = [
     "sync-pre-commit-hooks[lastversion,uv]>=0.4.0",
@@ -56,6 +51,10 @@ lastversion = [
 ]
 uv = [ "uv" ]
 
+[project.urls]
+Documentation = "https://pages.nist.gov/sync-pre-commit-hooks/"
+Homepage = "https://github.com/wpk-nist-gov/sync-pre-commit-hooks"
+
 [project.scripts]
 apply-command = "sync_pre_commit_hooks.apply_command:main"
 fill-pre-commit-deps = "sync_pre_commit_hooks.fill_pre_commit_deps:main"
@@ -64,15 +63,6 @@ sync-pre-commit-language-version = "sync_pre_commit_hooks.sync_pre_commit_langua
 sync-uv-dependency-groups = "sync_pre_commit_hooks.sync_uv_dependency_groups:main"
 sync-uv-build-deps = "sync_pre_commit_hooks.sync_uv_build_deps:main"
 sync-pyproject-min-versions = "sync_pre_commit_hooks.sync_pyproject_min_versions:main"
-
-=======
->>>>>>> after updating
-[project.urls]
-Documentation = "https://pages.nist.gov/sync-pre-commit-hooks/"
-Homepage = "https://github.com/wpk-nist-gov/sync-pre-commit-hooks"
-
-[project.scripts]
-sync_pre_commit_hooks = "sync_pre_commit_hooks.cli:main"
 
 [dependency-groups]
 dev = [
@@ -97,18 +87,6 @@ type = [
 ]
 # other groups
 basedpyright = [ "basedpyright>=1.39.10" ]
-<<<<<<< before updating
-=======
-docs-live = [
-    "sphinx-autobuild",
-    { include-group = "docs" },
-]
-docs-spelling = [
-    "pyenchant",
-    "sphinxcontrib-spelling",
-    { include-group = "docs" },
-]
->>>>>>> after updating
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.3.1" ]
 nox = [ "nox>=2026.8.10" ]
@@ -375,14 +353,6 @@ paths.source = [
     "*/.nox/**/site-packages",
     "*/src",
 ]
-<<<<<<< before updating
-report.exclude_also = [
-    "@overload",
-    'if __name__ == "__main__":',
-    "if TYPE_CHECKING:",
-]
-=======
->>>>>>> after updating
 report.include = [
     "src/*",
 ]
@@ -392,6 +362,7 @@ report.omit = [
 ]
 report.exclude_also = [
     "@overload",
+    'if __name__ == "__main__":',
     "if TYPE_CHECKING:",
 ]
 report.show_missing = true
@@ -436,11 +407,7 @@ pip-deps = [
     "pyright>=1.1.411",
     "rooster>=0.1.1",
     "twine>=7.0.0",
-<<<<<<< before updating
-    "ty>=0.0.71",
-=======
     "ty>=0.0.72",
->>>>>>> after updating
 ]
 groups = [
     "basedpyright",

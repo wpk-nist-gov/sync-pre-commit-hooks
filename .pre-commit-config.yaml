@@ -27,28 +27,6 @@ repos:
       - id: check-hooks-apply
       - id: check-useless-excludes
 
-<<<<<<< before updating
-=======
-  # * sync dependencies
-  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.10.0
-    hooks:
-      - id: forbidden-files
-      - id: sync-pre-commit-deps
-      - id: sync-uv-build-deps
-      - id: sync-uv-dependency-groups
-      - id: sync-pyproject-min-versions
-        files: |
-          (?x)^(
-            pyproject\.toml|
-            requirements/lock/uvx-tools\.txt|
-            noxfile\.py|
-            ^tools/.*\.py
-          )$
-        args:
-          - "--requirements=requirements/lock/uvx-tools.txt"
-
->>>>>>> after updating
   # * Top level
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -74,11 +52,7 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-<<<<<<< before updating
-    rev: v2.27.1
-=======
     rev: v2.28.0
->>>>>>> after updating
     hooks:
       - id: pyproject-fmt
   # ** validate (schema-store)
@@ -153,11 +127,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-<<<<<<< before updating
-    rev: 0.12.4
-=======
     rev: 0.12.5
->>>>>>> after updating
     hooks:
       - id: uv-lock
         alias: requirements
@@ -315,7 +285,7 @@ repos:
           - "--requirements=requirements/lock/uvx-tools.txt"
         additional_dependencies:
           - "--editable=."
-          - "uv==0.12.4"
+          - "uv==0.12.5"
 
   # ** typecheck-runner
   - repo: https://github.com/wpk-nist-gov/typecheck-runner
@@ -342,6 +312,6 @@ repos:
           - ruamel-yaml>=0.19.1
           - tomli>=2.4.1; python_version < "3.11"
           - tomlkit>=0.14.0
-          - ty==0.0.71
+          - ty==0.0.72
           - typecheck-runner>=0.2.0; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
