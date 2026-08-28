@@ -90,15 +90,9 @@ basedpyright = [ "basedpyright>=1.39.10" ]
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.3.1" ]
 nox = [ "nox>=2026.8.17" ]
-<<<<<<< before updating
 optional-dependencies = [ "sync-pre-commit-hooks[lastversion]" ]
 pylint = [ "pylint>=4.0.7" ]
 pytest = [ "pytest>=9.1.1" ]
-=======
-pylint = [ "pylint" ]
-pytest = [ "pytest" ]
-pytest-accept = [ "pytest-accept" ]
->>>>>>> after updating
 test-extras = [
     { include-group = "test" },
 ]
