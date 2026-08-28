@@ -152,8 +152,8 @@ repos:
         name: cog-readme
         alias: cog
         entry: >-
-          uv run --no-dev --group=optional-dependencies --isolated uv run
-          tools/cog_runner.py -- README.md
+          uv run --no-default-groups --group=optional-dependencies --isolated uv
+          run tools/cog_runner.py -- README.md
         language: python
         pass_filenames: false
         stages: [manual]
@@ -225,32 +225,32 @@ repos:
         files: \.(rej|bak|log)$
       - id: sync-pre-commit-deps
         name: sync-pre-commit-deps
-        entry: sync-pre-commit-deps
+        entry: uv run --no-default-groups sync-pre-commit-deps
         language: python
         files: >-
           ^\.pre-commit-config\.yaml$
         pass_filenames: false
         additional_dependencies:
-          - "--editable=."
+          - "uv==0.12.5"
       - id: sync-uv-build-deps
         name: sync-uv-build-deps
-        entry: sync-uv-build-deps
+        entry: uv run --no-default-groups sync-uv-build-deps
         language: python
         files: ^pyproject\.toml$|^\.pre-commit-config\.yaml$
         pass_filenames: false
         additional_dependencies:
-          - "--editable=."
+          - "uv==0.12.5"
       - id: sync-uv-dependency-groups
         name: sync-uv-dependency-groups
-        entry: sync-uv-dependency-groups
+        entry: uv run --no-default-groups sync-uv-dependency-groups
         language: python
         files: ^pyproject.toml$|^\.python-version$
         pass_filenames: false
         additional_dependencies:
-          - "--editable=."
+          - "uv==0.12.5"
       - id: sync-pre-commit-language-version
         name: sync-pre-commit-language-version
-        entry: sync-pre-commit-language-version
+        entry: uv run --no-default-groups sync-pre-commit-language-version
         language: python
         args:
           - "--language-version-file=.python-version"
@@ -258,11 +258,11 @@ repos:
         files: ^\.python-version$
         pass_filenames: false
         additional_dependencies:
-          - "--editable=."
+          - "uv==0.12.5"
       - id: fill-pre-commit-hook-deps
         name: fill-pre-commit-hook-deps
         alias: typecheck
-        entry: fill-pre-commit-deps
+        entry: uv run --no-default-groups fill-pre-commit-deps
         language: python
         files: ^pyproject.toml$|^\.pre-commit-config.yaml$|^requirements/lock/uvx-tools\.txt$
         pass_filenames: false
@@ -274,17 +274,16 @@ repos:
           - "--requirements-include=ty"
           - "--requirements-include=pyrefly"
         additional_dependencies:
-          - "--editable=."
+          - "uv==0.12.5"
       - id: sync-pyproject-min-versions
         name: sync-pyproject-min-versions
         alias: requirements
-        entry: sync-pyproject-min-versions
+        entry: uv run --no-default-groups sync-pyproject-min-versions
         language: python
         files: ^pyproject\.toml$|^requirements/lock/uvx-tools\.txt$|^noxfile\.py$|^tools/.*\.py$
         args:
           - "--requirements=requirements/lock/uvx-tools.txt"
         additional_dependencies:
-          - "--editable=."
           - "uv==0.12.5"
 
   # ** typecheck-runner
