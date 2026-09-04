@@ -97,7 +97,7 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.4
+    rev: v0.16.5
     hooks:
       - id: ruff-check
         alias: ruff
@@ -133,7 +133,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.12.6
+    rev: 0.12.7
     hooks:
       - id: uv-lock
         alias: requirements
@@ -237,7 +237,7 @@ repos:
           ^\.pre-commit-config\.yaml$
         pass_filenames: false
         additional_dependencies:
-          - "uv==0.12.6"
+          - "uv==0.12.7"
       - id: sync-uv-build-deps
         name: sync-uv-build-deps
         entry: uv run --no-default-groups sync-uv-build-deps
@@ -245,7 +245,7 @@ repos:
         files: ^pyproject\.toml$|^\.pre-commit-config\.yaml$
         pass_filenames: false
         additional_dependencies:
-          - "uv==0.12.6"
+          - "uv==0.12.7"
       - id: sync-uv-dependency-groups
         name: sync-uv-dependency-groups
         entry: uv run --no-default-groups sync-uv-dependency-groups
@@ -253,7 +253,7 @@ repos:
         files: ^pyproject.toml$|^\.python-version$
         pass_filenames: false
         additional_dependencies:
-          - "uv==0.12.6"
+          - "uv==0.12.7"
       - id: sync-pre-commit-language-version
         name: sync-pre-commit-language-version
         entry: uv run --no-default-groups sync-pre-commit-language-version
@@ -264,7 +264,7 @@ repos:
         files: ^\.python-version$
         pass_filenames: false
         additional_dependencies:
-          - "uv==0.12.6"
+          - "uv==0.12.7"
       - id: fill-pre-commit-hook-deps
         name: fill-pre-commit-hook-deps
         alias: typecheck
@@ -280,7 +280,7 @@ repos:
           - "--requirements-include=ty"
           - "--requirements-include=pyrefly"
         additional_dependencies:
-          - "uv==0.12.6"
+          - "uv==0.12.7"
       - id: sync-pyproject-min-versions
         name: sync-pyproject-min-versions
         alias: requirements
@@ -290,7 +290,7 @@ repos:
         args:
           - "--requirements=requirements/lock/uvx-tools.txt"
         additional_dependencies:
-          - "uv==0.12.6"
+          - "uv==0.12.7"
 
   # ** typecheck-runner
   - repo: https://github.com/wpk-nist-gov/typecheck-runner
@@ -317,6 +317,6 @@ repos:
           - ruamel-yaml>=0.19.1
           - tomli>=2.4.1; python_version < "3.11"
           - tomlkit>=0.14.0
-          - ty==0.0.74
+          - ty==0.0.75
           - typecheck-runner>=0.2.0; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
