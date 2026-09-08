@@ -52,11 +52,7 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-<<<<<<< before updating
-    rev: v2.28.1
-=======
     rev: v2.29.3
->>>>>>> after updating
     hooks:
       - id: pyproject-fmt
   # ** validate (schema-store)
@@ -137,11 +133,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-<<<<<<< before updating
-    rev: 0.12.7
-=======
     rev: 0.12.8
->>>>>>> after updating
     hooks:
       - id: uv-lock
         alias: requirements
@@ -251,7 +243,7 @@ repos:
           ^\.pre-commit-config\.yaml$
         pass_filenames: false
         additional_dependencies:
-          - "uv==0.12.7"
+          - "uv==0.12.8"
       - id: sync-uv-build-deps
         name: sync-uv-build-deps
         entry: uv run --no-default-groups sync-uv-build-deps
@@ -259,7 +251,7 @@ repos:
         files: ^pyproject\.toml$|^\.pre-commit-config\.yaml$
         pass_filenames: false
         additional_dependencies:
-          - "uv==0.12.7"
+          - "uv==0.12.8"
       - id: sync-uv-dependency-groups
         name: sync-uv-dependency-groups
         entry: uv run --no-default-groups sync-uv-dependency-groups
@@ -267,7 +259,7 @@ repos:
         files: ^pyproject.toml$|^\.python-version$
         pass_filenames: false
         additional_dependencies:
-          - "uv==0.12.7"
+          - "uv==0.12.8"
       - id: sync-pre-commit-language-version
         name: sync-pre-commit-language-version
         entry: uv run --no-default-groups sync-pre-commit-language-version
@@ -278,7 +270,7 @@ repos:
         files: ^\.python-version$
         pass_filenames: false
         additional_dependencies:
-          - "uv==0.12.7"
+          - "uv==0.12.8"
       - id: fill-pre-commit-hook-deps
         name: fill-pre-commit-hook-deps
         alias: typecheck
@@ -294,7 +286,7 @@ repos:
           - "--requirements-include=ty"
           - "--requirements-include=pyrefly"
         additional_dependencies:
-          - "uv==0.12.7"
+          - "uv==0.12.8"
       - id: sync-pyproject-min-versions
         name: sync-pyproject-min-versions
         alias: requirements
@@ -304,7 +296,7 @@ repos:
         args:
           - "--requirements=requirements/lock/uvx-tools.txt"
         additional_dependencies:
-          - "uv==0.12.7"
+          - "uv==0.12.8"
 
   # ** typecheck-runner
   - repo: https://github.com/wpk-nist-gov/typecheck-runner
