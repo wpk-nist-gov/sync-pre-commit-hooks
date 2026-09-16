@@ -188,7 +188,7 @@ def test_options_get_versions(
 
     with patch(
         "sync_pre_commit_hooks.sync_pyproject_min_versions.check_output",
-        side_effect=lambda x: export_output.encode(),
+        side_effect=lambda x: export_output.encode(),  # pyrefly: ignore [implicit-any-lambda]
     ) as mocked:
         assert opts.get_versions_from_script(script_path) == expected
 
@@ -218,7 +218,7 @@ def test_options_get_versions(
             ]
 
         else:
-            expected_calls = []
+            expected_calls = []  # pyrefly: ignore [implicit-any-empty-container]
 
         assert mocked.mock_calls == expected_calls
 
@@ -866,7 +866,7 @@ def test_main(
 
     with patch(
         "sync_pre_commit_hooks.sync_pyproject_min_versions.check_output",
-        side_effect=lambda x: versions_str.encode(),
+        side_effect=lambda x: versions_str.encode(),  # pyrefly: ignore [implicit-any-lambda]
     ):
         assert not mod.main([
             *(
