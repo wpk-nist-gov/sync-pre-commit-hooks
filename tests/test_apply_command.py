@@ -40,6 +40,4 @@ def test_main(
     with patch("subprocess.call", return_value=return_value) as mocked_call:
         assert apply_command.main([*argv, *files]) == return_code
 
-        assert mocked_call.call_args_list == [
-            call((*command, str(file))) for file in files
-        ]
+        assert mocked_call.call_args_list == [call((*command, file)) for file in files]
