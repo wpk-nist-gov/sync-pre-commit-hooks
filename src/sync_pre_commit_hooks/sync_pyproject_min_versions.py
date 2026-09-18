@@ -200,7 +200,7 @@ class Replacer:
         if (name := canonicalize_name(dep.name)) in ignore:
             return original_string
 
-        if include is not ... and name not in include:  # pragma: no cover  # pyrefly: ignore [not-iterable]
+        if include is not ... and name not in include:  # pragma: no cover
             return original_string
 
         if (
@@ -221,7 +221,9 @@ class Replacer:
     ) -> str:
         if ignore is ...:
             return line
-        return REQUIREMENT_REGEX.sub(partial(self._match_func, ignore=ignore), line)  # pyrefly: ignore[bad-argument-type]  # pyrefly bug
+        return REQUIREMENT_REGEX.sub(
+            partial(self._match_func, ignore=ignore), line
+        )  # pyrefly bug
 
     def replace_contents(self, contents: str) -> str:
         out: list[str] = []
