@@ -59,6 +59,7 @@ Homepage = "https://github.com/wpk-nist-gov/sync-pre-commit-hooks"
 [project.scripts]
 apply-command = "sync_pre_commit_hooks.apply_command:main"
 fill-pre-commit-deps = "sync_pre_commit_hooks.fill_pre_commit_deps:main"
+format-python-section-headers = "sync_pre_commit_hooks.format_python_section_headers:main"
 sync-pre-commit-deps = "sync_pre_commit_hooks.sync_pre_commit_deps:main"
 sync-pre-commit-language-version = "sync_pre_commit_hooks.sync_pre_commit_language_version:main"
 sync-uv-dependency-groups = "sync_pre_commit_hooks.sync_uv_dependency_groups:main"

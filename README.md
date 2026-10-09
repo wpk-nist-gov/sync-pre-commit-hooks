@@ -45,6 +45,7 @@ out of sync.
   - [sync-pre-commit-deps](#sync-pre-commit-deps)
   - [fill-pre-commit-deps](#fill-pre-commit-deps)
   - [sync-pre-commit-language-version](#sync-pre-commit-language-version)
+  - [format-python-section-headers](#format-python-section-headers)
   - [apply-command](#apply-command)
   - [sync-pyproject-min-versions](#sync-pyproject-min-versions)
   - [sync-uv-build-deps](#sync-uv-build-deps)
@@ -393,6 +394,58 @@ repos:
       - id: mypy
         language_version: "3.14"
 ```
+
+## format-python-section-headers
+
+```yaml
+repos:
+  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
+    rev: v0.10.0
+      - id: apply-command
+        name: format-python-section-headers
+        args: [--line-length, 88] # the default line length
+```
+
+This hook formats sections headers in python files. Headers like
+
+```python
+# examples.py
+
+# *  A header  -----
+```
+
+Will be formatted to
+
+```python
+# example.py
+
+# * A header ---------------------------------------------------------------------------
+```
+
+Additional options to `format-python-section-headers`:
+
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable MD013 -->
+<!-- [[[cog run_command("format-python-section-headers --help", include_cmd=False, wrapper="restructuredtext")]]] -->
+
+```restructuredtext
+usage: format-python-section-headers [-h] [--line-length LINE_LENGTH] [--dry-run]
+                                     paths [paths ...]
+
+Format section headers in python. Format trailing dashes ``# * a thing ----``
+
+positional arguments:
+  paths                 file paths to edit
+
+options:
+  -h, --help            show this help message and exit
+  --line-length LINE_LENGTH
+                        Fill to location
+  --dry-run             Perform dry run
+```
+
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
 
 ## apply-command
 
