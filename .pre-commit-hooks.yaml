@@ -69,3 +69,11 @@
   files: ^pyproject\.toml$
   pass_filenames: true
   minimum_pre_commit_version: *min_pre_commit
+- id: format-python-section-headers
+  name: format-python-section-headers
+  description: Format section headers in python files
+  entry: format-python-section-headers
+  language: python
+  types_or: [python, pyi, jupyter]
+  pass_filenames: true
+  minimum_pre_commit_version: *min_pre_commit

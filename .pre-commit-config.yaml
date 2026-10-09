@@ -16,6 +16,7 @@ ci:
     - sync-pre-commit-language-version
     - fill-pre-commit-hook-deps
     - sync-pyproject-min-versions
+    - format-python-section-headers
 
 default_install_hook_types:
   - pre-commit
@@ -301,6 +302,13 @@ repos:
         files: ^pyproject\.toml$|^requirements/lock/uvx-tools\.txt$|^noxfile\.py$|^tools/.*\.py$
         args:
           - "--requirements=requirements/lock/uvx-tools.txt"
+        additional_dependencies:
+          - "uv==0.12.22"
+      - id: format-python-section-headers
+        name: format-python-section-headers
+        entry: uv run --no-default-groups format-python-section-headers
+        language: python
+        types_or: [python]
         additional_dependencies:
           - "uv==0.12.22"
 

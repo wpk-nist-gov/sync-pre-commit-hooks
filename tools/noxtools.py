@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from nox import Session
 
 
-# * Top level installation functions ---------------------------------------------------
+# * Top level installation functions -------------------------------------------------
 def py_prefix(python_version: Any) -> str:
     """
     Get python prefix.
@@ -129,7 +129,7 @@ def get_python_full_path(session: Session) -> str:
     return path.strip()
 
 
-# * Utilities --------------------------------------------------------------------------
+# * Utilities ------------------------------------------------------------------------
 def combine_list_str(opts: str | Iterable[str]) -> list[str]:
     """Cleanup str/list[str] to list[str]"""
     if isinstance(opts, str):
@@ -170,7 +170,7 @@ def session_run_commands(
             _ = session.run(*opt, **kws)  # pyright: ignore[reportUnknownVariableType]
 
 
-# * Caching -------------------------------------------------------------------
+# * Caching --------------------------------------------------------------------------
 @contextmanager
 def check_for_change_manager(
     *deps: str | Path,
