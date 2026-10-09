@@ -16,6 +16,7 @@ ci:
     - sync-pre-commit-language-version
     - fill-pre-commit-hook-deps
     - sync-pyproject-min-versions
+    - format-python-section-headers
 
 default_install_hook_types:
   - pre-commit
