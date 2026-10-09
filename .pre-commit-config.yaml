@@ -303,6 +303,13 @@ repos:
           - "--requirements=requirements/lock/uvx-tools.txt"
         additional_dependencies:
           - "uv==0.12.22"
+      - id: format-python-section-headers
+        name: format-python-section-headers
+        entry: uv run --no-default-groups format-python-section-headers
+        language: python
+        types_or: [python]
+        additional_dependencies:
+          - "uv==0.12.22"
 
   # ** typecheck-runner
   - repo: https://github.com/wpk-nist-gov/typecheck-runner
