@@ -5,6 +5,18 @@
 
 Changelog for `sync-pre-commit-hooks`
 
+## 0.11.1
+
+Released on 2026-10-10.
+
+### Bug fixes
+
+- fix: fix regex for format-python-section-headers ([#307](https://github.com/wpk-nist-gov/sync-pre-commit-hooks/pull/307))
+
+### Contributors
+
+- [@wpk-nist-gov](https://github.com/wpk-nist-gov)
+
 ## 0.11.0
 
 Released on 2026-10-09.
