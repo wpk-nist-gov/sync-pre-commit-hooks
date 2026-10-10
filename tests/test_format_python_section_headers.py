@@ -105,7 +105,7 @@ def test__get_options(argv: list[str], expected: dict[str, Any]) -> None:
             dedent("""
             hello
 
-            # * get args -------------------------------------------------------------------------
+            # * get args ---------------------------------------------------------------
 
             there
             """),
