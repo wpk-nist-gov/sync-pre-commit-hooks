@@ -16,7 +16,7 @@
 # pyright: reportUnusedCallResult=false
 # ruff:file-ignore[complex-structure,function-call-in-dataclass-default-argument]
 
-# * Imports ---------------------------------------------------------------------------
+# * Imports ----------------------------------------------------------------------------
 from __future__ import annotations
 
 import shutil
@@ -60,12 +60,12 @@ if TYPE_CHECKING:
     from nox import Session
 
 
-# * Names ----------------------------------------------------------------------------
+# * Names ------------------------------------------------------------------------------
 
 PACKAGE_NAME = "sync-pre-commit-hooks"
 IMPORT_NAME = "sync_pre_commit_hooks"
 
-# * nox options -----------------------------------------------------------------------
+# * nox options ------------------------------------------------------------------------
 
 ROOT = Path(__file__).parent
 
@@ -74,7 +74,7 @@ nox.options.reuse_existing_virtualenvs = True
 nox.options.sessions = ["lint", "typecheck", "test-all"]
 nox.options.default_venv_backend = "uv"
 
-# * Options ---------------------------------------------------------------------------
+# * Options ----------------------------------------------------------------------------
 
 # if True, use uv lock/sync.  If False, use uv pip compile/sync...
 UV_LOCK = True
@@ -110,7 +110,7 @@ DEFAULT_KWS: SessionOptionsDict = {"python": PYTHON_DEFAULT_VERSION}
 ALL_KWS: SessionOptionsDict = {"python": PYTHON_ALL_VERSIONS}
 
 
-# * Session command line options -----------------------------------------------------
+# * Session command line options -------------------------------------------------------
 
 OPT_TYPE: TypeAlias = list[str] | None
 RUN_TYPE: TypeAlias = list[list[str]] | None
@@ -248,7 +248,7 @@ def add_opts(
     return wrapped
 
 
-# * Dependencies ---------------------------------------------------------------------
+# * Dependencies -----------------------------------------------------------------------
 def install_dependencies(
     session: Session,
     *args: str,
@@ -441,7 +441,7 @@ class _GetPackageWheel:
 get_package_wheel = _GetPackageWheel()
 
 
-# * uvx runner -----------------------------------------------------------------------
+# * uvx runner -------------------------------------------------------------------------
 def get_uvx_constraint_args(locked: bool = True) -> tuple[str, ...]:
     """Get constraints file for uvx."""
     if locked and Path(UVX_LOCK_CONSTRAINTS).exists():
@@ -476,7 +476,7 @@ def pre_commit_run(
     )
 
 
-# * Sessions -------------------------------------------------------------------------
+# * Sessions ---------------------------------------------------------------------------
 # ** test-all
 @nox.session(name="test-all", python=False)
 def test_all(session: Session) -> None:
@@ -924,7 +924,7 @@ def conda_build(session: nox.Session, opts: SessionParams) -> None:
             )
 
 
-# * Utilities ------------------------------------------------------------------------
+# * Utilities --------------------------------------------------------------------------
 def _append_recipe(recipe_path: str | Path, append_path: str | Path) -> None:
     recipe_path = Path(recipe_path)
     append_path = Path(append_path)

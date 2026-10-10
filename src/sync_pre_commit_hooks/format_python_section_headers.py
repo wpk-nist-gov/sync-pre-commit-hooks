@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 logger = get_logger("format-python-headers")
 
-# * Replace ---------------------------------------------------------------------------
+# * Replace ----------------------------------------------------------------------------
 PATTERN = r"""
 ^(?P<prefix>
     \s*[#]
@@ -40,7 +40,7 @@ PATTERN = r"""
 HEADER_REGEX = re.compile(
     r"""
     ^(?P<prefix>
-        \s*[#]
+        [^\S\r\n]*[#]
     )
     \s*
     (?P<type>
@@ -93,7 +93,7 @@ def _maybe_update_path(path: Path, line_length: int, dry_run: bool = False) -> b
     return updated
 
 
-# * get args -------------------------------------------------------------------------
+# * get args ---------------------------------------------------------------------------
 @dataclass
 class _Options:
     """Options class"""

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict
 from pathlib import Path
+from textwrap import dedent
 from typing import TYPE_CHECKING
 
 import pytest
@@ -15,16 +16,34 @@ if TYPE_CHECKING:
 @pytest.mark.parametrize(
     ("contents", "line_length", "out"),
     [
-        ("hello there ---", None, None),
-        ("# hello there -", None, None),
-        ("# * hello there", None, None),
-        ("# * hello there -", None, "# * hello there -".ljust(88, "-")),
-        ("# * hello there -", 5, None),
-        ("# * hello there -----", 21, None),
-        ("## * hello there -", None, None),
-        ("# *   hello there  -", 70, "# * hello there -".ljust(70, "-")),
-        ("# *   hello there  ", None, None),
-        ("     #*   hello there  -", None, "     # * hello there -".ljust(88, "-")),
+        pytest.param(
+            "# * get args ---------------------------------------------------------------------------",
+            None,
+            None,
+            id="long-line",
+        ),
+        pytest.param("hello there ---", None, None, id="simple"),
+        pytest.param("# hello there -", None, None, id="no star"),
+        pytest.param("# * hello there", None, None, id="no trailing"),
+        pytest.param(
+            "# * hello there -", None, "# * hello there -".ljust(88, "-"), id="basic"
+        ),
+        pytest.param("# * hello there -", 5, None, id="short line-length"),
+        pytest.param("# * hello there -----", 21, None, id="no change"),
+        pytest.param("## * hello there -", None, None, id="double hash no opt"),
+        pytest.param(
+            "# *   hello there  -",
+            70,
+            "# * hello there -".ljust(70, "-"),
+            id="long fill",
+        ),
+        pytest.param("# *   hello there  ", None, None, id="no trailing dash"),
+        pytest.param(
+            "     #*   hello there  -",
+            None,
+            "     # * hello there -".ljust(88, "-"),
+            id="formatting",
+        ),
     ],
 )
 def test__maybe_update_contents(
@@ -63,20 +82,41 @@ def test__get_options(argv: list[str], expected: dict[str, Any]) -> None:
 @pytest.mark.parametrize(
     ("argv", "contents", "expected"),
     [
-        (
-            [],
-            "# *   hello there  -",
-            "# * hello there -".ljust(88, "-"),
+        pytest.param(
+            [], "# *   hello there  -", "# * hello there -".ljust(88, "-"), id="basic"
         ),
-        (
-            ["--dry-run"],
-            "# *   hello there  -",
-            "# *   hello there  -",
+        pytest.param(
+            ["--dry-run"], "# *   hello there  -", "# *   hello there  -", id="dry-run"
         ),
-        (
+        pytest.param(
             ["--line-length", "70"],
             "# *   hello there  -",
             "# * hello there -".ljust(70, "-"),
+            id="line-length",
+        ),
+        pytest.param(
+            [],
+            "# * get args -------------------------------------------------------------------------",
+            "# * get args ---------------------------------------------------------------------------",
+            id="long-line",
+        ),
+        pytest.param(
+            [],
+            dedent("""
+            hello
+
+            # * get args -------------------------------------------------------------------------
+
+            there
+            """),
+            dedent("""
+            hello
+
+            # * get args ---------------------------------------------------------------------------
+
+            there
+            """),
+            id="multi line",
         ),
     ],
 )
