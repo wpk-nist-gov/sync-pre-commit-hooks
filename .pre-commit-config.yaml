@@ -311,6 +311,7 @@ repos:
         types_or: [python]
         additional_dependencies:
           - "uv==0.12.22"
+        exclude: "^tests/test_format_python_section_headers.py$"
 
   # ** typecheck-runner
   - repo: https://github.com/wpk-nist-gov/typecheck-runner
