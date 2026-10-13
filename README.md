@@ -45,7 +45,7 @@ out of sync.
   - [sync-pre-commit-deps](#sync-pre-commit-deps)
   - [fill-pre-commit-deps](#fill-pre-commit-deps)
   - [sync-pre-commit-language-version](#sync-pre-commit-language-version)
-  - [format-python-section-headers](#format-python-section-headers)
+  - [format-code-section-headers](#format-code-section-headers)
   - [apply-command](#apply-command)
   - [sync-pyproject-min-versions](#sync-pyproject-min-versions)
   - [sync-uv-build-deps](#sync-uv-build-deps)
@@ -395,18 +395,18 @@ repos:
         language_version: "3.14"
 ```
 
-## format-python-section-headers
+## format-code-section-headers
 
 ```yaml
 repos:
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
     rev: v0.11.1
-      - id: apply-command
-        name: format-python-section-headers
-        args: [--line-length, 88] # the default line length
+      - id: format-code-section-headers
+        args:
+          - "--line-length=88"  # the default line length
 ```
 
-This hook formats sections headers in python files. Headers like
+This hook formats sections headers in code files. Headers like
 
 ```python
 # examples.py
@@ -422,26 +422,41 @@ Will be formatted to
 # * A header ---------------------------------------------------------------------------
 ```
 
-Additional options to `format-python-section-headers`:
+Additional options to `format-code-section-headers`:
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable MD013 -->
-<!-- [[[cog run_command("format-python-section-headers --help", include_cmd=False, wrapper="restructuredtext")]]] -->
+<!-- [[[cog run_command("format-code-section-headers --help", include_cmd=False, wrapper="restructuredtext")]]] -->
 
 ```restructuredtext
-usage: format-python-section-headers [-h] [--line-length LINE_LENGTH] [--dry-run]
-                                     paths [paths ...]
+usage: format-code-section-headers [-h] [--line-length DEFAULT_LINE_LENGTH] [--dry-run]
+                                   [--ext-line-length EXTENSION_LINE_LENGTHS]
+                                   [--no-config]
+                                   paths [paths ...]
 
-Format section headers in python. Format trailing dashes ``# * a thing ----``
+Format section headers in code files.
+
+Format trailing dashes for lines like ``# * a thing ----`` to specified
+line-length.
+
+Line lengths are deterimend from, in order, ``--ext-line-length``, read from
+``.editorconfig`` (if do not have ``--no-config`` option), and finally from
+``--line-length`` option.
 
 positional arguments:
   paths                 file paths to edit
 
 options:
   -h, --help            show this help message and exit
-  --line-length LINE_LENGTH
-                        Fill to location
+  --line-length DEFAULT_LINE_LENGTH
+                        Default line length to fill headers to
   --dry-run             Perform dry run
+  --ext-line-length, -e EXTENSION_LINE_LENGTHS
+                        Colon separated extension to line-length mapping
+                        (``{extension}:{line-length}``). For example, to apply
+                        ``line_length=80`` to only yaml files, use ``--ext-line-length
+                        '.yaml:80'. Note that the ``"."`` in extension is optional.
+  --no-config           If True, ignore .editorconfig
 ```
 
 <!-- [[[end]]] -->

@@ -35,6 +35,7 @@ classifiers = [
 dependencies = [
     # core dependencies
     "dependency-groups>=1.3.1",
+    "editorconfig>=0.17.1",
     "packaging>=26.0",
     "requirements-parser>=0.13.0",
     "ruamel-yaml>=0.19.1",
@@ -59,7 +60,7 @@ Homepage = "https://github.com/wpk-nist-gov/sync-pre-commit-hooks"
 [project.scripts]
 apply-command = "sync_pre_commit_hooks.apply_command:main"
 fill-pre-commit-deps = "sync_pre_commit_hooks.fill_pre_commit_deps:main"
-format-python-section-headers = "sync_pre_commit_hooks.format_python_section_headers:main"
+format-code-section-headers = "sync_pre_commit_hooks.format_code_section_headers:main"
 sync-pre-commit-deps = "sync_pre_commit_hooks.sync_pre_commit_deps:main"
 sync-pre-commit-language-version = "sync_pre_commit_hooks.sync_pre_commit_language_version:main"
 sync-uv-dependency-groups = "sync_pre_commit_hooks.sync_uv_dependency_groups:main"
@@ -100,7 +101,7 @@ test-extras = [
 ]
 typecheck-runner = [ "typecheck-runner>=0.2.0; python_version>'3.9'" ]
 
-# * uv -------------------------------------------------------------------------
+# * uv ---------------------------------------------------------------------------------
 [tool.uv]
 required-version = ">=0.11.8"
 default-groups = [ "dev" ]
@@ -120,7 +121,7 @@ ipython.requires-python = ">=3.14"
 mypy.requires-python = ">=3.14"
 nox.requires-python = ">=3.14"
 
-# ruff -------------------------------------------------------------------------
+# * ruff -------------------------------------------------------------------------------
 [tool.ruff]
 extend-include = [
     "*.ipynb",
@@ -190,7 +191,7 @@ pylint.max-public-methods = 30
 preview = true
 ruff.strictly-empty-init-modules = false
 
-# * Checks ---------------------------------------------------------------------
+# * Checks -----------------------------------------------------------------------------
 [tool.repo-review]
 ignore = [
     "NOX103", # I prefer using "nox.options.sessions"
@@ -240,7 +241,7 @@ expand_tables = [
 [tool.typos.default.extend-identifiers]
 CPY = "CPY"
 
-# * typecheck ---------------------------------------------------------------------
+# * typecheck --------------------------------------------------------------------------
 [tool.mypy]
 files = [
     "noxfile.py",
@@ -361,7 +362,7 @@ possibly-unresolved-reference = "error"
 unsupported-dynamic-base = "error"
 unused-ignore-comment = "error"
 
-# * Testing --------------------------------------------------------------------
+# * Testing ----------------------------------------------------------------------------
 [tool.pytest.ini_options]
 minversion = "8"
 testpaths = [
@@ -379,7 +380,10 @@ addopts = [
     "-ra",
 ]
 # options
-filterwarnings = [ "error" ]
+filterwarnings = [
+    "error",
+    'ignore: codecs\.open\(\) is deprecated\. Use open\(\) instead\.:DeprecationWarning',
+]
 log_level = "INFO"
 log_cli_level = "INFO"
 strict_xfail = "true"
@@ -413,7 +417,7 @@ report.show_missing = true
 [tool.commitizen]
 use_shortcuts = true
 
-# * Dependency creation --------------------------------------------------------
+# * Dependency creation ----------------------------------------------------------------
 [tool.pyproject2conda]
 template-python = "requirements/py{py}-{env}"
 template = "requirements/{env}"
@@ -481,7 +485,7 @@ options = [
     "--universal",
 ]
 
-# * Other tools ----------------------------------------------------------------
+# * Other tools ------------------------------------------------------------------------
 [tool.rooster]
 changelog_contributors = true
 major-labels = [ "breaking" ]
