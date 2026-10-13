@@ -429,19 +429,34 @@ Additional options to `format-code-section-headers`:
 <!-- [[[cog run_command("format-code-section-headers --help", include_cmd=False, wrapper="restructuredtext")]]] -->
 
 ```restructuredtext
-usage: format-code-section-headers [-h] [--line-length LINE_LENGTH] [--dry-run]
+usage: format-code-section-headers [-h] [--line-length DEFAULT_LINE_LENGTH] [--dry-run]
+                                   [--ext-line-length EXTENSION_LINE_LENGTHS]
+                                   [--no-config]
                                    paths [paths ...]
 
-Format section headers in python. Format trailing dashes ``# * a thing ----``
+Format section headers in code files.
+
+Format trailing dashes for lines like ``# * a thing ----`` to specified
+line-length.
+
+Line lengths are deterimend from, in order, ``--ext-line-length``, read from
+``.editorconfig`` (if do not have ``--no-config`` option), and finally from
+``--line-length`` option.
 
 positional arguments:
   paths                 file paths to edit
 
 options:
   -h, --help            show this help message and exit
-  --line-length LINE_LENGTH
-                        Fill to location
+  --line-length DEFAULT_LINE_LENGTH
+                        Default line length to fill headers to
   --dry-run             Perform dry run
+  --ext-line-length, -e EXTENSION_LINE_LENGTHS
+                        Colon separated extension to line-length mapping
+                        (``{extension}:{line-length}``). For example, to apply
+                        ``line_length=80`` to only yaml files, use ``--ext-line-length
+                        '.yaml:80'. Note that the ``"."`` in extension is optional.
+  --no-config           If True, ignore .editorconfig
 ```
 
 <!-- [[[end]]] -->
