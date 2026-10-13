@@ -138,7 +138,7 @@ class _Options:
         if not self.no_config:
             from editorconfig import EditorConfigError, get_properties
 
-            try:
+            try:  # pylint: disable=too-many-try-statements
                 if (
                     s := get_properties(str(path.resolve())).get("max_line_length")
                 ) is not None:

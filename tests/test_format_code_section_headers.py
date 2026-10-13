@@ -237,11 +237,11 @@ def test_get_line_length(
 
     options = mod._Options(**params)
 
-    for path, expected in [
+    for path, expected in (
         (example_python_path, expected_python),
         (example_yaml_path, expected_yaml),
         (example_toml_path, expected_toml),
-    ]:
+    ):
         assert options.get_line_length(path) == expected
 
 
@@ -291,6 +291,6 @@ def test_main(tmp_path: Path, argv: list[str], contents: str, expected: str) -> 
     path = tmp_path / "hello.py"
     path.write_text(contents)
 
-    mod.main([*argv, str(path)])
+    mod.main(["--no-config", *argv, str(path)])
 
     assert path.read_text(encoding="utf-8") == expected
