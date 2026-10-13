@@ -138,6 +138,7 @@ def pre_commit_config_load(
     yaml.preserve_quotes = True
     yaml.indent(mapping, sequence, offset)
 
+    yaml.width = 2**32
     return cast("PreCommitConfigType", yaml.load(path)), yaml  # pyright: ignore[reportUnknownMemberType]
 
 
