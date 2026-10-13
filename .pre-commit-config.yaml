@@ -303,14 +303,14 @@ repos:
         args:
           - "--requirements=requirements/lock/uvx-tools.txt"
         additional_dependencies:
-          - "uv==0.12.22"
+          - "uv==0.12.23"
       - id: format-code-section-headers
         name: format-code-section-headers
         entry: uv run --no-default-groups format-code-section-headers
         language: python
         types_or: [python, pyi, jupyter, toml, yaml]
         additional_dependencies:
-          - "uv==0.12.22"
+          - "uv==0.12.23"
         exclude: "^tests/test_format_code_section_headers.py$"
 
   # ** typecheck-runner

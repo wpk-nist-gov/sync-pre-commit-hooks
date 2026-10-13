@@ -400,7 +400,7 @@ repos:
 ```yaml
 repos:
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.11.0
+    rev: v0.11.1
       - id: format-code-section-headers
         args:
           - "--line-length=88"  # the default line length
