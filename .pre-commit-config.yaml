@@ -308,7 +308,8 @@ repos:
         name: format-code-section-headers
         entry: uv run --no-default-groups format-code-section-headers
         language: python
-        types_or: [python, pyi, jupyter, toml, yaml]
+        types_or: [file, text]
+        files: \.(py|pyi|yaml|toml)$|\.?[jJ]ustfile$|.*\.just$
         additional_dependencies:
           - "uv==0.12.23"
         exclude: "^tests/test_format_code_section_headers.py$"
