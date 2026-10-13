@@ -5,6 +5,18 @@
 
 Changelog for `sync-pre-commit-hooks`
 
+## 0.12.0
+
+Released on 2026-10-13.
+
+### Enhancements
+
+- feat: add .editorconfig support to format-code-section-headers ([#313](https://github.com/wpk-nist-gov/sync-pre-commit-hooks/pull/313))
+
+### Contributors
+
+- [@wpk-nist-gov](https://github.com/wpk-nist-gov)
+
 ## 0.11.1
 
 Released on 2026-10-10.
