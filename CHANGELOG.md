@@ -5,6 +5,18 @@
 
 Changelog for `sync-pre-commit-hooks`
 
+## 0.12.1
+
+Released on 2026-10-13.
+
+### Bug fixes
+
+- fix: turn off ruamel.yaml width formatting ([#315](https://github.com/wpk-nist-gov/sync-pre-commit-hooks/pull/315))
+
+### Contributors
+
+- [@wpk-nist-gov](https://github.com/wpk-nist-gov)
+
 ## 0.12.0
 
 Released on 2026-10-13.
