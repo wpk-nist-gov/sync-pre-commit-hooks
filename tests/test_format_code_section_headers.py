@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-import sync_pre_commit_hooks.format_python_section_headers as mod
+import sync_pre_commit_hooks.format_code_section_headers as mod
 
 if TYPE_CHECKING:
     from typing import Any

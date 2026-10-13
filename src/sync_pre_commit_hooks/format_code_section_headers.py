@@ -1,5 +1,5 @@
 """
-Format section headers in python.
+Format section headers in code files.
 
 Format trailing dashes ``# * a thing ----``
 """
@@ -17,7 +17,7 @@ from ._logging import get_logger
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-logger = get_logger("format-python-headers")
+logger = get_logger("format-code-section-headers")
 
 # * Replace ----------------------------------------------------------------------------
 PATTERN = r"""

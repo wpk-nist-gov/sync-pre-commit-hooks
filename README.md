@@ -45,7 +45,7 @@ out of sync.
   - [sync-pre-commit-deps](#sync-pre-commit-deps)
   - [fill-pre-commit-deps](#fill-pre-commit-deps)
   - [sync-pre-commit-language-version](#sync-pre-commit-language-version)
-  - [format-python-section-headers](#format-python-section-headers)
+  - [format-code-section-headers](#format-code-section-headers)
   - [apply-command](#apply-command)
   - [sync-pyproject-min-versions](#sync-pyproject-min-versions)
   - [sync-uv-build-deps](#sync-uv-build-deps)
@@ -395,18 +395,18 @@ repos:
         language_version: "3.14"
 ```
 
-## format-python-section-headers
+## format-code-section-headers
 
 ```yaml
 repos:
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.11.1
-      - id: apply-command
-        name: format-python-section-headers
-        args: [--line-length, 88] # the default line length
+    rev: v0.11.0
+      - id: format-code-section-headers
+        args:
+          - "--line-length=88"  # the default line length
 ```
 
-This hook formats sections headers in python files. Headers like
+This hook formats sections headers in code files. Headers like
 
 ```python
 # examples.py
@@ -422,15 +422,15 @@ Will be formatted to
 # * A header ---------------------------------------------------------------------------
 ```
 
-Additional options to `format-python-section-headers`:
+Additional options to `format-code-section-headers`:
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable MD013 -->
-<!-- [[[cog run_command("format-python-section-headers --help", include_cmd=False, wrapper="restructuredtext")]]] -->
+<!-- [[[cog run_command("format-code-section-headers --help", include_cmd=False, wrapper="restructuredtext")]]] -->
 
 ```restructuredtext
-usage: format-python-section-headers [-h] [--line-length LINE_LENGTH] [--dry-run]
-                                     paths [paths ...]
+usage: format-code-section-headers [-h] [--line-length LINE_LENGTH] [--dry-run]
+                                   paths [paths ...]
 
 Format section headers in python. Format trailing dashes ``# * a thing ----``
 
