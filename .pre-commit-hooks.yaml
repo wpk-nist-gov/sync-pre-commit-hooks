@@ -1,7 +1,6 @@
 - id: sync-pre-commit-deps
   name: sync-pre-commit-deps
-  description:
-    Sync pre-commit hook additional_dependencies based on installed hooks
+  description: Sync pre-commit hook additional_dependencies based on installed hooks
   entry: sync-pre-commit-deps
   language: python
   files: ^\.pre-commit-config\.yaml$
@@ -9,8 +8,7 @@
   minimum_pre_commit_version: &min_pre_commit "2.9.2"
 - id: fill-pre-commit-hook-deps
   name: fill-pre-commit-hook-deps
-  description:
-    Fill additions dependencies for hook from pyproject.toml or requirements.txt
+  description: Fill additions dependencies for hook from pyproject.toml or requirements.txt
   entry: fill-pre-commit-deps
   args: ["--help"]
   language: python
@@ -36,9 +34,7 @@
   minimum_pre_commit_version: *min_pre_commit
 - id: sync-uv-dependency-groups
   name: sync-uv-dependency-groups
-  description:
-    Sync minimum python version in "tool.uv.dependency-groups" table of
-    "pyproject.toml"
+  description: Sync minimum python version in "tool.uv.dependency-groups" table of "pyproject.toml"
   entry: sync-uv-dependency-groups
   language: python
   files: ^pyproject\.toml$|^\.python-version$
@@ -59,9 +55,7 @@
   files: \.(rej|bak|log)$
 - id: sync-pyproject-min-versions
   name: sync-pyproject-min-versions
-  description:
-    Sync minimum package versions in "pyproject.toml" with those in a locked
-    "requirements.txt" file
+  description: Sync minimum package versions in "pyproject.toml" with those in a locked "requirements.txt" file
   entry: sync-pyproject-min-versions
   language: python
   args:
