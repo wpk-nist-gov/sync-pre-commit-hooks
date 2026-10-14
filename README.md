@@ -429,9 +429,9 @@ Additional options to `format-code-section-headers`:
 <!-- [[[cog run_command("format-code-section-headers --help", include_cmd=False, wrapper="restructuredtext")]]] -->
 
 ```restructuredtext
-usage: format-code-section-headers [-h] [--line-length DEFAULT_LINE_LENGTH] [--dry-run]
+usage: format-code-section-headers [-h] [--dry-run] [--line-length DEFAULT_LINE_LENGTH]
                                    [--ext-line-length EXTENSION_LINE_LENGTHS]
-                                   [--no-config]
+                                   [--max-line-length MAX_LINE_LENGTH] [--no-config]
                                    paths [paths ...]
 
 Format section headers in code files.
@@ -448,15 +448,19 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
+  --dry-run             Perform dry run
   --line-length DEFAULT_LINE_LENGTH
                         Default line length to fill headers to
-  --dry-run             Perform dry run
   --ext-line-length, -e EXTENSION_LINE_LENGTHS
                         Colon separated extension to line-length mapping
                         (``{extension}:{line-length}``). For example, to apply
                         ``line_length=80`` to only yaml files, use ``--ext-line-length
                         '.yaml:80'. Note that the ``"."`` in extension is optional.
-  --no-config           If True, ignore .editorconfig
+  --max-line-length MAX_LINE_LENGTH
+                        Maximum line with for header.
+  --no-config           Default is to infer line length from ``max_line_length`` value
+                        of ``.editorconfig`` file. Pass ``--no-config`` to ignore
+                        ``.editorconfig`` file.
 ```
 
 <!-- [[[end]]] -->
