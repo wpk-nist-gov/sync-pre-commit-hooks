@@ -66,11 +66,20 @@ def test__maybe_update_contents(
     [
         (["hello.txt"], nullcontext({"paths": ["hello.txt"]})),
         (
-            ["--line-length", "70", "--dry-run", "hello.txt", "there.py"],
+            [
+                "--line-length",
+                "70",
+                "--dry-run",
+                "--max-line-length",
+                "100",
+                "hello.txt",
+                "there.py",
+            ],
             nullcontext({
                 "paths": ["hello.txt", "there.py"],
                 "default_line_length": 70,
                 "dry_run": True,
+                "max_line_length": 100,
             }),
         ),
         (
@@ -96,6 +105,7 @@ def test__from_argv(
         e.setdefault("dry_run", False)
         e.setdefault("no_config", False)
         e.setdefault("extension_line_length_mapping", {})
+        e.setdefault("max_line_length", None)
         e["paths"] = [Path(x) for x in e["paths"]]
 
         assert out == e
@@ -219,6 +229,7 @@ def example_toml_path(tmp_path: Path, request: pytest.FixtureRequest) -> Path:
             66,
             20,
         ),
+        ({"max_line_length": 105}, None, 100, 105, 105),
     ],
     indirect=["editorconfig_path"],
 )

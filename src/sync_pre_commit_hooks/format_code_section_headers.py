@@ -123,35 +123,40 @@ class _Options:
     """Options class"""
 
     default_line_length: int = 88
+    max_line_length: int | None = None
     dry_run: bool = False
     paths: list[Path] = field(default_factory=list)
     no_config: bool = False
     extension_line_length_mapping: dict[str, int] = field(default_factory=dict)
 
     def get_line_length(self, path: Path) -> int:
-
+        line_length = self.default_line_length
         if (
-            line_length := self.extension_line_length_mapping.get(path.suffix)
+            line_length_mapping := self.extension_line_length_mapping.get(path.suffix)
         ) is not None:
-            return line_length
+            line_length = line_length_mapping
 
-        if not self.no_config:
+        elif not self.no_config:
             from editorconfig import EditorConfigError, get_properties
 
             try:  # pylint: disable=too-many-try-statements
                 if (
                     s := get_properties(str(path.resolve())).get("max_line_length")
                 ) is not None:
-                    return int(s)
+                    line_length = int(s)
             except EditorConfigError:  # pragma: no cover
                 pass
 
-        return self.default_line_length
+        if self.max_line_length is not None and line_length > self.max_line_length:
+            return self.max_line_length
+
+        return line_length
 
     @classmethod
     def from_namespace(cls, options: Namespace) -> _Options:
         return cls(
             default_line_length=options.default_line_length,
+            max_line_length=options.max_line_length,
             dry_run=options.dry_run,
             paths=options.paths,
             no_config=options.no_config,
@@ -168,16 +173,16 @@ class _Options:
         )
 
         _ = parser.add_argument(
+            "--dry-run",
+            action="store_true",
+            help="Perform dry run",
+        )
+        _ = parser.add_argument(
             "--line-length",
             dest="default_line_length",
             type=int,
             default=88,
             help="Default line length to fill headers to",
-        )
-        _ = parser.add_argument(
-            "--dry-run",
-            action="store_true",
-            help="Perform dry run",
         )
         _ = parser.add_argument(
             "--ext-line-length",
@@ -194,9 +199,20 @@ class _Options:
             """,
         )
         _ = parser.add_argument(
+            "--max-line-length",
+            dest="max_line_length",
+            type=int,
+            default=None,
+            help="Maximum line with for header.",
+        )
+        _ = parser.add_argument(
             "--no-config",
             action="store_true",
-            help="If True, ignore .editorconfig",
+            help="""
+            Default is to infer line length from ``max_line_length`` value of
+            ``.editorconfig`` file. Pass ``--no-config`` to ignore ``.editorconfig``
+            file.
+            """,
         )
 
         _ = parser.add_argument(
