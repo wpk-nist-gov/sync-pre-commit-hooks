@@ -25,14 +25,10 @@ indent_style = tab
 
 [*.{yaml,yml}]
 indent_size = 2
-<<<<<<< before updating
-# max_line_length = 120
-=======
 max_line_length = 120
 
 [.github/**/*.{yaml,yml}]
 max_line_length = 180
->>>>>>> after updating
 
 [*.ini]
 indent_size = 4
@@ -47,8 +43,6 @@ trim_trailing_whitespace = false
 [*.py]
 max_line_length = 88
 
-<<<<<<< before updating
-=======
 [pyproject.toml]
 max_line_length = 120
 
@@ -57,7 +51,6 @@ max_line_length = 88
 
 [*.just]
 max_line_length = 88
->>>>>>> after updating
 
 [*.md]
 indent_size = 2

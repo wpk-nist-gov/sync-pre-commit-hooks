@@ -90,18 +90,6 @@ type = [
 ]
 # other groups
 basedpyright = [ "basedpyright>=1.40.2" ]
-<<<<<<< before updating
-=======
-docs-live = [
-    "sphinx-autobuild",
-    { include-group = "docs" },
-]
-docs-spelling = [
-    "pyenchant",
-    "sphinxcontrib-spelling",
-    { include-group = "docs" },
-]
->>>>>>> after updating
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.4.0" ]
 nox = [ "nox>=2026.8.17" ]
@@ -113,11 +101,7 @@ test-extras = [
 ]
 typecheck-runner = [ "typecheck-runner>=0.2.0; python_version>'3.9'" ]
 
-<<<<<<< before updating
-# * uv ---------------------------------------------------------------------------------
-=======
 # * uv ---------------------------------------------------------------------------------------------
->>>>>>> after updating
 [tool.uv]
 required-version = ">=0.11.8"
 default-groups = [ "dev" ]
@@ -137,11 +121,7 @@ ipython.requires-python = ">=3.14"
 mypy.requires-python = ">=3.14"
 nox.requires-python = ">=3.14"
 
-<<<<<<< before updating
-# * ruff -------------------------------------------------------------------------------
-=======
 # * ruff -------------------------------------------------------------------------------------------
->>>>>>> after updating
 [tool.ruff]
 extend-include = [
     "*.ipynb",
@@ -211,11 +191,7 @@ pylint.max-public-methods = 30
 preview = true
 ruff.strictly-empty-init-modules = false
 
-<<<<<<< before updating
-# * Checks -----------------------------------------------------------------------------
-=======
 # * Checks -----------------------------------------------------------------------------------------
->>>>>>> after updating
 [tool.repo-review]
 ignore = [
     "NOX103", # I prefer using "nox.options.sessions"
@@ -265,11 +241,7 @@ expand_tables = [
 [tool.typos.default.extend-identifiers]
 CPY = "CPY"
 
-<<<<<<< before updating
-# * typecheck --------------------------------------------------------------------------
-=======
 # * typecheck --------------------------------------------------------------------------------------
->>>>>>> after updating
 [tool.mypy]
 files = [
     "noxfile.py",
@@ -390,11 +362,7 @@ possibly-unresolved-reference = "error"
 unsupported-dynamic-base = "error"
 unused-ignore-comment = "error"
 
-<<<<<<< before updating
-# * Testing ----------------------------------------------------------------------------
-=======
 # * Testing ----------------------------------------------------------------------------------------
->>>>>>> after updating
 [tool.pytest.ini_options]
 minversion = "8"
 testpaths = [
@@ -449,11 +417,7 @@ report.show_missing = true
 [tool.commitizen]
 use_shortcuts = true
 
-<<<<<<< before updating
-# * Dependency creation ----------------------------------------------------------------
-=======
 # * Dependency creation ----------------------------------------------------------------------------
->>>>>>> after updating
 [tool.pyproject2conda]
 template-python = "requirements/py{py}-{env}"
 template = "requirements/{env}"
@@ -521,11 +485,7 @@ options = [
     "--universal",
 ]
 
-<<<<<<< before updating
-# * Other tools ------------------------------------------------------------------------
-=======
 # * Other tools ------------------------------------------------------------------------------------
->>>>>>> after updating
 [tool.rooster]
 changelog_contributors = true
 major-labels = [ "breaking" ]
