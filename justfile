@@ -5,7 +5,7 @@ import "tools/shared.just"
 set unstable
 set shell := ["bash", "-c"]
 
-# * Defaults
+# * Defaults ---------------------------------------------------------------------------
 _default:
     @just --list --unsorted
 

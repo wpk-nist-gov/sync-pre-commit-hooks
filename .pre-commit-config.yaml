@@ -28,6 +28,33 @@ repos:
       - id: check-hooks-apply
       - id: check-useless-excludes
 
+<<<<<<< before updating
+=======
+  # * sync dependencies
+  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
+    rev: "v0.12.2"
+    hooks:
+      - id: forbidden-files
+      - id: format-code-section-headers
+        types_or: [file, text]
+        files: \.(py|pyi|yaml|toml)$|\.?[jJ]ustfile$|.*\.just$
+        args:
+          - "--max-line-length=100"
+      - id: sync-pre-commit-deps
+      - id: sync-uv-build-deps
+      - id: sync-uv-dependency-groups
+      - id: sync-pyproject-min-versions
+        files: |
+          (?x)^(
+            pyproject\.toml
+            |requirements/lock/uvx-tools\.txt
+            |noxfile\.py
+            |^tools/.*\.py
+          )$
+        args:
+          - "--requirements=requirements/lock/uvx-tools.txt"
+
+>>>>>>> after updating
   # * Top level
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: "v6.0.0"
@@ -58,7 +85,11 @@ repos:
       - id: pyproject-fmt
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
+<<<<<<< before updating
     rev: "2026.10.02"
+=======
+    rev: "2026.10.06"
+>>>>>>> after updating
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -147,7 +178,7 @@ repos:
         args: [--locked]
       - id: pip-compile
         alias: requirements
-        entry: python tools/uv_locker.py
+        entry: uv run tools/uv_locker.py
         pass_filenames: true
         files: ^requirements/[^/]*\.txt$|^tools/*\.py$
 
@@ -165,8 +196,13 @@ repos:
         name: cog-readme
         alias: cog
         entry: >-
+<<<<<<< before updating
           uv run --no-default-groups --group=optional-dependencies --isolated uv
           run tools/cog_runner.py -- README.md
+=======
+          uv run tools/cog_runner.py --format=prettier --lint=markdownlint-cli2 --
+        # if need package, prefix with uv run --no-dev --isolated
+>>>>>>> after updating
         language: python
         pass_filenames: false
         stages: [manual]
@@ -193,8 +229,7 @@ repos:
           - "-ignore"
           - 'specifying action "\$/.+" in invalid format because ref is missing'
           - "-ignore"
-          - 'reusable workflow call "\$/.+" at "uses" is not following the
-            format'
+          - 'reusable workflow call "\$/.+" at "uses" is not following the format'
         language: golang # means renovate will also update `additional_dependencies`
         additional_dependencies:
           # actionlint has a shellcheck integration which extracts shell scripts in `run:` steps from GitHub Actions
@@ -212,6 +247,7 @@ repos:
       - id: zizmor
         alias: actions
 
+<<<<<<< before updating
   # * Other tools ----------------------------------------------------------------------
 
   - repo: https://github.com/jsh9/markdown-toc-creator
@@ -343,3 +379,6 @@ repos:
           - ty==0.0.84
           - typecheck-runner>=0.2.0; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
+=======
+  # * Other tools ----------------------------------------------------------------------------------
+>>>>>>> after updating
