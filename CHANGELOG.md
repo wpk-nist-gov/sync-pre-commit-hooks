@@ -5,6 +5,18 @@
 
 Changelog for `sync-pre-commit-hooks`
 
+## 0.12.2
+
+Released on 2026-10-14.
+
+### Bug fixes
+
+- fix: add max-line-length option to format-code-section-headers ([#317](https://github.com/wpk-nist-gov/sync-pre-commit-hooks/pull/317))
+
+### Contributors
+
+- [@wpk-nist-gov](https://github.com/wpk-nist-gov)
+
 ## 0.12.1
 
 Released on 2026-10-13.

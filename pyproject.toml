@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "sync-pre-commit-hooks"
-version = "0.12.1"
+version = "0.12.2"
 description = "Some useful pre-commit hooks dependencies, etc."
 readme = "README.md"
 keywords = [
