@@ -105,7 +105,7 @@ def add_pyproject_argument(parser: ArgumentParser) -> ArgumentParser:
 
 def get_language_version(
     version: str | None,
-    version_file: str | None,
+    version_file: str | Path | None,
     logger: Logger | None = None,
 ) -> str:
     if logger is None:
@@ -153,13 +153,13 @@ def pre_commit_config_repo_hook_iter(
         return x
 
     repo_iter: Iterable[PreCommitRepoType] = iter(config["repos"])
-    if exclude_repos:
+    if exclude_repos is not None:
         repo_iter = (
             repo for repo in repo_iter if repo["repo"] not in _str_to_set(exclude_repos)
         )
 
     repo_hook_iter = ((repo, hook) for repo in repo_iter for hook in repo["hooks"])
-    if include_hook_ids:
+    if include_hook_ids is not None:
         return (
             (repo, hook)
             for repo, hook in repo_hook_iter
