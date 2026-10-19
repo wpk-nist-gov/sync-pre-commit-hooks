@@ -17,7 +17,8 @@ ci:
     - fill-pre-commit-hook-deps
     - sync-pyproject-min-versions
     - format-code-section-headers
-
+default_language_version:
+  python: "3.14"
 default_install_hook_types:
   - pre-commit
   - commit-msg
@@ -242,7 +243,7 @@ repos:
         files: \.(rej|bak|log)$
       - id: sync-pre-commit-deps
         name: sync-pre-commit-deps
-        entry: uv run --no-default-groups sync-pre-commit-deps
+        entry: uv run --no-active --no-default-groups sync-pre-commit-deps
         language: python
         files: >-
           ^\.pre-commit-config\.yaml$
@@ -251,7 +252,7 @@ repos:
           - "uv==0.13.0"
       - id: sync-uv-build-deps
         name: sync-uv-build-deps
-        entry: uv run --no-default-groups sync-uv-build-deps
+        entry: uv run --no-active --no-default-groups sync-uv-build-deps
         language: python
         files: ^pyproject\.toml$|^\.pre-commit-config\.yaml$
         pass_filenames: false
@@ -259,7 +260,7 @@ repos:
           - "uv==0.13.0"
       - id: sync-uv-dependency-groups
         name: sync-uv-dependency-groups
-        entry: uv run --no-default-groups sync-uv-dependency-groups
+        entry: uv run --no-active --no-default-groups sync-uv-dependency-groups
         language: python
         files: ^pyproject.toml$|^\.python-version$
         pass_filenames: false
@@ -267,11 +268,12 @@ repos:
           - "uv==0.13.0"
       - id: sync-pre-commit-language-version
         name: sync-pre-commit-language-version
-        entry: uv run --no-default-groups sync-pre-commit-language-version
+        entry: uv run --no-active --no-default-groups sync-pre-commit-language-version
         language: python
         args:
           - "--language-version-file=.python-version"
           - "--hook=typecheck"
+          - "--language-name=python"
         files: ^\.python-version$
         pass_filenames: false
         additional_dependencies:
@@ -279,7 +281,7 @@ repos:
       - id: fill-pre-commit-hook-deps
         name: fill-pre-commit-hook-deps
         alias: typecheck
-        entry: uv run --no-default-groups fill-pre-commit-deps
+        entry: uv run --no-active --no-default-groups fill-pre-commit-deps
         language: python
         files: ^pyproject.toml$|^\.pre-commit-config.yaml$|^requirements/lock/uvx-tools\.txt$
         pass_filenames: false
@@ -295,7 +297,7 @@ repos:
       - id: sync-pyproject-min-versions
         name: sync-pyproject-min-versions
         alias: requirements
-        entry: uv run --no-default-groups sync-pyproject-min-versions
+        entry: uv run --no-active --no-default-groups sync-pyproject-min-versions
         language: python
         files: ^pyproject\.toml$|^requirements/lock/uvx-tools\.txt$|^noxfile\.py$|^tools/.*\.py$
         args:
@@ -304,7 +306,7 @@ repos:
           - "uv==0.13.0"
       - id: format-code-section-headers
         name: format-code-section-headers
-        entry: uv run --no-default-groups format-code-section-headers
+        entry: uv run --no-active --no-default-groups format-code-section-headers
         args:
           - "--max-line-length=100"
         language: python

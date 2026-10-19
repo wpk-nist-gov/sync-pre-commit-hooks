@@ -4,9 +4,9 @@ from __future__ import annotations
 import sys
 
 if sys.version_info >= (3, 11):
-    from typing import Required, Self
+    from typing import NotRequired, Required, Self
 else:
-    from typing_extensions import Required, Self
+    from typing_extensions import NotRequired, Required, Self
 
 
 if sys.version_info >= (3, 12):
@@ -15,4 +15,4 @@ else:
     from typing_extensions import override
 
 
-__all__ = ["Required", "Self", "override"]
+__all__ = ["NotRequired", "Required", "Self", "override"]

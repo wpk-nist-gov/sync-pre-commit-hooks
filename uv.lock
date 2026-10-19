@@ -1598,7 +1598,7 @@ wheels = [
 
 [[package]]
 name = "sync-pre-commit-hooks"
-version = "0.12.2"
+version = "0.13.0"
 source = { editable = "." }
 dependencies = [
     { name = "dependency-groups" },
