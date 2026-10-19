@@ -54,12 +54,12 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "v2.30.1"
+    rev: "v2.30.3"
     hooks:
       - id: pyproject-fmt
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: "2026.10.06"
+    rev: "2026.10.11"
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -79,7 +79,7 @@ repos:
 
   # * Prettier
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: "v3.9.9"
+    rev: "v3.9.10"
     hooks:
       - id: prettier
         alias: markdownlint
@@ -105,7 +105,7 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.16.10"
+    rev: "v0.17.0"
     hooks:
       - id: ruff-check
         alias: ruff
@@ -141,7 +141,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: "0.12.24"
+    rev: "0.13.0"
     hooks:
       - id: uv-lock
         alias: requirements
@@ -249,7 +249,7 @@ repos:
           ^\.pre-commit-config\.yaml$
         pass_filenames: false
         additional_dependencies:
-          - "uv==0.12.24"
+          - "uv==0.13.0"
       - id: sync-uv-build-deps
         name: sync-uv-build-deps
         entry: uv run --no-active --no-default-groups sync-uv-build-deps
@@ -257,7 +257,7 @@ repos:
         files: ^pyproject\.toml$|^\.pre-commit-config\.yaml$
         pass_filenames: false
         additional_dependencies:
-          - "uv==0.12.24"
+          - "uv==0.13.0"
       - id: sync-uv-dependency-groups
         name: sync-uv-dependency-groups
         entry: uv run --no-active --no-default-groups sync-uv-dependency-groups
@@ -265,7 +265,7 @@ repos:
         files: ^pyproject.toml$|^\.python-version$
         pass_filenames: false
         additional_dependencies:
-          - "uv==0.12.24"
+          - "uv==0.13.0"
       - id: sync-pre-commit-language-version
         name: sync-pre-commit-language-version
         entry: uv run --no-active --no-default-groups sync-pre-commit-language-version
@@ -277,7 +277,7 @@ repos:
         files: ^\.python-version$
         pass_filenames: false
         additional_dependencies:
-          - "uv==0.12.24"
+          - "uv==0.13.0"
       - id: fill-pre-commit-hook-deps
         name: fill-pre-commit-hook-deps
         alias: typecheck
@@ -293,7 +293,7 @@ repos:
           - "--requirements-include=ty"
           - "--requirements-include=pyrefly"
         additional_dependencies:
-          - "uv==0.12.24"
+          - "uv==0.13.0"
       - id: sync-pyproject-min-versions
         name: sync-pyproject-min-versions
         alias: requirements
@@ -303,7 +303,7 @@ repos:
         args:
           - "--requirements=requirements/lock/uvx-tools.txt"
         additional_dependencies:
-          - "uv==0.12.24"
+          - "uv==0.13.0"
       - id: format-code-section-headers
         name: format-code-section-headers
         entry: uv run --no-active --no-default-groups format-code-section-headers
@@ -313,7 +313,7 @@ repos:
         types_or: [file, text]
         files: \.(py|pyi|yaml|toml)$|\.?[jJ]ustfile$|.*\.just$
         additional_dependencies:
-          - "uv==0.12.24"
+          - "uv==0.13.0"
         exclude: "^tests/test_format_code_section_headers.py$"
 
   # ** typecheck-runner
@@ -342,6 +342,6 @@ repos:
           - ruamel-yaml>=0.19.1
           - tomli>=2.4.1; python_version < "3.11"
           - tomlkit>=0.14.0
-          - ty==0.0.85
+          - ty==0.0.86
           - typecheck-runner>=0.2.0; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"

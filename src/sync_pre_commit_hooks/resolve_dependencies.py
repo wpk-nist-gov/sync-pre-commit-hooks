@@ -103,7 +103,7 @@ class ResolveOptionalDependencies(_Resolve):
     """Resolve ``optional-dependencies``."""
 
     # pyrefly: ignore [bad-override]
-    unresolved: Mapping[NormalizedName, Sequence[NormalizedRequirement]]  # type: ignore[assignment]  # pyright: ignore[reportIncompatibleVariableOverride]
+    unresolved: Mapping[NormalizedName, Sequence[NormalizedRequirement]]  # type: ignore[assignment]  # pyright: ignore[reportIncompatibleVariableOverride]  # ty: ignore[invalid-attribute-override]
 
     @override
     def _get_unresolved_deps(
