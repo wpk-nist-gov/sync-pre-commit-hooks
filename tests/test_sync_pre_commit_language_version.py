@@ -60,6 +60,71 @@ repos:
             id="no_op with version",
         ),
         pytest.param(
+            ["--hook=mypy", "--language-version=3.12", "--force"],
+            dedent("""\
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+        language_version: "3.12"
+            """),
+            None,
+            dedent("""\
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+        language_version: "3.12"
+            """),
+            0,
+            id="no_op with force",
+        ),
+        pytest.param(
+            ["--hook=mypy", "--language-version=3.12", "--force"],
+            dedent("""\
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+            """),
+            None,
+            dedent("""\
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+        language_version: "3.12"
+            """),
+            1,
+            id="force",
+        ),
+        pytest.param(
+            ["--hook=mypy", "--language-version=3.13"],
+            dedent("""\
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+        language_version: '3.12'
+            """),
+            None,
+            dedent("""\
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+        language_version: '3.13'
+            """),
+            1,
+            id="check quotes",
+        ),
+        pytest.param(
             ["--hook=mypy", "--language-version-file=.python-version"],
             dedent("""\
 repos:
@@ -116,6 +181,145 @@ repos:
             """),
             1,
             id="update version",
+        ),
+        # default_language_version
+        pytest.param(
+            ["--language-version=3.12", "--language-name=python"],
+            dedent("""\
+default_language_version:
+    python: "3.12"
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+            """),
+            None,
+            dedent("""\
+default_language_version:
+    python: "3.12"
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+            """),
+            0,
+            id="default-python-name no-op",
+        ),
+        pytest.param(
+            ["--language-version=3.12", "--language-name=python", "--force"],
+            dedent("""\
+default_language_version:
+    python: "3.12"
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+            """),
+            None,
+            dedent("""\
+default_language_version:
+    python: "3.12"
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+            """),
+            0,
+            id="default-python-name no-op force",
+        ),
+        pytest.param(
+            ["--language-version=3.14", "--language-name=python"],
+            dedent("""\
+default_language_version:
+  python: "3.12"
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+            """),
+            None,
+            dedent("""\
+default_language_version:
+  python: "3.14"
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+            """),
+            1,
+            id="default-python-name update",
+        ),
+        pytest.param(
+            ["--language-version=3.14", "--language-name=python"],
+            dedent("""\
+default_language_version:
+  python: '3.12'
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+            """),
+            None,
+            dedent("""\
+default_language_version:
+  python: '3.14'
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+            """),
+            1,
+            id="default-python-name update with style",
+        ),
+        pytest.param(
+            ["--language-version=3.14", "--language-name=python"],
+            dedent("""\
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+            """),
+            None,
+            dedent("""\
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+            """),
+            0,
+            id="update default-python-name no-op missing",
+        ),
+        pytest.param(
+            ["--language-version=3.14", "--language-name=python", "--force"],
+            dedent("""\
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+            """),
+            None,
+            dedent("""\
+default_language_version:
+  python: "3.14"
+repos:
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.0
+    hooks:
+      - id: mypy
+            """),
+            1,
+            id="update default-python-name no-op missing",
         ),
     ],
 )

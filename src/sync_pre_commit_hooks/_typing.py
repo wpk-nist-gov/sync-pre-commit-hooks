@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, NewType, TypedDict
 if TYPE_CHECKING:
     from packaging.requirements import Requirement
 
-    from ._typing_compat import Required
+    from ._typing_compat import NotRequired, Required
 
 
 class PreCommitHooksType(TypedDict, total=False):
@@ -31,6 +31,7 @@ class PreCommitConfigType(
     TypedDict,
 ):
     repos: list[PreCommitRepoType]
+    default_language_version: NotRequired[dict[str, str]]
 
 
 NormalizedRequirement = NewType("NormalizedRequirement", "Requirement")

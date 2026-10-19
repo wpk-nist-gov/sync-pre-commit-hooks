@@ -395,6 +395,60 @@ repos:
         language_version: "3.14"
 ```
 
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable MD013 -->
+<!-- [[[cog run_command("sync-pre-commit-language-version --help", include_cmd=False, wrapper="restructuredtext")]]] -->
+
+```restructuredtext
+usage: sync-pre-commit-language-version [-h] [--yaml-mapping YAML_MAPPING]
+                                        [--yaml-sequence YAML_SEQUENCE]
+                                        [--yaml-offset YAML_OFFSET]
+                                        [--config PRE_COMMIT_CONFIG]
+                                        [-l LANGUAGE_VERSION] [-f LANGUAGE_VERSION_FILE]
+                                        [--hook HOOKS] [--force]
+                                        [--language-name LANGUAGE_NAME]
+
+Sync ``language_version`` with specified version or version file.
+
+options:
+  -h, --help            show this help message and exit
+  --yaml-mapping YAML_MAPPING
+                        The `mapping` argument to the YAML dumper. See
+                        https://yaml.readthedocs.io/en/latest/detail/#indentation-of-
+                        block-sequences
+  --yaml-sequence YAML_SEQUENCE
+                        The `sequence` argument to the YAML dumper. See
+                        https://yaml.readthedocs.io/en/latest/detail/#indentation-of-
+                        block-sequences
+  --yaml-offset YAML_OFFSET
+                        The `offset` argument to the YAML dumper. See
+                        https://yaml.readthedocs.io/en/latest/detail/#indentation-of-
+                        block-sequences
+  --config, --pre-commit-config PRE_COMMIT_CONFIG
+                        pre-commit config file (Default '.pre-commit-config.yaml')
+  -l, --language-version LANGUAGE_VERSION
+                        Update ``language_version`` to this value. Overrides
+                        ``--language-version-file``. Note that ``hook`` must already
+                        have key ``language_version`` for this to take effect.
+  -f, --language-version-file LANGUAGE_VERSION_FILE
+                        Update ``language_version`` to value read from file. For
+                        example, ``--language-version-file=".python-version"``. Note
+                        that `hook` must already have key ``language_version`` for this
+                        to take effect.
+  --hook HOOKS          Hook id's to update ``language_version`` value.
+  --force               Pass to force setting ``language_version``, or
+                        ``default_language_version`` fields. Default is to only update
+                        if these fields already exist.
+  --language-name LANGUAGE_NAME
+                        Language name to update under ``default_language_version``. For
+                        example, passing ``--language-version=3.14 --default-language-
+                        name=python`` sets ``default_language_version.python=3.14`` in
+                        ``.pre-commit-config.yaml``.
+```
+
+<!-- [[[end]]] -->
+<!-- prettier-ignore-end -->
+
 ## format-code-section-headers
 
 ```yaml
