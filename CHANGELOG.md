@@ -5,6 +5,18 @@
 
 Changelog for `sync-pre-commit-hooks`
 
+## 0.13.0
+
+Released on 2026-10-19.
+
+### Enhancements
+
+- feat: add `--language-name` flag to sync-pre-commit-language-version hook ([#327](https://github.com/wpk-nist-gov/sync-pre-commit-hooks/pull/327))
+
+### Contributors
+
+- [@wpk-nist-gov](https://github.com/wpk-nist-gov)
+
 ## 0.12.2
 
 Released on 2026-10-14.

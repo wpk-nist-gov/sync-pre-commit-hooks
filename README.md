@@ -93,7 +93,7 @@ repos:
         additional_dependencies:
           - ruff==0.14.3 # will be update to ruff==0.14.5 from "ruff-format" id.
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.12.2
+    rev: v0.13.0
     hooks:
       - id: sync-pre-commit-deps
 ```
@@ -121,7 +121,7 @@ repos:
         additional_dependencies:
           - ruff==0.14.2 # will be updated to ruff==0.14.5 from requirements file
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.12.2
+    rev: v0.13.0
     hooks:
       - id: sync-pre-commit-deps
         args: ["--requirements=pre-commit-additional-dependencies.txt"]
@@ -148,7 +148,7 @@ repos:
         additional_dependencies:
           - ruff==0.14.2 # will be updated to latest version of ruff using lastversion
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.12.2
+    rev: v0.13.0
     hooks:
       - id: sync-pre-commit-deps
         args: ["--last=doccmd"] # which hook id's additional dependencies
@@ -255,7 +255,7 @@ typecheck = [
 ```yaml
 repos:
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.12.2
+    rev: v0.13.0
     hooks:
       - id: fill-pre-commit-deps
         args:
@@ -369,7 +369,7 @@ saved in a `.python-version` file, use:
 ```yaml
 repos:
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.12.2
+    rev: v0.13.0
     hooks:
       - id: sync-pre-commit-language-version
         args:
@@ -454,7 +454,7 @@ options:
 ```yaml
 repos:
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.12.2
+    rev: v0.13.0
       - id: format-code-section-headers
         args:
           - "--line-length=88"  # the default line length
@@ -531,7 +531,7 @@ use:
 ```yaml
 repos:
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.12.2
+    rev: v0.13.0
       - id: apply-command
         name: justfile-format
         args: [just, --fmt, --unstable, --justfile]
@@ -581,7 +581,7 @@ a locked `requirements.txt` file. This hook will also update
 ```yaml
 repos:
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.12.2
+    rev: v0.13.0
     - id: sync-pyproject-min-versions
       args:
         - "--requirements=path/to/locked/requirements.txt"
@@ -673,7 +673,7 @@ will set the minimum version to the latest version of uv-build found on github.
 ```yaml
 repos:
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.12.2
+    rev: v0.13.0
       - id: sync-uv-build-deps
 ```
 
@@ -764,7 +764,7 @@ use:
 ```yaml
 repos:
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.12.2
+    rev: v0.13.0
       - id: forbidden-files
         files: \.(bak|log)$
 ```
