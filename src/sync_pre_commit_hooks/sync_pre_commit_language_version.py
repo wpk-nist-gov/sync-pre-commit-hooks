@@ -27,6 +27,8 @@ logger = get_logger("sync-pre-commit-language-version")
 
 @dataclass
 class _Options:
+    """Option class"""
+
     pre_commit_config: Path
     language_version: str
 
