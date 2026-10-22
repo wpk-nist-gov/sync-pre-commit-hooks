@@ -5,6 +5,18 @@
 
 Changelog for `sync-pre-commit-hooks`
 
+## 0.13.1
+
+Released on 2026-10-22.
+
+### Bug fixes
+
+- fix: sync-uv-build-deps handle multiple pyproject.toml ([#333](https://github.com/wpk-nist-gov/sync-pre-commit-hooks/pull/333))
+
+### Contributors
+
+- [@wpk-nist-gov](https://github.com/wpk-nist-gov)
+
 ## 0.13.0
 
 Released on 2026-10-19.
