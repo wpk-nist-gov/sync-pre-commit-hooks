@@ -21,7 +21,10 @@ if TYPE_CHECKING:
 @pytest.mark.parametrize(
     ("argv", "expected"),
     [
-        pytest.param((), (Path(".pre-commit-config.yaml"), [], False)),
+        pytest.param(
+            (),
+            (Path(".pre-commit-config.yaml"), [], False),  # pyright: ignore[reportUnknownArgumentType]
+        ),
         pytest.param(
             (".pre-commit-config.yaml", "pyproject.toml"),
             (Path(".pre-commit-config.yaml"), [Path("pyproject.toml")], False),
@@ -36,7 +39,9 @@ if TYPE_CHECKING:
         ),
     ],
 )
-def test__get_options(argv: Sequence[str], expected: tuple[Path, Path, bool]) -> None:
+def test__get_options(
+    argv: Sequence[str], expected: tuple[Path, list[Path], bool]
+) -> None:
     assert mod._get_options(argv) == expected
 
 
