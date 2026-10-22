@@ -44,8 +44,8 @@
   name: sync-uv-build-deps
   entry: sync-uv-build-deps
   language: python
-  files: ^pyproject\.toml$|^\.pre-commit-config\.yaml$
-  pass_filenames: false
+  files: pyproject\.toml$|^\.pre-commit-config\.yaml$
+  pass_filenames: true
   minimum_pre_commit_version: *min_pre_commit
 - id: forbidden-files
   name: forbidden-files

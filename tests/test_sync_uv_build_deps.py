@@ -22,19 +22,26 @@ if TYPE_CHECKING:
     ("argv", "expected"),
     [
         pytest.param(
-            (), (Path(".pre-commit-config.yaml"), Path("pyproject.toml"), False)
+            (),
+            (Path(".pre-commit-config.yaml"), [], False),  # pyright: ignore[reportUnknownArgumentType]
         ),
         pytest.param(
-            ("--pre-commit-config", "hello/.pre-commit-config.yaml"),
-            (Path("hello/.pre-commit-config.yaml"), Path("pyproject.toml"), False),
+            (".pre-commit-config.yaml", "pyproject.toml"),
+            (Path(".pre-commit-config.yaml"), [Path("pyproject.toml")], False),
         ),
         pytest.param(
-            ("--lastversion",),
-            (Path(".pre-commit-config.yaml"), Path("pyproject.toml"), True),
+            ("--pre-commit-config", "hello/.pre-commit-config.yaml", "pyproject.toml"),
+            (Path("hello/.pre-commit-config.yaml"), [Path("pyproject.toml")], False),
+        ),
+        pytest.param(
+            ("--lastversion", "pyproject.toml"),
+            (Path(".pre-commit-config.yaml"), [Path("pyproject.toml")], True),
         ),
     ],
 )
-def test__get_options(argv: Sequence[str], expected: tuple[Path, Path, bool]) -> None:
+def test__get_options(
+    argv: Sequence[str], expected: tuple[Path, list[Path], bool]
+) -> None:
     assert mod._get_options(argv) == expected
 
 
@@ -203,7 +210,8 @@ def test_main(
     assert (
         mod.main((
             f"--pre-commit-config={path_pre_commit}",
-            f"--pyproject={path_pyproject}",
+            str(path_pre_commit),
+            str(path_pyproject),
         ))
         == code
     )
@@ -285,7 +293,7 @@ def test_main_lastversion(
         autospec=True,
         return_value=version_str,
     ):
-        assert mod.main(("--lastversion", f"--pyproject={path_pyproject}")) == code
+        assert mod.main(("--lastversion", str(path_pyproject))) == code
 
         with path_pyproject.open(encoding="utf-8") as f:
             assert f.read() == expected

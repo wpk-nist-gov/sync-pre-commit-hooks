@@ -682,18 +682,18 @@ repos:
 <!-- [[[cog run_command("sync-uv-build-deps --help", include_cmd=False, wrapper="restructuredtext")]]] -->
 
 ```restructuredtext
-usage: sync-uv-build-deps [-h] [--config PRE_COMMIT_CONFIG] [--pyproject PYPROJECT]
-                          [--lastversion]
+usage: sync-uv-build-deps [-h] [--config PRE_COMMIT_CONFIG] [--lastversion] [paths ...]
 
 Sync `uv-build` in `pyproject.toml:build-system.requires` with uv hook in .pre-commit-
 config.yaml
+
+positional arguments:
+  paths                 Paths to consider. Path ``--pre-commit-config`` is ignored.
 
 options:
   -h, --help            show this help message and exit
   --config, --pre-commit-config PRE_COMMIT_CONFIG
                         pre-commit config file (Default '.pre-commit-config.yaml')
-  --pyproject PYPROJECT
-                        pyproject.toml file (Default: 'pyproject.toml')
   --lastversion         Use `lastversion` to get latest version of uv instead of syncing
                         with uv-pre-commit version from .pre-commit-config.yaml.
 ```
