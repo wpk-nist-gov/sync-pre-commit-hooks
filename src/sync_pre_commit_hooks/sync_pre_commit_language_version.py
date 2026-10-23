@@ -205,7 +205,7 @@ def _update_yaml_file(  # ruff: ignore[complex-structure]
 def main(argv: Sequence[str] | None = None) -> int:
     """Main function"""
     options = _get_options(argv)
-    return _update_yaml_file(**asdict(options))  # pyrefly: ignore [open-unpacking]
+    return _update_yaml_file(**asdict(options))
 
 
 if __name__ == "__main__":
