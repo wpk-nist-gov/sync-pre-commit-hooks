@@ -5,6 +5,18 @@
 
 Changelog for `sync-pre-commit-hooks`
 
+## 0.13.2
+
+Released on 2026-10-23.
+
+### Bug fixes
+
+- fix: sync-uv-build-deps properly handle missing deps ([#337](https://github.com/wpk-nist-gov/sync-pre-commit-hooks/pull/337))
+
+### Contributors
+
+- [@wpk-nist-gov](https://github.com/wpk-nist-gov)
+
 ## 0.13.1
 
 Released on 2026-10-22.
