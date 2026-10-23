@@ -254,7 +254,7 @@ repos:
         name: sync-uv-build-deps
         entry: uv run --no-active --no-default-groups sync-uv-build-deps
         language: python
-        files: pyproject\.toml$|^\.pre-commit-config\.yaml$
+        files: (^|/)pyproject\.toml$|^\.pre-commit-config\.yaml$
         additional_dependencies:
           - "uv==0.13.1"
       - id: sync-uv-dependency-groups
