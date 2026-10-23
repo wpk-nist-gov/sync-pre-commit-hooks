@@ -142,7 +142,7 @@ requires = [
     "uv-build>=0.11.6,<0.12.0",
 ]
             """),
-            0,
+            nullcontext(0),
         ),
         pytest.param(
             dedent("""\
@@ -166,7 +166,7 @@ requires = [
     "uv-build>=0.11.6,<0.12.0",
 ]
             """),
-            1,
+            nullcontext(1),
         ),
         pytest.param(
             dedent("""\
@@ -190,7 +190,51 @@ requires = [
     "uv-build>=0.11.3,<0.12.0",
 ]
             """),
-            1,
+            nullcontext(1),
+        ),
+        pytest.param(
+            dedent("""\
+repos:
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.11.3
+    hooks:
+      - id: uv-lock
+            """),
+            dedent("""\
+[project]
+name = "hello"
+            """),
+            dedent("""\
+[project]
+name = "hello"
+            """),
+            pytest.raises(KeyError, match=r"No build system.*"),
+            id="no build system",
+        ),
+        pytest.param(
+            dedent("""\
+repos:
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.11.3
+    hooks:
+      - id: uv-lock
+            """),
+            dedent("""\
+[build-system]
+build-backend = "hatchling"
+requires = [
+    "hatchling>=0.1",
+]
+            """),
+            dedent("""\
+[build-system]
+build-backend = "hatchling"
+requires = [
+    "hatchling>=0.1",
+]
+            """),
+            pytest.raises(ValueError, match=r"Not using uv-build"),
+            id="no uv_build",
         ),
     ],
 )
@@ -199,7 +243,7 @@ def test_main(
     pre_commit_config: str,
     pyproject: str,
     expected: str,
-    code: int,
+    code: Any,
 ) -> None:
 
     path_pre_commit = create_config_file(
@@ -207,17 +251,18 @@ def test_main(
     )
     path_pyproject = create_config_file(tmp_path, pyproject, "pyproject.toml")
 
-    assert (
-        mod.main((
-            f"--pre-commit-config={path_pre_commit}",
-            str(path_pre_commit),
-            str(path_pyproject),
-        ))
-        == code
-    )
+    with code as c:
+        assert (
+            mod.main((
+                f"--pre-commit-config={path_pre_commit}",
+                str(path_pre_commit),
+                str(path_pyproject),
+            ))
+            == c
+        )
 
-    with path_pyproject.open(encoding="utf-8") as f:
-        assert f.read() == expected
+        with path_pyproject.open(encoding="utf-8") as f:
+            assert f.read() == expected
 
 
 @pytest.mark.parametrize(

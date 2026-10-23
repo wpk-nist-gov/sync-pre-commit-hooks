@@ -90,9 +90,15 @@ def _update_pyproject(pyproject: Path, uv_build_dep: str) -> bool:
     data: Any = toml.read()
 
     # NOTE: modify in place to preserve formatting.
+    if data.get("build-system", {}).get("requires") is None:
+        msg = "No build system found."
+        raise KeyError(msg)
+
     requires: list[str] = data["build-system"]["requires"]
     for i, dep in enumerate(requires):
-        name = canonicalize_name(Requirement(dep).name)
+        if (name := canonicalize_name(Requirement(dep).name)) != "uv-build":
+            msg = "Not using uv-build"
+            raise ValueError(msg)
         if name == "uv-build" and dep != uv_build_dep:
             logger.info("update %s to %s", dep, uv_build_dep)
             index = i
