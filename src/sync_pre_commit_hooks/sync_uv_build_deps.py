@@ -96,8 +96,7 @@ def _update_pyproject(pyproject: Path, uv_build_dep: str) -> bool:
 
     requires: list[str] = data["build-system"]["requires"]
     for i, dep in enumerate(requires):
-        name = canonicalize_name(Requirement(dep).name)
-        if name != "uv-build":
+        if (name := canonicalize_name(Requirement(dep).name)) != "uv-build":
             msg = "Not using uv-build"
             raise ValueError(msg)
         if name == "uv-build" and dep != uv_build_dep:
