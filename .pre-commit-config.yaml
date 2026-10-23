@@ -29,37 +29,6 @@ repos:
       - id: check-hooks-apply
       - id: check-useless-excludes
 
-<<<<<<< before updating
-=======
-  # * sync dependencies
-  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: "v0.13.2"
-    hooks:
-      - id: forbidden-files
-      - id: format-code-section-headers
-        types_or: [file, text]
-        files: \.(py|pyi|yaml|toml)$|\.?[jJ]ustfile$|.*\.just$
-        args:
-          - "--max-line-length=100"
-      - id: sync-pre-commit-deps
-      - id: sync-uv-build-deps
-      - id: sync-uv-dependency-groups
-      - id: sync-pre-commit-language-version
-        args:
-          - "--language-version-file=.python-version"
-          - "--language-name=python"
-      - id: sync-pyproject-min-versions
-        files: |
-          (?x)^(
-            pyproject\.toml
-            |requirements/lock/uvx-tools\.txt
-            |noxfile\.py
-            |^tools/.*\.py
-          )$
-        args:
-          - "--requirements=requirements/lock/uvx-tools.txt"
-
->>>>>>> after updating
   # * Top level
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: "v6.0.0"
