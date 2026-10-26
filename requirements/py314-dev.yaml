@@ -26,5 +26,5 @@ dependencies:
   - requirements-parser>=0.13.0
   - ruamel-yaml>=0.19.1
   - tomlkit>=0.14.0
-  - typecheck-runner>=0.2.0
+  - typecheck-runner>=0.2.2
   - pip
