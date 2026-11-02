@@ -153,7 +153,7 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: "v4.19.2"
+    rev: "v4.19.3"
     hooks:
       - id: commitizen
         stages: [commit-msg]
@@ -341,6 +341,6 @@ repos:
           - ruamel-yaml>=0.19.1
           - tomli>=2.4.1; python_version < "3.11"
           - tomlkit>=0.14.0
-          - ty==0.0.91
+          - ty==0.0.92
           - typecheck-runner>=0.2.2; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
