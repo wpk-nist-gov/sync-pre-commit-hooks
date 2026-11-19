@@ -127,7 +127,7 @@ def _update_yaml_file(
                 name_and_version = type(dep)(f"{name}=={target_version}")  # pyrefly: ignore[unnecessary-type-conversion]
                 if hasattr(dep, "anchor"):
                     # pyrefly: ignore [missing-attribute]
-                    name_and_version.yaml_set_anchor(dep.anchor.value, always_dump=True)  # type: ignore[attr-defined]  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]  # ty: ignore[unresolved-attribute]
+                    name_and_version.yaml_set_anchor(dep.anchor.value, always_dump=True)  # type: ignore[attr-defined]  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]  # ty: ignore[missing-attribute]
                 hook["additional_dependencies"][i] = name_and_version
                 logger.info(
                     "Setting %s dependency %s to %s",
