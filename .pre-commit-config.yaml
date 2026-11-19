@@ -339,7 +339,6 @@ repos:
           - pytest>=9.2.0
           - requirements-parser>=0.13.0
           - ruamel-yaml>=0.19.1
-          - tomli>=2.4.1; python_version < "3.11"
           - tomlkit>=0.14.0
           - ty==0.0.101
           - typecheck-runner>=0.2.2; python_version > "3.9"
