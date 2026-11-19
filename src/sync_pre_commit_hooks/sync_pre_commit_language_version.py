@@ -179,7 +179,7 @@ def _update_yaml_file(  # ruff: ignore[complex-structure]
         if _maybe_update(language_version_current):
             updated = True
             if "default_language_version" not in loaded:
-                loaded.insert(0, "default_language_version", {})  # type: ignore[attr-defined] # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]  # ty: ignore[unresolved-attribute]  # pyrefly: ignore [missing-attribute]
+                loaded.insert(0, "default_language_version", {})  # type: ignore[attr-defined] # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]  # ty: ignore[missing-attribute]  # pyrefly: ignore [missing-attribute]
             assert "default_language_version" in loaded  # ruff: ignore[assert]
             _do_update(
                 loaded["default_language_version"],

@@ -59,7 +59,7 @@ repos:
       - id: pyproject-fmt
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: "2026.11.07"
+    rev: "2026.11.12"
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -79,7 +79,7 @@ repos:
 
   # * Prettier
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: "v3.9.10"
+    rev: "v3.10.1"
     hooks:
       - id: prettier
         alias: markdownlint
@@ -90,7 +90,7 @@ repos:
 
   # * Markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: "v0.24.0"
+    rev: "v0.24.1"
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
@@ -124,7 +124,7 @@ repos:
   # * Spelling
   # ** typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: "v1.52.0"
+    rev: "v1.52.2"
     hooks:
       - id: typos
         exclude_types: [jupyter]
@@ -339,8 +339,7 @@ repos:
           - pytest>=9.2.0
           - requirements-parser>=0.13.0
           - ruamel-yaml>=0.19.1
-          - tomli>=2.4.1; python_version < "3.11"
           - tomlkit>=0.14.0
-          - ty==0.0.99
+          - ty==0.0.101
           - typecheck-runner>=0.2.2; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
