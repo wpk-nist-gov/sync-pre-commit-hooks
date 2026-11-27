@@ -54,12 +54,12 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "v2.31.1"
+    rev: "v2.31.2"
     hooks:
       - id: pyproject-fmt
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: "2026.11.17"
+    rev: "2026.11.19"
     hooks:
       - id: validate-pyproject
         name: validate-pyproject-schema-store
@@ -90,7 +90,7 @@ repos:
 
   # * Markdown
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: "v0.24.1"
+    rev: "v0.24.2"
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
@@ -105,7 +105,7 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.17.5"
+    rev: "v0.17.6"
     hooks:
       - id: ruff-check
         alias: ruff
@@ -153,7 +153,7 @@ repos:
 
   # * Commit message
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: "v4.19.3"
+    rev: "v4.19.4"
     hooks:
       - id: commitizen
         stages: [commit-msg]
@@ -335,11 +335,11 @@ repos:
           - lastversion>=3.6.10
           - nox>=2026.10.20
           - packaging>=26.0
-          - pyrefly==1.4.1
+          - pyrefly==1.5.0
           - pytest>=9.2.0
           - requirements-parser>=0.13.0
           - ruamel-yaml>=0.19.1
           - tomlkit>=0.14.0
-          - ty==0.0.105
+          - ty==0.0.107
           - typecheck-runner>=0.2.2; python_version > "3.9"
           - typing-extensions>=4.15.0; python_version < "3.12"
